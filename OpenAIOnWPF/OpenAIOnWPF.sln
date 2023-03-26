@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32611.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAIOnWPF", "OpenAIOnWPF.csproj", "{C12AA75D-ADE7-48B3-A263-ECA13A63AB51}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "..\Installer\Installer.vdproj", "{418E5372-650C-4A80-AC73-08782B85F07D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C12AA75D-ADE7-48B3-A263-ECA13A63AB51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C12AA75D-ADE7-48B3-A263-ECA13A63AB51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C12AA75D-ADE7-48B3-A263-ECA13A63AB51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C12AA75D-ADE7-48B3-A263-ECA13A63AB51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{418E5372-650C-4A80-AC73-08782B85F07D}.Debug|Any CPU.ActiveCfg = Debug
+		{418E5372-650C-4A80-AC73-08782B85F07D}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD4BD723-3A4B-43FA-B25D-D8A7141455B2}
+	EndGlobalSection
+EndGlobal

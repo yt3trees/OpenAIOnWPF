@@ -1,0 +1,60 @@
+﻿<Window x:Class="OpenAIOnWPF.Setting"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OpenAIOnWPF"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        mc:Ignorable="d"
+        Title="Setting"
+        Height="200"
+        Width="300"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Height"
+        ShowInTaskbar="False"
+        WindowStyle="None">
+    <Grid Margin="15,15,15,15"
+          KeyDown="Grid_KeyDown">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5*" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <Label x:Name="SettingLabel"
+                   Content="Label" />
+            <TextBox x:Name="SettingTextbox"
+                     TextWrapping="Wrap"
+                     Text="TextBox"
+                     MinWidth="200"
+                     MinHeight="0"
+                     KeyDown="SettingTextbox_KeyDown"
+                     AcceptsReturn="True"
+                     Padding="10,10,10,10" />
+            <PasswordBox x:Name="SettingPasswordbox"
+                     MinWidth="200"
+                     MinHeight="0"
+                     PasswordChar="*"
+                         KeyDown="SettingPasswordbox_KeyDown"
+                         Padding="10,10,10,10" />
+        </StackPanel>
+        <Grid Grid.Row="1"
+              Margin="0,10,0,0">
+            <Button x:Name="OkButton"
+                    Content="OK"
+                    Style="{StaticResource AccentButtonStyle}"
+                    MinWidth="60"
+                    Click="OkButton_Click"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,80,0" />
+            <Button x:Name="CancelButton"
+                    Content="Cancel"
+                    MinWidth="60"
+                    Click="CancelButton_Click"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right" />
+        </Grid>
+
+    </Grid>
+</Window>

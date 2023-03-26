@@ -1,0 +1,253 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using OpenAI.GPT3;
+using OpenAI.GPT3.Managers;
+using OpenAI.GPT3.ObjectModels.RequestModels;
+
+namespace OpenAIOnWPF
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        // Settings.settings
+        public string modelSetting =  Properties.Settings.Default.Model;
+        public string premiseSetting = Properties.Settings.Default.Premise;
+        public string apiKeySetting = Properties.Settings.Default.APIKey;
+        public int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
+
+        private List<ChatMessage> conversationHistory = new List<ChatMessage>();
+        private string logSummary = "";
+        //private string latestSummary = "";
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            UserTextBox.Focus();
+            this.Title = "OpenAI "+ modelSetting;
+        }
+        
+        private async Task ProcessOpenAIAsync()
+        {
+            try
+            {
+
+                Debug.Print("===== Start processing =====");
+                AssistantTextBox.Text = "";
+                ExecButton.IsEnabled = false;
+                ExecButton.Content = "Sending...";
+
+                if (apiKeySetting == null)
+                {
+                    ModernWpf.MessageBox.Show("The environment variable OPENAI_API_KEY is not set.");
+                    return;
+                }
+                var openAiService = new OpenAIService(new OpenAiOptions()
+                {
+                    ApiKey = apiKeySetting
+                });
+
+                // デフォルトモデルを設定
+                //openAiService.SetDefaultModelId("gpt-3.5-turbo");
+                openAiService.SetDefaultModelId(modelSetting);
+
+                // 今回の送信
+                var userMessage = UserTextBox.Text;
+                conversationHistory.Add(ChatMessage.FromUser(userMessage));
+
+                Debug.Print("----- Contents of this message sent -----");
+                Debug.Print(premiseSetting);
+                Debug.Print(logSummary);
+                Debug.Print(userMessage);
+
+                List<ChatMessage> messages = new List<ChatMessage>();
+                messages.Add(ChatMessage.FromSystem(premiseSetting));
+                messages.AddRange(conversationHistory);
+                messages.Add(ChatMessage.FromUser(userMessage));
+
+                var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                {
+                    Messages = messages
+                    //Messages = new List<ChatMessage>
+                    //{
+                    //    ChatMessage.FromSystem(premiseSetting),
+                    //    ChatMessage.FromSystem(logSummary),
+                    //    ChatMessage.FromUser(userMessage)
+                    //},
+                    //MaxTokens = 50,
+                });
+
+                if (completionResult.Successful)
+                {
+                    var result = completionResult.Choices.First();
+                    AssistantTextBox.Text = completionResult.Choices.First().Message.Content;
+                    conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
+                }
+                else
+                {
+                    if (completionResult.Error == null)
+                    {
+                        throw new Exception("Unknown Error");
+                    }
+                    ModernWpf.MessageBox.Show($"{completionResult.Error.Code}: {completionResult.Error.Message}");
+                }
+                /*
+                ExecButton.Content = "Summarizing...";
+
+                // 要約処理
+                Debug.Print("----- Start summary -----");
+                // 要約指示の文章を作成
+                var summaryPrompt = "Please summarize the contents of the conversation briefly.\r\n";
+                //userかassistantの発言かわかるようにconversationHisotryStringに格納
+                string conversationHistoryString = "";
+                foreach (var item in conversationHistory)
+                {
+                    if (item.Role == "user")
+                    {
+                        conversationHistoryString += "User: " + item.Content + "\r\n";
+                    }
+                    else if (item.Role == "assistant")
+                    {
+                        conversationHistoryString += "Assistant: " + item.Content + "\r\n";
+                    }
+                }
+                Debug.Print($"{summaryPrompt}{conversationHistoryString}");
+                string instructSummary = $"{summaryPrompt}{conversationHistoryString}";
+
+                // 要約指示
+                var summaryResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                {
+                    Messages = new List<ChatMessage>
+                    {
+                        ChatMessage.FromSystem(premiseSetting),
+                        ChatMessage.FromSystem(instructSummary)
+                    },
+                    //Model = Models.ChatGpt3_5Turbo,
+                    //MaxTokens = 50,
+                });
+
+                // 要約結果
+                var summary = summaryResult.Choices.First();
+                //conversationHistory.Add(ChatMessage.FromSystem(summary.Message.Content));
+                Debug.Print("----- Summary Results -----");
+                Debug.Print(summary.Message.Content);
+                latestSummary = summary.Message.Content;
+                logSummary = "We have had the following exchanges in the past.\r\n";
+                logSummary += summary.Message.Content;
+                */
+
+                // 閾値超え会話履歴を削除
+                if (conversationHistory.Count > conversationHistoryCountSetting)
+                {
+                    conversationHistory.RemoveRange(0, conversationHistory.Count - conversationHistoryCountSetting);
+                    //Debug.Print($"会話履歴が{conversationHistoryCountSetting}を超えたので削除しました。");
+                    Debug.Print($"Deleted because conversation history exceeded {conversationHistoryCountSetting} conversations.");
+                }
+
+                Debug.Print("----- Conversation History -----");
+                foreach (var item in conversationHistory)
+                {
+                    Debug.Print($"{item.Role}: {item.Content}");
+                }
+            }
+            catch(Exception ex)
+            {
+                ModernWpf.MessageBox.Show(ex.ToString());
+            }
+            finally
+            {
+                ExecButton.IsEnabled = true;
+                ExecButton.Content = "Send";
+                Debug.Print("===== End of process =====");
+            }
+        }
+
+        private void ExecButton_Click(object sender, RoutedEventArgs e)
+        {
+            _ = ProcessOpenAIAsync();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                this.Close();
+            }
+            if (e.Key == Key.F1)
+            {
+                string content = "Ctrl + Enter -> Send Message\r\n"
+                                + "F2 -> Set Model\r\n"
+                                + "F3 -> Set Premise\r\n"
+                                + "F4 -> Set Conversation History Count\r\n"
+                                //+ "F4 -> View a summary of the conversation\r\n"
+                                + "F12 -> Set API key\r\n";
+                ShowMessagebox("Help",content);
+            }
+            // モデル選択画面
+            if (e.Key == Key.F2)
+            {
+                var window = new Setting("Model");
+                window.Owner = this;
+                window.ShowDialog();
+                Properties.Settings.Default.Model = modelSetting;
+            }
+            // 前提条件を表示
+            if (e.Key == Key.F3)
+            {
+                var window = new Setting("Premise");
+                window.Owner = this;
+                window.ShowDialog();
+                Properties.Settings.Default.Premise = premiseSetting;
+            }
+            if (e.Key == Key.F4)
+            {
+                var window = new Setting("Conversation history count");
+                window.Owner = this;
+                window.ShowDialog();
+                Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
+            }
+            //// 直前の要約を表示
+            //if (e.Key == Key.F4)
+            //{
+            //    //ModernWpf.MessageBox.Show(latestSummary);
+            //    ShowMessagebox("Summary",latestSummary);
+            //}
+            if (e.Key == Key.F12)
+            {
+                var window = new Setting("APIKey");
+                window.Owner = this;
+                window.ShowDialog();
+                Properties.Settings.Default.APIKey = apiKeySetting;
+            }
+        }
+
+        private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            //ctrl+enterで送信
+            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                _ = ProcessOpenAIAsync();
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Properties.Settings.Default.Model = modelSetting;
+            Properties.Settings.Default.Premise = premiseSetting;
+            Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
+            Properties.Settings.Default.Save();
+        }
+        private void ShowMessagebox(string title, string content)
+        {
+            var window = new Messagebox(title,content);
+            window.Owner = this;
+            window.ShowDialog();
+        }
+    }
+}
