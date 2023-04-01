@@ -26,7 +26,7 @@ namespace OpenAIOnWPF
         public bool noticeFlgSetting = Properties.Settings.Default.NoticeFlg;
 
         private List<ChatMessage> conversationHistory = new List<ChatMessage>();
-        private string logSummary = "";
+        //private string logSummary = "";
         //private string latestSummary = "";
 
         public MainWindow()
@@ -69,7 +69,7 @@ namespace OpenAIOnWPF
                 Debug.Print($"Temperature:{temperatureSetting}");
                 Debug.Print("----- Contents of this message sent -----");
                 Debug.Print(premiseSetting);
-                Debug.Print(logSummary);
+                //Debug.Print(logSummary);
                 Debug.Print(userMessage);
 
                 List<ChatMessage> messages = new List<ChatMessage>();
@@ -213,7 +213,9 @@ namespace OpenAIOnWPF
                 {
                     modelListString += item + ",";
                 }
-                string result = ShowSetting("Model", modelListString);
+                modelListString = modelListString.TrimEnd(',');
+
+                string result = ShowSetting("Model", modelListString, "text");
                 if (result != "")
                 {
                     modelListSetting = result.Split(',').ToList();
