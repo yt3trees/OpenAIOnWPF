@@ -23,6 +23,7 @@ namespace OpenAIOnWPF
         public string apiKeySetting = Properties.Settings.Default.APIKey;
         public int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
         public float temperatureSetting = Properties.Settings.Default.Temperature;
+        public bool noticeFlgSetting = Properties.Settings.Default.NoticeFlg;
 
         private List<ChatMessage> conversationHistory = new List<ChatMessage>();
         private string logSummary = "";
@@ -32,11 +33,10 @@ namespace OpenAIOnWPF
         {
             InitializeComponent();
             UserTextBox.Focus();
-
+            UserTextBox.MaxHeight = SystemParameters.PrimaryScreenHeight / 2;
             ModelComboBox.ItemsSource = modelListSetting;
             ModelComboBox.Text = modelSetting;
-
-            UserTextBox.MaxHeight = SystemParameters.PrimaryScreenHeight / 2;
+            NoticeCheckbox.IsChecked = noticeFlgSetting;
         }
         private async Task ProcessOpenAIAsync()
         {
@@ -104,6 +104,12 @@ namespace OpenAIOnWPF
                     if (completionResult.Error == null)
                     {
                         throw new Exception("Unknown Error");
+                    }
+                    if (noticeFlgSetting)
+                    {
+                        new ToastContentBuilder()
+                            .AddText("️An error has occurred.")
+                            .Show();
                     }
                     ModernWpf.MessageBox.Show($"{completionResult.Error.Code}: {completionResult.Error.Message}");
                 }
@@ -303,6 +309,7 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
             Properties.Settings.Default.Temperature = temperatureSetting;
             Properties.Settings.Default.APIKey = apiKeySetting;
+            Properties.Settings.Default.NoticeFlg = noticeFlgSetting;
             Properties.Settings.Default.Save();
         }
         private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

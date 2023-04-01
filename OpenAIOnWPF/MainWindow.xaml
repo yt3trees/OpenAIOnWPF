@@ -10,9 +10,7 @@
         mc:Ignorable="d"
         Title="OpenAI"
         Width="600"
-        HorizontalAlignment="Right"
         WindowStartupLocation="CenterScreen"
-        VerticalAlignment="Top"
         Height="300"
         SizeToContent="Height"
         KeyDown="Window_KeyDown"
@@ -49,14 +47,31 @@
                  FontSize="16"
                  Grid.Row="1"
                  VerticalScrollBarVisibility="Auto"
-                 MouseWheel="UserTextBox_MouseWheel" />
-        <Button x:Name="ExecButton"
-                Content="Send"
-                Height="35"
-                Click="ExecButton_Click"
-                VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch"
-                Grid.Row="2" />
+                 MouseWheel="UserTextBox_MouseWheel"
+                 TextChanged="UserTextBox_TextChanged" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="ExecButton"
+                    Content="Send"
+                    Height="35"
+                    Click="ExecButton_Click"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"
+                    Grid.Column="0"
+                    Margin="0,0,0,0"/>
+            <CheckBox x:Name="NoticeCheckbox"
+                      Content="Notice"
+                      Grid.Column="1"
+                      HorizontalAlignment="Center"
+                      MinWidth="0"
+                      MinHeight="0"
+                      Margin="10,0,10,0"
+                      Click="NoticeCheckbox_Click"
+                      IsChecked="False" />
+        </Grid>
         <!--<TextBox x:Name="AssistantTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"

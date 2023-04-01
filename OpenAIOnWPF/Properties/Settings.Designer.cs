@@ -94,5 +94,17 @@ namespace OpenAIOnWPF.Properties {
                 this["Temperature"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NoticeFlg {
+            get {
+                return ((bool)(this["NoticeFlg"]));
+            }
+            set {
+                this["NoticeFlg"] = value;
+            }
+        }
     }
 }
