@@ -19,8 +19,15 @@
         Icon="/OpenAI.png"
         Topmost="True"
         Closing="Window_Closing">
-    <StackPanel>
-        <Grid Height="60">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="35" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Height="60"
+              Grid.Row="0">
             <StackPanel HorizontalAlignment="Left"
                         Margin="15,0,0,0"
                         VerticalAlignment="Center">
@@ -40,13 +47,16 @@
                  MinWidth="0"
                  KeyDown="UserTextBox_KeyDown"
                  FontSize="16"
-                 VerticalScrollBarVisibility="Auto" />
+                 Grid.Row="1"
+                 VerticalScrollBarVisibility="Auto"
+                 MouseWheel="UserTextBox_MouseWheel" />
         <Button x:Name="ExecButton"
                 Content="Send"
                 Height="35"
                 Click="ExecButton_Click"
                 VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch" />
+                HorizontalAlignment="Stretch"
+                Grid.Row="2" />
         <!--<TextBox x:Name="AssistantTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
@@ -60,6 +70,9 @@
                                     MinWidth="0"
                                     MarkdownStyleName="Sasabune"
                                     ScrollViewer.CanContentScroll="True"
-                                    Padding="10,10,10,10" /><!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
-    </StackPanel>
+                                    Grid.Row="3"
+                                    Padding="10,10,10,10"
+                                    MouseWheel="AssistantMarkdownText_MouseWheel" />
+        <!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
+    </Grid>
 </Window>

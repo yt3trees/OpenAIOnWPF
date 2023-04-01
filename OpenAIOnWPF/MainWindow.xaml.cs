@@ -35,17 +35,12 @@ namespace OpenAIOnWPF
             ModelComboBox.ItemsSource = modelListSetting;
             ModelComboBox.Text = modelSetting;
 
-            // UserTextBoxの最大縦幅をウィンドウの縦幅の半分に設定
-            var monitorHeight = SystemParameters.PrimaryScreenHeight;
-            UserTextBox.MaxHeight = monitorHeight / 2;
-            AssistantMarkdownText.MaxHeight = monitorHeight / 2;
+            UserTextBox.MaxHeight = SystemParameters.PrimaryScreenHeight / 2;
         }
-        
         private async Task ProcessOpenAIAsync()
         {
             try
             {
-
                 Debug.Print("===== Start processing =====");
                 //AssistantTextBox.Text = "";
                 AssistantMarkdownText.Markdown = "";
@@ -282,10 +277,37 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
             Properties.Settings.Default.Save();
         }
-
         private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             modelSetting = ModelComboBox.SelectedItem.ToString();
+        }
+        private void AssistantMarkdownText_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Delta > 0)
+                {
+                    AssistantMarkdownText.FontSize += 1;
+                }
+                else
+                {
+                    AssistantMarkdownText.FontSize -= 1;
+                }
+            }
+        }
+        private void UserTextBox_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Delta > 0)
+                {
+                    UserTextBox.FontSize += 1;
+                }
+                else
+                {
+                    UserTextBox.FontSize -= 1;
+                }
+            }
         }
     }
 }
