@@ -1,6 +1,7 @@
 ﻿using OpenAI.GPT3.ObjectModels.ResponseModels.ModelResponseModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,37 +23,74 @@ namespace OpenAIOnWPF
     {
         private string targetSetting = "";
         public string inputResult { get { return ChangeSettings(); } }
+        private bool isText = false;
         private bool isPassword = false;
-        public Setting(string arg, string setting)
+        private bool isNumber = false;
+        public Setting(string arg, string setting, string type)
         {
             InitializeComponent();
             targetSetting = arg;
 
             SettingLabel.Content = targetSetting;
 
-            if (targetSetting == "APIKey")
+            if (type == "text")
+            {
+                isText = true;
+            }
+            else if (type == "password")
             {
                 isPassword = true;
             }
-
-            if (isPassword)
+            else if (type == "number")
             {
-                SettingTextbox.Visibility = Visibility.Collapsed;
+                isNumber = true;
+            }
+            else
+            {
+                isText = true;
+            }
+
+            SettingTextbox.Visibility = Visibility.Collapsed;
+            SettingPasswordbox.Visibility = Visibility.Collapsed;
+            SettingNumberbox.Visibility = Visibility.Collapsed;
+
+            if (isText)
+            {
+                SettingTextbox.Visibility = Visibility.Visible;
+                SettingTextbox.Text = setting;
+                SettingTextbox.Focus();
+            }
+            else if (isPassword)
+            {
                 SettingPasswordbox.Visibility = Visibility.Visible;
                 SettingPasswordbox.Password = setting;
                 SettingPasswordbox.Focus();
             }
-            else
+            else if (isNumber)
             {
-                SettingTextbox.Visibility = Visibility.Visible;
-                SettingPasswordbox.Visibility = Visibility.Collapsed;
-                SettingTextbox.Text = setting;
-                SettingTextbox.Focus();
+                SettingNumberbox.Visibility = Visibility.Visible;
+                SettingNumberbox.Text = setting;
+                SettingNumberbox.Focus();
             }
         }
         private string ChangeSettings()
         {
-            return isPassword ? SettingPasswordbox.Password : SettingTextbox.Text;
+            if (isText)
+            {
+                return SettingTextbox.Text;
+            }
+            else if (isPassword)
+            {
+                return SettingPasswordbox.Password;
+            }
+            else if (isNumber)
+            {
+                return SettingNumberbox.Text;
+            }
+            else
+            {
+                return SettingTextbox.Text;
+            }
         }
         
         private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -78,6 +116,13 @@ namespace OpenAIOnWPF
                 DialogResult = false;
             }
         }
+        private void SettingNumberbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+            }
+        }
         private void Grid_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
@@ -85,6 +130,5 @@ namespace OpenAIOnWPF
                 DialogResult = true;
             }
         }
-
     }
 }

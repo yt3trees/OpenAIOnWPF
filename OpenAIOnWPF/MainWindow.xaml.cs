@@ -22,6 +22,7 @@ namespace OpenAIOnWPF
         public string premiseSetting = Properties.Settings.Default.Premise;
         public string apiKeySetting = Properties.Settings.Default.APIKey;
         public int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
+        public float temperatureSetting = Properties.Settings.Default.Temperature;
 
         private List<ChatMessage> conversationHistory = new List<ChatMessage>();
         private string logSummary = "";
@@ -64,6 +65,8 @@ namespace OpenAIOnWPF
                 // 今回の送信
                 var userMessage = UserTextBox.Text;
 
+                Debug.Print("----- Parameter -----");
+                Debug.Print($"Temperature:{temperatureSetting}");
                 Debug.Print("----- Contents of this message sent -----");
                 Debug.Print(premiseSetting);
                 Debug.Print(logSummary);
@@ -78,7 +81,8 @@ namespace OpenAIOnWPF
 
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
                 {
-                    Messages = messages
+                    Messages = messages,
+                    Temperature = temperatureSetting 
                     //Messages = new List<ChatMessage>
                     //{
                     //    ChatMessage.FromSystem(premiseSetting),
@@ -213,7 +217,7 @@ namespace OpenAIOnWPF
             // 前提条件を表示
             if (e.Key == Key.F3)
             {
-                string result = ShowSetting("Premise", premiseSetting);
+                string result = ShowSetting("Premise", premiseSetting, "text");
                 if (result != "")
                 {
                     premiseSetting = result;
@@ -221,10 +225,18 @@ namespace OpenAIOnWPF
             }
             if (e.Key == Key.F4)
             {
-                string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString());
+                string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString(), "text");
                 if (result != "")
                 {
                     conversationHistoryCountSetting = int.Parse(result);
+                }
+            }
+            if (e.Key == Key.F5)
+            {
+                string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
+                if (result != "")
+                {
+                    temperatureSetting = float.Parse(result);
                 }
             }
             //// 直前の要約を表示
@@ -249,7 +261,7 @@ namespace OpenAIOnWPF
             }
             if (e.Key == Key.F12)
             {
-                string result = ShowSetting("APIKey", apiKeySetting);
+                string result = ShowSetting("APIKey", apiKeySetting, "password");
                 if (result != "")
                 {
                     apiKeySetting = result;
@@ -262,9 +274,9 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
         }
-        private string ShowSetting(string targetSetting, string content)
+        private string ShowSetting(string targetSetting, string content, string type)
         {
-            var window = new Setting(targetSetting, content);
+            var window = new Setting(targetSetting, content, type);
             window.Owner = this;
             bool result = (bool)window.ShowDialog();
             return result ? window.inputResult : "";
@@ -289,6 +301,8 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.ModelList = list;
             Properties.Settings.Default.Premise = premiseSetting;
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
+            Properties.Settings.Default.Temperature = temperatureSetting;
+            Properties.Settings.Default.APIKey = apiKeySetting;
             Properties.Settings.Default.Save();
         }
         private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

@@ -82,5 +82,17 @@ namespace OpenAIOnWPF.Properties {
                 this["ModelList"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public float Temperature {
+            get {
+                return ((float)(this["Temperature"]));
+            }
+            set {
+                this["Temperature"] = value;
+            }
+        }
     }
 }
