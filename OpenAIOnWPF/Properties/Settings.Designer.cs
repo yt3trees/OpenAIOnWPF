@@ -37,7 +37,7 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("日本語で話してください。")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Please speak Japanese")]
         public string Premise {
             get {
                 return ((string)(this["Premise"]));
@@ -68,6 +68,18 @@ namespace OpenAIOnWPF.Properties {
             }
             set {
                 this["ConversationHistoryCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("gpt-3.5-turbo,text-davinci-003,gpt-4")]
+        public string ModelList {
+            get {
+                return ((string)(this["ModelList"]));
+            }
+            set {
+                this["ModelList"] = value;
             }
         }
     }

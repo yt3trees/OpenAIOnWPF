@@ -18,6 +18,7 @@ namespace OpenAIOnWPF
     {
         // Settings.settings
         public string modelSetting =  Properties.Settings.Default.Model;
+        public List<string> modelListSetting = Properties.Settings.Default.ModelList.Split(',').ToList();
         public string premiseSetting = Properties.Settings.Default.Premise;
         public string apiKeySetting = Properties.Settings.Default.APIKey;
         public int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
@@ -30,7 +31,14 @@ namespace OpenAIOnWPF
         {
             InitializeComponent();
             UserTextBox.Focus();
-            this.Title = "OpenAI "+ modelSetting;
+
+            ModelComboBox.ItemsSource = modelListSetting;
+            ModelComboBox.Text = modelSetting;
+
+            // UserTextBoxの最大縦幅をウィンドウの縦幅の半分に設定
+            var monitorHeight = SystemParameters.PrimaryScreenHeight;
+            UserTextBox.MaxHeight = monitorHeight / 2;
+            AssistantMarkdownText.MaxHeight = monitorHeight / 2;
         }
         
         private async Task ProcessOpenAIAsync()
@@ -60,7 +68,6 @@ namespace OpenAIOnWPF
 
                 // 今回の送信
                 var userMessage = UserTextBox.Text;
-                conversationHistory.Add(ChatMessage.FromUser(userMessage));
 
                 Debug.Print("----- Contents of this message sent -----");
                 Debug.Print(premiseSetting);
@@ -71,6 +78,8 @@ namespace OpenAIOnWPF
                 messages.Add(ChatMessage.FromSystem(premiseSetting));
                 messages.AddRange(conversationHistory);
                 messages.Add(ChatMessage.FromUser(userMessage));
+
+                conversationHistory.Add(ChatMessage.FromUser(userMessage));
 
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
                 {
@@ -191,28 +200,37 @@ namespace OpenAIOnWPF
                                 + "F12 -> Set API key\r\n";
                 ShowMessagebox("Help",content);
             }
-            // モデル選択画面
+            // モデルリスト設定画面
             if (e.Key == Key.F2)
             {
-                var window = new Setting("Model");
-                window.Owner = this;
-                window.ShowDialog();
-                Properties.Settings.Default.Model = modelSetting;
+                string modelListString = "";
+                foreach (var item in modelListSetting)
+                {
+                    modelListString += item + ",";
+                }
+                string result = ShowSetting("Model", modelListString);
+                if (result != "")
+                {
+                    modelListSetting = result.Split(',').ToList();
+                }
+                ModelComboBox.ItemsSource = modelListSetting;
             }
             // 前提条件を表示
             if (e.Key == Key.F3)
             {
-                var window = new Setting("Premise");
-                window.Owner = this;
-                window.ShowDialog();
-                Properties.Settings.Default.Premise = premiseSetting;
+                string result = ShowSetting("Premise", premiseSetting);
+                if (result != "")
+                {
+                    premiseSetting = result;
+                }
             }
             if (e.Key == Key.F4)
             {
-                var window = new Setting("Conversation history count");
-                window.Owner = this;
-                window.ShowDialog();
-                Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
+                string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString());
+                if (result != "")
+                {
+                    conversationHistoryCountSetting = int.Parse(result);
+                }
             }
             //// 直前の要約を表示
             //if (e.Key == Key.F4)
@@ -222,13 +240,26 @@ namespace OpenAIOnWPF
             //}
             if (e.Key == Key.F12)
             {
-                var window = new Setting("APIKey");
-                window.Owner = this;
-                window.ShowDialog();
-                Properties.Settings.Default.APIKey = apiKeySetting;
+                string result = ShowSetting("APIKey", apiKeySetting);
+                if (result != "")
+                {
+                    apiKeySetting = result;
+                }
             }
         }
-
+        private void ShowMessagebox(string title, string content)
+        {
+            var window = new Messagebox(title,content);
+            window.Owner = this;
+            window.ShowDialog();
+        }
+        private string ShowSetting(string targetSetting, string content)
+        {
+            var window = new Setting(targetSetting, content);
+            window.Owner = this;
+            bool result = (bool)window.ShowDialog();
+            return result ? window.inputResult : "";
+        }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             //ctrl+enterで送信
@@ -241,15 +272,20 @@ namespace OpenAIOnWPF
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.Model = modelSetting;
+            string list = "";
+            foreach (var item in modelListSetting)
+            {
+                list += item + (item == modelListSetting.Last() ? "" : ",");
+            }
+            Properties.Settings.Default.ModelList = list;
             Properties.Settings.Default.Premise = premiseSetting;
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
             Properties.Settings.Default.Save();
         }
-        private void ShowMessagebox(string title, string content)
+
+        private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            var window = new Messagebox(title,content);
-            window.Owner = this;
-            window.ShowDialog();
+            modelSetting = ModelComboBox.SelectedItem.ToString();
         }
     }
 }

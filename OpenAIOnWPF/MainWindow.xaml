@@ -20,13 +20,27 @@
         Topmost="True"
         Closing="Window_Closing">
     <StackPanel>
+        <Grid Height="60">
+            <StackPanel HorizontalAlignment="Left"
+                        Margin="15,0,0,0"
+                        VerticalAlignment="Center">
+                <Label Content="Model"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top" />
+                <ComboBox x:Name="ModelComboBox"
+                          VerticalAlignment="Center"
+                          MaxDropDownHeight="500"
+                          SelectionChanged="ModelComboBox_SelectionChanged" />
+            </StackPanel>
+        </Grid>
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
-                 VerticalAlignment="Top"
                  MinHeight="80"
                  MinWidth="0"
-                 KeyDown="UserTextBox_KeyDown" />
+                 KeyDown="UserTextBox_KeyDown"
+                 FontSize="16"
+                 VerticalScrollBarVisibility="Auto" />
         <Button x:Name="ExecButton"
                 Content="Send"
                 Height="35"
@@ -40,13 +54,12 @@
                  MinHeight="80"
                  MinWidth="0"
                  ui:ControlHelper.PlaceholderText="AI Response" />-->
-        <mdxam:MarkdownScrollViewer xml:space="preserve" 
-                 x:Name="AssistantMarkdownText"
-                 VerticalAlignment="Top"
-                 MinHeight="80"
-                 MinWidth="0"
-                 MarkdownStyleName="Sasabune"
-                 ScrollViewer.CanContentScroll="True"
-                 Padding="10,10,10,10" /><!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
+        <mdxam:MarkdownScrollViewer xml:space="preserve"
+                                    x:Name="AssistantMarkdownText"
+                                    MinHeight="80"
+                                    MinWidth="0"
+                                    MarkdownStyleName="Sasabune"
+                                    ScrollViewer.CanContentScroll="True"
+                                    Padding="10,10,10,10" /><!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
     </StackPanel>
 </Window>

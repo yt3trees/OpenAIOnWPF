@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenAI.GPT3.ObjectModels.ResponseModels.ModelResponseModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,93 +20,69 @@ namespace OpenAIOnWPF
     /// </summary>
     public partial class Setting : Window
     {
-        string targetSetting = "";
-        public Setting(string arg)
+        private string targetSetting = "";
+        public string inputResult { get { return ChangeSettings(); } }
+        private bool isPassword = false;
+        public Setting(string arg, string setting)
         {
             InitializeComponent();
             targetSetting = arg;
 
-            SettingPasswordbox.Visibility = Visibility.Collapsed;
-            if (targetSetting == "Model")
+            SettingLabel.Content = targetSetting;
+
+            if (targetSetting == "APIKey")
             {
-                SettingLabel.Content = "Model";
-                SettingTextbox.Focus();
-                SettingTextbox.Text = Properties.Settings.Default.Model;
+                isPassword = true;
             }
-            else if (targetSetting == "Premise")
+
+            if (isPassword)
             {
-                SettingLabel.Content = "Premise";
-                SettingTextbox.Focus();
-                SettingTextbox.Text = Properties.Settings.Default.Premise;
-            }
-            else if (targetSetting == "APIKey")
-            {
-                SettingLabel.Content = "API Key";
-                SettingPasswordbox.Focus();
                 SettingTextbox.Visibility = Visibility.Collapsed;
                 SettingPasswordbox.Visibility = Visibility.Visible;
-                SettingPasswordbox.Password = Properties.Settings.Default.APIKey;
+                SettingPasswordbox.Password = setting;
+                SettingPasswordbox.Focus();
             }
-            else if (targetSetting == "Conversation history count")
+            else
             {
-                SettingLabel.Content = "Conversation History Count";
+                SettingTextbox.Visibility = Visibility.Visible;
+                SettingPasswordbox.Visibility = Visibility.Collapsed;
+                SettingTextbox.Text = setting;
                 SettingTextbox.Focus();
-                SettingTextbox.Text = Properties.Settings.Default.ConversationHistoryCount.ToString();
             }
         }
-        private void ChangeSettings()
+        private string ChangeSettings()
         {
-            if (targetSetting == "Model")
-            {
-                ((MainWindow)this.Owner).modelSetting = SettingTextbox.Text;
-                ((MainWindow)this.Owner).Title = "OpenAI " + ((MainWindow)this.Owner).modelSetting;
-                this.Close();
-            }
-            else if (targetSetting == "Premise")
-            {
-                ((MainWindow)this.Owner).premiseSetting = SettingTextbox.Text;
-                this.Close();
-            }
-            else if (targetSetting == "APIKey")
-            {
-                ((MainWindow)this.Owner).apiKeySetting = SettingPasswordbox.Password;
-                this.Close();
-            }
-            else if (targetSetting == "Conversation history count")
-            {
-                ((MainWindow)this.Owner).conversationHistoryCountSetting = int.Parse(SettingTextbox.Text);
-                this.Close();
-            }
+            return isPassword ? SettingPasswordbox.Password : SettingTextbox.Text;
         }
         
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            ChangeSettings();
+            DialogResult = true;
         }
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            DialogResult = false;
         }
 
         private void SettingTextbox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
-                this.Close();
+                DialogResult = false;
             }
         }
         private void SettingPasswordbox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
             {
-                this.Close();
+                DialogResult = false;
             }
         }
         private void Grid_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                ChangeSettings();
+                DialogResult = true;
             }
         }
 
