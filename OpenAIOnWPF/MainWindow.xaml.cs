@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Toolkit.Uwp.Notifications;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels.RequestModels;
@@ -98,6 +99,12 @@ namespace OpenAIOnWPF
                     //AssistantTextBox.Text = completionResult.Choices.First().Message.Content;
                     AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
                     conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
+                    if (noticeFlgSetting)
+                    {
+                        new ToastContentBuilder()
+                            .AddText("️AI responded back.")
+                            .Show();
+                    }
                 }
                 else
                 {
