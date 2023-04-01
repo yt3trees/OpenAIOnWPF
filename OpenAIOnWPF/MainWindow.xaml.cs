@@ -233,6 +233,20 @@ namespace OpenAIOnWPF
             //    //ModernWpf.MessageBox.Show(latestSummary);
             //    ShowMessagebox("Summary",latestSummary);
             //}
+            if (e.Key == Key.F11)
+            {
+                string content = "";
+                foreach (var item in conversationHistory)
+                {
+                    content += $"{item.Role}: {item.Content}\r\n";
+                }
+                if (content == "")
+                {
+                    content = "No conversation history.";
+                }
+                content = (content == "" ? "No conversation history." : content);
+                ShowMessagebox("Conversation History",content);
+            }
             if (e.Key == Key.F12)
             {
                 string result = ShowSetting("APIKey", apiKeySetting);
