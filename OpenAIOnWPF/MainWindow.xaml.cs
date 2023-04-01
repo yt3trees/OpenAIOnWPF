@@ -39,7 +39,8 @@ namespace OpenAIOnWPF
             {
 
                 Debug.Print("===== Start processing =====");
-                AssistantTextBox.Text = "";
+                //AssistantTextBox.Text = "";
+                AssistantMarkdownText.Markdown = "";
                 ExecButton.IsEnabled = false;
                 ExecButton.Content = "Sending...";
 
@@ -86,7 +87,8 @@ namespace OpenAIOnWPF
                 if (completionResult.Successful)
                 {
                     var result = completionResult.Choices.First();
-                    AssistantTextBox.Text = completionResult.Choices.First().Message.Content;
+                    //AssistantTextBox.Text = completionResult.Choices.First().Message.Content;
+                    AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
                     conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
                 }
                 else

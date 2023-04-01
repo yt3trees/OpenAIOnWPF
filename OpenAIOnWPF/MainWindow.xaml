@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OpenAIOnWPF"
         xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Title="OpenAI"
@@ -32,13 +33,20 @@
                 Click="ExecButton_Click"
                 VerticalAlignment="Stretch"
                 HorizontalAlignment="Stretch" />
-        <TextBox x:Name="AssistantTextBox"
+        <!--<TextBox x:Name="AssistantTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
                  VerticalAlignment="Top"
                  MinHeight="80"
                  MinWidth="0"
-                 ui:ControlHelper.PlaceholderText="AI Response"
-                 />
+                 ui:ControlHelper.PlaceholderText="AI Response" />-->
+        <mdxam:MarkdownScrollViewer xml:space="preserve" 
+                 x:Name="AssistantMarkdownText"
+                 VerticalAlignment="Top"
+                 MinHeight="80"
+                 MinWidth="0"
+                 MarkdownStyleName="Sasabune"
+                 ScrollViewer.CanContentScroll="True"
+                 Padding="10,10,10,10" /><!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
     </StackPanel>
 </Window>
