@@ -9,6 +9,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.GPT3.Tokenizer.GPT3;
 
 namespace OpenAIOnWPF
 {
@@ -78,8 +79,6 @@ namespace OpenAIOnWPF
                 messages.AddRange(conversationHistory);
                 messages.Add(ChatMessage.FromUser(userMessage));
 
-                conversationHistory.Add(ChatMessage.FromUser(userMessage));
-
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
                 {
                     Messages = messages,
@@ -98,7 +97,30 @@ namespace OpenAIOnWPF
                     var result = completionResult.Choices.First();
                     //AssistantTextBox.Text = completionResult.Choices.First().Message.Content;
                     AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
+
+                    // トークン量を計算してツールチップで表示
+                    string conversationHistoryString = "";
+                    foreach (var item in conversationHistory)
+                    {
+                        conversationHistoryString += item.Content;
+                    }
+                    var conversationResultTokens = TokenizerGpt3.Encode(conversationHistoryString);
+                    var premiseTokens = TokenizerGpt3.Encode(premiseSetting);
+                    var userTokens = TokenizerGpt3.Encode(userMessage);
+                    var responseTokens = TokenizerGpt3.Encode(completionResult.Choices.First().Message.Content);
+                    var totalTokens = conversationResultTokens.Count() + premiseTokens.Count() + userTokens.Count() + responseTokens.Count();
+                    string tooltip = "";
+                    tooltip += $"Conversation Result Tokens : {conversationResultTokens.Count()}\r\n";
+                    tooltip += $"Premise Tokens : {premiseTokens.Count()}\r\n";
+                    tooltip += $"User Messages Tokens : {userTokens.Count()}\r\n";
+                    tooltip += $"AI Response Tokens : {responseTokens.Count()}\r\n";
+                    tooltip += $"Total Tokens : {totalTokens}";
+                    AssistantMarkdownText.ToolTip = tooltip;
+
+                    conversationHistory.Add(ChatMessage.FromSystem(premiseSetting));
+                    conversationHistory.Add(ChatMessage.FromUser(userMessage));
                     conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
+
                     if (noticeFlgSetting)
                     {
                         new ToastContentBuilder()
@@ -352,6 +374,18 @@ namespace OpenAIOnWPF
                     UserTextBox.FontSize -= 1;
                 }
             }
+        }
+        private void UserTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            // トークン量を表示
+            var tokens = TokenizerGpt3.Encode(UserTextBox.Text);
+            string tooltip = $"Tokens : {tokens.Count()}";
+            UserTextBox.ToolTip = tooltip; 
+        }
+
+        private void NoticeCheckbox_Click(object sender, RoutedEventArgs e)
+        {
+            noticeFlgSetting = (bool)NoticeCheckbox.IsChecked;
         }
     }
 }
