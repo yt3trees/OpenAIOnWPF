@@ -1,6 +1,7 @@
 # OpenAIOnWPF
 
 OpenAIOnWPF is a WPF application that uses the OpenAI API,
+
 OpenAIOnWPF is a WPF application for interacting with desktop applications using OpenAI API.
 
 ## Usage
@@ -12,11 +13,11 @@ OpenAIOnWPF is a WPF application for interacting with desktop applications using
 
 ## Shortcuts
 
-F1: Show help
-F2: Set model
-F3: Set preconditions
-F4: Show conversation summary
-F12: Set API key
+- F1: Show help
+- F2: Set model
+- F3: Set preconditions
+- F4: Show conversation summary
+- F12: Set API key
 
 ## Author
 
