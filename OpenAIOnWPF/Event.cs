@@ -46,17 +46,7 @@ namespace OpenAIOnWPF
             }
             if (e.Key == Key.F11)
             {
-                string content = "";
-                foreach (var item in conversationHistory)
-                {
-                    content += $"{item.Role}: {item.Content}\r\n";
-                }
-                if (content == "")
-                {
-                    content = "No conversation history.";
-                }
-                content = (content == "" ? "No conversation history." : content);
-                ShowMessagebox("Conversation History",content);
+                ShowTable();
             }
             if (e.Key == Key.F12)
             {
@@ -141,17 +131,7 @@ namespace OpenAIOnWPF
         }
         private void ConversationHistoryButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            string content = "";
-            foreach (var item in conversationHistory)
-            {
-                content += $"{item.Role}: {item.Content}\r\n";
-            }
-            if (content == "")
-            {
-                content = "No conversation history.";
-            }
-            content = (content == "" ? "No conversation history." : content);
-            ShowMessagebox("Conversation History",content);
+            ShowTable();
         }
         private void PremiseMenuItem_Click(object sender, RoutedEventArgs e)
         {

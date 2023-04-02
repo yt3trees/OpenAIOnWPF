@@ -227,6 +227,19 @@ namespace OpenAIOnWPF
             bool result = (bool)window.ShowDialog();
             return result ? window.inputResult : "";
         }
+        private void ShowTable()
+        {
+            int count = conversationHistory.Count;
+            string[,] table = new string[count, 2];
+            foreach (var item in conversationHistory)
+            {
+                table[conversationHistory.IndexOf(item), 0] = item.Role;
+                table[conversationHistory.IndexOf(item), 1] = item.Content;
+            }
+            var window = new Table(table);
+            window.Owner = this;
+            window.ShowDialog();
+        }
         /// <summary>
         /// AIに指定する前提を設定する
         /// </summary>
