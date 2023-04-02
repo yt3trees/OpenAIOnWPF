@@ -112,7 +112,8 @@
                            HorizontalAlignment="Right"
                            Foreground="#FF959595"
                            MouseLeftButtonDown="TokensLabel_MouseLeftButtonDown"
-                           Padding="10,0,10,0" />
+                           Padding="10,0,10,0"
+                           VerticalAlignment="Center" />
             </StatusBarItem>
             <Separator DockPanel.Dock="Right" />
             <StatusBarItem DockPanel.Dock="Right"
@@ -120,7 +121,8 @@
                     <Label x:Name="TimeLabel"
                            HorizontalAlignment="Right"
                            Foreground="#FF959595"
-                           Padding="10,0,10,0" />
+                           Padding="10,0,10,0"
+                           VerticalAlignment="Center" />
             </StatusBarItem>
         </StatusBar>
         <!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->

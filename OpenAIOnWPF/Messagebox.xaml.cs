@@ -24,6 +24,7 @@ namespace OpenAIOnWPF
             InitializeComponent();
             OkButton.Focus();
             this.Title = title;
+            this.MaxWidth = SystemParameters.PrimaryScreenWidth * 0.8;
             ContentLabel.Text = content;
         }
 
