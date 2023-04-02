@@ -114,13 +114,6 @@
                       Click="NoticeCheckbox_Click"
                       IsChecked="False" />
         </Grid>
-        <!--<TextBox x:Name="AssistantTextBox"
-                 TextWrapping="Wrap"
-                 AcceptsReturn="True"
-                 VerticalAlignment="Top"
-                 MinHeight="80"
-                 MinWidth="0"
-                 ui:ControlHelper.PlaceholderText="AI Response" />-->
         <mdxam:MarkdownScrollViewer xml:space="preserve"
                                     x:Name="AssistantMarkdownText"
                                     MinHeight="80"
