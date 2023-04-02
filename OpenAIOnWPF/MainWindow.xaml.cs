@@ -83,8 +83,8 @@ namespace OpenAIOnWPF
                 Debug.Print(userMessage);
 
                 List<ChatMessage> messages = new List<ChatMessage>();
-                messages.Add(ChatMessage.FromSystem(premiseSetting));
                 messages.AddRange(conversationHistory);
+                messages.Add(ChatMessage.FromSystem(premiseSetting));
                 messages.Add(ChatMessage.FromUser(userMessage));
 
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
@@ -126,7 +126,7 @@ namespace OpenAIOnWPF
                     TokensLabel.Content = totalTokens;
                     TokensLabel.ToolTip = tooltip;
 
-                    conversationHistory.Add(ChatMessage.FromSystem(premiseSetting));
+                    //conversationHistory.Add(ChatMessage.FromSystem(premiseSetting));
                     conversationHistory.Add(ChatMessage.FromUser(userMessage));
                     conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
 
