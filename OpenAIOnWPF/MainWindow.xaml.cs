@@ -28,8 +28,6 @@ namespace OpenAIOnWPF
         public bool noticeFlgSetting = Properties.Settings.Default.NoticeFlg;
 
         private List<ChatMessage> conversationHistory = new List<ChatMessage>();
-        //private string logSummary = "";
-        //private string latestSummary = "";
 
         public MainWindow()
         {
@@ -53,7 +51,6 @@ namespace OpenAIOnWPF
                 ProgressBar.Visibility = Visibility.Visible;
                 ProgressBar.IsIndeterminate = true;
 
-                //AssistantTextBox.Text = "";
                 AssistantMarkdownText.Markdown = "";
                 ExecButton.IsEnabled = false;
                 ExecButton.Content = "Sending...";
@@ -79,7 +76,6 @@ namespace OpenAIOnWPF
                 Debug.Print($"Temperature:{temperatureSetting}");
                 Debug.Print("----- Contents of this message sent -----");
                 Debug.Print(premiseSetting);
-                //Debug.Print(logSummary);
                 Debug.Print(userMessage);
 
                 List<ChatMessage> messages = new List<ChatMessage>();
@@ -103,7 +99,6 @@ namespace OpenAIOnWPF
                 if (completionResult.Successful)
                 {
                     var result = completionResult.Choices.First();
-                    //AssistantTextBox.Text = completionResult.Choices.First().Message.Content;
                     AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
 
                     // トークン量を計算してツールチップで表示
@@ -126,7 +121,6 @@ namespace OpenAIOnWPF
                     TokensLabel.Content = totalTokens;
                     TokensLabel.ToolTip = tooltip;
 
-                    //conversationHistory.Add(ChatMessage.FromSystem(premiseSetting));
                     conversationHistory.Add(ChatMessage.FromUser(userMessage));
                     conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
 
@@ -155,50 +149,6 @@ namespace OpenAIOnWPF
                     sw.Stop();
                     ModernWpf.MessageBox.Show($"{completionResult.Error.Code}: {completionResult.Error.Message}");
                 }
-                /*
-                ExecButton.Content = "Summarizing...";
-
-                // 要約処理
-                Debug.Print("----- Start summary -----");
-                // 要約指示の文章を作成
-                var summaryPrompt = "Please summarize the contents of the conversation briefly.\r\n";
-                //userかassistantの発言かわかるようにconversationHisotryStringに格納
-                string conversationHistoryString = "";
-                foreach (var item in conversationHistory)
-                {
-                    if (item.Role == "user")
-                    {
-                        conversationHistoryString += "User: " + item.Content + "\r\n";
-                    }
-                    else if (item.Role == "assistant")
-                    {
-                        conversationHistoryString += "Assistant: " + item.Content + "\r\n";
-                    }
-                }
-                Debug.Print($"{summaryPrompt}{conversationHistoryString}");
-                string instructSummary = $"{summaryPrompt}{conversationHistoryString}";
-
-                // 要約指示
-                var summaryResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
-                {
-                    Messages = new List<ChatMessage>
-                    {
-                        ChatMessage.FromSystem(premiseSetting),
-                        ChatMessage.FromSystem(instructSummary)
-                    },
-                    //Model = Models.ChatGpt3_5Turbo,
-                    //MaxTokens = 50,
-                });
-
-                // 要約結果
-                var summary = summaryResult.Choices.First();
-                //conversationHistory.Add(ChatMessage.FromSystem(summary.Message.Content));
-                Debug.Print("----- Summary Results -----");
-                Debug.Print(summary.Message.Content);
-                latestSummary = summary.Message.Content;
-                logSummary = "We have had the following exchanges in the past.\r\n";
-                logSummary += summary.Message.Content;
-                */
 
                 // 閾値超え会話履歴を削除
                 if (conversationHistory.Count > conversationHistoryCountSetting)
