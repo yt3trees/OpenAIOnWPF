@@ -23,6 +23,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="35" />
             <RowDefinition />
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         <Grid Height="60"
               Grid.Row="0">
@@ -62,6 +63,14 @@
                     HorizontalAlignment="Stretch"
                     Grid.Column="0"
                     Margin="0,0,0,0"/>
+            <ProgressBar x:Name="ProgressBar"
+                         Grid.Row="2"
+                         Grid.Column="0"
+                         Visibility="Collapsed"
+                         VerticalAlignment="Bottom"
+                         MinHeight="35"
+                         Background="#00000000"
+                         Opacity="0.5" />
             <CheckBox x:Name="NoticeCheckbox"
                       Content="Notice"
                       Grid.Column="1"
@@ -88,6 +97,32 @@
                                     Grid.Row="3"
                                     Padding="10,10,10,10"
                                     MouseWheel="AssistantMarkdownText_MouseWheel" />
+        <StatusBar Grid.Row="4">
+            <StatusBarItem HorizontalAlignment="Right" DockPanel.Dock="Right">
+                <Label x:Name="ConversationHistoryButton"
+                       Content="💬"
+                       Padding="10,0,10,0"
+                       MouseLeftButtonDown="ConversationHistoryButton_MouseLeftButtonDown"
+                       Foreground="#FF959595" />
+            </StatusBarItem>
+            <Separator DockPanel.Dock="Right" />
+            <StatusBarItem DockPanel.Dock="Right"
+                           HorizontalAlignment="Right">
+                    <Label x:Name="TokensLabel"
+                           HorizontalAlignment="Right"
+                           Foreground="#FF959595"
+                           MouseLeftButtonDown="TokensLabel_MouseLeftButtonDown"
+                           Padding="10,0,10,0" />
+            </StatusBarItem>
+            <Separator DockPanel.Dock="Right" />
+            <StatusBarItem DockPanel.Dock="Right"
+                           HorizontalAlignment="Right">
+                    <Label x:Name="TimeLabel"
+                           HorizontalAlignment="Right"
+                           Foreground="#FF959595"
+                           Padding="10,0,10,0" />
+            </StatusBarItem>
+        </StatusBar>
         <!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
     </Grid>
 </Window>

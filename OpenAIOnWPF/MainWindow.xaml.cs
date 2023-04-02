@@ -45,6 +45,14 @@ namespace OpenAIOnWPF
             try
             {
                 Debug.Print("===== Start processing =====");
+
+                var sw = new Stopwatch();
+                sw.Start();
+                TimeLabel.Content = "";
+                TokensLabel.Content = "";
+                ProgressBar.Visibility = Visibility.Visible;
+                ProgressBar.IsIndeterminate = true;
+
                 //AssistantTextBox.Text = "";
                 AssistantMarkdownText.Markdown = "";
                 ExecButton.IsEnabled = false;
@@ -115,7 +123,8 @@ namespace OpenAIOnWPF
                     tooltip += $"User Messages Tokens : {userTokens.Count()}\r\n";
                     tooltip += $"AI Response Tokens : {responseTokens.Count()}\r\n";
                     tooltip += $"Total Tokens : {totalTokens}";
-                    AssistantMarkdownText.ToolTip = tooltip;
+                    TokensLabel.Content = totalTokens;
+                    TokensLabel.ToolTip = tooltip;
 
                     conversationHistory.Add(ChatMessage.FromSystem(premiseSetting));
                     conversationHistory.Add(ChatMessage.FromUser(userMessage));
@@ -127,6 +136,9 @@ namespace OpenAIOnWPF
                             .AddText("️AI responded back.")
                             .Show();
                     }
+
+                    sw.Stop();
+                    TimeLabel.Content = $"{sw.ElapsedMilliseconds} ms";
                 }
                 else
                 {
@@ -140,6 +152,7 @@ namespace OpenAIOnWPF
                             .AddText("️An error has occurred.")
                             .Show();
                     }
+                    sw.Stop();
                     ModernWpf.MessageBox.Show($"{completionResult.Error.Code}: {completionResult.Error.Message}");
                 }
                 /*
@@ -209,6 +222,8 @@ namespace OpenAIOnWPF
             {
                 ExecButton.IsEnabled = true;
                 ExecButton.Content = "Send";
+                ProgressBar.Visibility = Visibility.Collapsed;
+                ProgressBar.IsIndeterminate = false;
                 Debug.Print("===== End of process =====");
             }
         }
@@ -386,6 +401,26 @@ namespace OpenAIOnWPF
         private void NoticeCheckbox_Click(object sender, RoutedEventArgs e)
         {
             noticeFlgSetting = (bool)NoticeCheckbox.IsChecked;
+        }
+
+        private void TokensLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ShowMessagebox("Tokens",TokensLabel.ToolTip.ToString());
+        }
+
+        private void ConversationHistoryButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            string content = "";
+            foreach (var item in conversationHistory)
+            {
+                content += $"{item.Role}: {item.Content}\r\n";
+            }
+            if (content == "")
+            {
+                content = "No conversation history.";
+            }
+            content = (content == "" ? "No conversation history." : content);
+            ShowMessagebox("Conversation History",content);
         }
     }
 }
