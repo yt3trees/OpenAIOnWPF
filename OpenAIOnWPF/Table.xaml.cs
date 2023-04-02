@@ -30,7 +30,8 @@ namespace OpenAIOnWPF
         public Table(string[,] arg)
         {
             InitializeComponent();
-
+            this.MaxWidth = SystemParameters.PrimaryScreenWidth;
+            this.MaxHeight = SystemParameters.PrimaryScreenHeight;
             // レンダリングバグ対応
             SourceInitialized += (s, a) =>
             {

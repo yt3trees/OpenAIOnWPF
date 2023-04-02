@@ -267,7 +267,7 @@ namespace OpenAIOnWPF
         /// </summary>
         private void ConversationHistoryCountSettingWindowOpen()
         {
-            string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString(), "text");
+            string result = ShowSetting("Number of conversation histories to keep", conversationHistoryCountSetting.ToString(), "text");
             if (result != "")
             {
                 conversationHistoryCountSetting = int.Parse(result);
