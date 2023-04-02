@@ -242,54 +242,32 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F1)
             {
                 string content = "Ctrl + Enter -> Send Message\r\n"
-                                + "F2 -> Set Model\r\n"
-                                + "F3 -> Set Premise\r\n"
+                                + "F2 -> Set Premise\r\n"
+                                + "F3 -> Set Temperature\r\n"
                                 + "F4 -> Set Conversation History Count\r\n"
+                                + "F5 -> Set ModelList\r\n"
                                 //+ "F4 -> View a summary of the conversation\r\n"
+                                + "F11 -> View conversation history\r\n"
                                 + "F12 -> Set API key\r\n";
                 ShowMessagebox("Help",content);
             }
-            // モデルリスト設定画面
+            // 前提条件を表示
             if (e.Key == Key.F2)
             {
-                string modelListString = "";
-                foreach (var item in modelListSetting)
-                {
-                    modelListString += item + ",";
-                }
-                modelListString = modelListString.TrimEnd(',');
-
-                string result = ShowSetting("Model", modelListString, "text");
-                if (result != "")
-                {
-                    modelListSetting = result.Split(',').ToList();
-                }
-                ModelComboBox.ItemsSource = modelListSetting;
+                PremiseSettingWindowOpen();
             }
-            // 前提条件を表示
             if (e.Key == Key.F3)
             {
-                string result = ShowSetting("Premise", premiseSetting, "text");
-                if (result != "")
-                {
-                    premiseSetting = result;
-                }
+                TemperatureSettingWindowOpen();
             }
             if (e.Key == Key.F4)
             {
-                string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString(), "text");
-                if (result != "")
-                {
-                    conversationHistoryCountSetting = int.Parse(result);
-                }
+                ConversationHistoryCountSettingWindowOpen();
             }
+            // モデルリスト設定画面
             if (e.Key == Key.F5)
             {
-                string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
-                if (result != "")
-                {
-                    temperatureSetting = float.Parse(result);
-                }
+                ModelListSettingWindowOpen();
             }
             //// 直前の要約を表示
             //if (e.Key == Key.F4)
@@ -313,11 +291,7 @@ namespace OpenAIOnWPF
             }
             if (e.Key == Key.F12)
             {
-                string result = ShowSetting("APIKey", apiKeySetting, "password");
-                if (result != "")
-                {
-                    apiKeySetting = result;
-                }
+                APIKeySettingWindowOpen();
             }
         }
         private void ShowMessagebox(string title, string content)
@@ -421,6 +395,74 @@ namespace OpenAIOnWPF
             }
             content = (content == "" ? "No conversation history." : content);
             ShowMessagebox("Conversation History",content);
+        }
+        private void PremiseMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            PremiseSettingWindowOpen();
+        }
+        private void TemperatureMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            TemperatureSettingWindowOpen();
+        }
+        private void ConversationHistoryCountMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ConversationHistoryCountSettingWindowOpen();
+        }
+        private void ModelListMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ModelListSettingWindowOpen();
+        }
+        private void APIKeyMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            APIKeySettingWindowOpen();
+        }
+        private void PremiseSettingWindowOpen()
+        {
+            string result = ShowSetting("Premise", premiseSetting, "text");
+            if (result != "")
+            {
+                premiseSetting = result;
+            }
+        }
+        private void TemperatureSettingWindowOpen()
+        {
+            string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
+            if (result != "")
+            {
+                temperatureSetting = float.Parse(result);
+            }
+        }
+        private void ConversationHistoryCountSettingWindowOpen()
+        {
+            string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString(), "text");
+            if (result != "")
+            {
+                conversationHistoryCountSetting = int.Parse(result);
+            }
+        }
+        private void ModelListSettingWindowOpen()
+        {
+            string modelListString = "";
+            foreach (var item in modelListSetting)
+            {
+                modelListString += item + ",";
+            }
+            modelListString = modelListString.TrimEnd(',');
+
+            string result = ShowSetting("Model", modelListString, "text");
+            if (result != "")
+            {
+                modelListSetting = result.Split(',').ToList();
+            }
+            ModelComboBox.ItemsSource = modelListSetting;
+        }
+        private void APIKeySettingWindowOpen()
+        {
+            string result = ShowSetting("APIKey", apiKeySetting, "password");
+            if (result != "")
+            {
+                apiKeySetting = result;
+            }
         }
     }
 }

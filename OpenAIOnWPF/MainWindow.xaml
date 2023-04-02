@@ -27,8 +27,13 @@
         </Grid.RowDefinitions>
         <Grid Height="60"
               Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <StackPanel HorizontalAlignment="Left"
                         Margin="15,0,0,0"
+                        Grid.Column="0"
                         VerticalAlignment="Center">
                 <Label Content="Model"
                        HorizontalAlignment="Left"
@@ -38,6 +43,34 @@
                           MaxDropDownHeight="500"
                           SelectionChanged="ModelComboBox_SelectionChanged" />
             </StackPanel>
+            <Menu Grid.Column="1"
+                  Margin="10,0,10,0"
+                  Height="60">
+                <MenuItem Header="Settings"
+                          Padding="0,0,0,0"
+                          Height="60">
+                    <MenuItem x:Name="PremiseMenuItem"
+                              Header="Premise"
+                              InputGestureText="F2"
+                              Click="PremiseMenuItem_Click" />
+                    <MenuItem x:Name="TemperatureMenuItem"
+                              Header="Temperature"
+                              InputGestureText="F3"
+                              Click="TemperatureMenuItem_Click" />
+                    <MenuItem x:Name="ConversationHistoryCountMenuItem"
+                              Header="Conversation history count"
+                              InputGestureText="F4"
+                              Click="ConversationHistoryCountMenuItem_Click" />
+                    <MenuItem x:Name="ModelListMenuItem"
+                              Header="ModelList"
+                              InputGestureText="F5"
+                              Click="ModelListMenuItem_Click" />
+                    <MenuItem x:Name="APIKeyMenuItem"
+                              Header="APIKey"
+                              InputGestureText="F12"
+                              Click="APIKeyMenuItem_Click" />
+                </MenuItem>
+            </Menu>
         </Grid>
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
