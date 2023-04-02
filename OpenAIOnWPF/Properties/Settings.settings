@@ -6,7 +6,7 @@
       <Value Profile="(Default)">gpt-3.5-turbo</Value>
     </Setting>
     <Setting Name="Premise" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Please speak Japanese</Value>
+      <Value Profile="(Default)">Language Japanese</Value>
     </Setting>
     <Setting Name="APIKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

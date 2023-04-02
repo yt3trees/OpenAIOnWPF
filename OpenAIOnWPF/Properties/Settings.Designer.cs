@@ -37,7 +37,7 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Please speak Japanese")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Language Japanese")]
         public string Premise {
             get {
                 return ((string)(this["Premise"]));
