@@ -24,12 +24,10 @@ namespace OpenAIOnWPF
                                 + "F3 -> Set Temperature\r\n"
                                 + "F4 -> Set Conversation History Count\r\n"
                                 + "F5 -> Set ModelList\r\n"
-                                //+ "F4 -> View a summary of the conversation\r\n"
                                 + "F11 -> View conversation history\r\n"
                                 + "F12 -> Set API key\r\n";
                 ShowMessagebox("Help",content);
             }
-            // 前提条件を表示
             if (e.Key == Key.F2)
             {
                 PremiseSettingWindowOpen();
@@ -42,17 +40,10 @@ namespace OpenAIOnWPF
             {
                 ConversationHistoryCountSettingWindowOpen();
             }
-            // モデルリスト設定画面
             if (e.Key == Key.F5)
             {
                 ModelListSettingWindowOpen();
             }
-            //// 直前の要約を表示
-            //if (e.Key == Key.F4)
-            //{
-            //    //ModernWpf.MessageBox.Show(latestSummary);
-            //    ShowMessagebox("Summary",latestSummary);
-            //}
             if (e.Key == Key.F11)
             {
                 string content = "";
@@ -70,6 +61,14 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F12)
             {
                 APIKeySettingWindowOpen();
+            }
+        }
+        private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            //ctrl+enterで送信
+            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                _ = ProcessOpenAIAsync();
             }
         }
         private void ExecButton_Click(object sender, RoutedEventArgs e)
@@ -173,14 +172,6 @@ namespace OpenAIOnWPF
         private void APIKeyMenuItem_Click(object sender, RoutedEventArgs e)
         {
             APIKeySettingWindowOpen();
-        }
-        private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            //ctrl+enterで送信
-            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                _ = ProcessOpenAIAsync();
-            }
         }
     }
 }

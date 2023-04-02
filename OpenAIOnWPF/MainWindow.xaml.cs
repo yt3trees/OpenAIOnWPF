@@ -18,15 +18,37 @@ namespace OpenAIOnWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Settings.settings
+        /// <summary>
+        /// モデル
+        /// </summary>
         public string modelSetting =  Properties.Settings.Default.Model;
+        /// <summary>
+        /// 指定できるモデルのリスト
+        /// </summary>
         public List<string> modelListSetting = Properties.Settings.Default.ModelList.Split(',').ToList();
+        /// <summary>
+        /// AIに指定する前提
+        /// </summary>
         public string premiseSetting = Properties.Settings.Default.Premise;
+        /// <summary>
+        /// APIキー
+        /// </summary>
         public string apiKeySetting = Properties.Settings.Default.APIKey;
+        /// <summary>
+        /// 会話履歴の保持数
+        /// </summary>
         public int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
+        /// <summary>
+        /// Temperatureパラメータ(0~2)
+        /// </summary>
         public float temperatureSetting = Properties.Settings.Default.Temperature;
+        /// <summary>
+        /// 通知フラグ
+        /// </summary>
         public bool noticeFlgSetting = Properties.Settings.Default.NoticeFlg;
-
+        /// <summary>
+        /// 会話履歴
+        /// </summary>
         private List<ChatMessage> conversationHistory = new List<ChatMessage>();
 
         public MainWindow()
@@ -38,6 +60,10 @@ namespace OpenAIOnWPF
             ModelComboBox.Text = modelSetting;
             NoticeCheckbox.IsChecked = noticeFlgSetting;
         }
+        /// <summary>
+        /// APIを実行
+        /// </summary>
+        /// <returns></returns>
         private async Task ProcessOpenAIAsync()
         {
             try
@@ -154,7 +180,6 @@ namespace OpenAIOnWPF
                 if (conversationHistory.Count > conversationHistoryCountSetting)
                 {
                     conversationHistory.RemoveRange(0, conversationHistory.Count - conversationHistoryCountSetting);
-                    //Debug.Print($"会話履歴が{conversationHistoryCountSetting}を超えたので削除しました。");
                     Debug.Print($"Deleted because conversation history exceeded {conversationHistoryCountSetting} conversations.");
                 }
 
@@ -177,12 +202,24 @@ namespace OpenAIOnWPF
                 Debug.Print("===== End of process =====");
             }
         }
+        /// <summary>
+        /// メッセージボックスを開く
+        /// </summary>
+        /// <param name="title">タイトル</param>
+        /// <param name="content">内容</param>
         private void ShowMessagebox(string title, string content)
         {
             var window = new Messagebox(title,content);
             window.Owner = this;
             window.ShowDialog();
         }
+        /// <summary>
+        /// 設定画面を開く
+        /// </summary>
+        /// <param name="targetSetting">設定対象</param>
+        /// <param name="content">現在の設定</param>
+        /// <param name="type">設定値の種別</param>
+        /// <returns></returns>
         private string ShowSetting(string targetSetting, string content, string type)
         {
             var window = new Setting(targetSetting, content, type);
@@ -190,7 +227,9 @@ namespace OpenAIOnWPF
             bool result = (bool)window.ShowDialog();
             return result ? window.inputResult : "";
         }
-
+        /// <summary>
+        /// AIに指定する前提を設定する
+        /// </summary>
         private void PremiseSettingWindowOpen()
         {
             string result = ShowSetting("Premise", premiseSetting, "text");
@@ -199,6 +238,9 @@ namespace OpenAIOnWPF
                 premiseSetting = result;
             }
         }
+        /// <summary>
+        /// Temperatureパラメータを設定する
+        /// </summary>
         private void TemperatureSettingWindowOpen()
         {
             string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
@@ -207,6 +249,9 @@ namespace OpenAIOnWPF
                 temperatureSetting = float.Parse(result);
             }
         }
+        /// <summary>
+        /// 会話履歴の保持数を設定する
+        /// </summary>
         private void ConversationHistoryCountSettingWindowOpen()
         {
             string result = ShowSetting("Conversation history count", conversationHistoryCountSetting.ToString(), "text");
@@ -215,6 +260,9 @@ namespace OpenAIOnWPF
                 conversationHistoryCountSetting = int.Parse(result);
             }
         }
+        /// <summary>
+        /// 選択できるモデルのリストを設定する
+        /// </summary>
         private void ModelListSettingWindowOpen()
         {
             string modelListString = "";
@@ -231,6 +279,9 @@ namespace OpenAIOnWPF
             }
             ModelComboBox.ItemsSource = modelListSetting;
         }
+        /// <summary>
+        /// APIKeyを設定する
+        /// </summary>
         private void APIKeySettingWindowOpen()
         {
             string result = ShowSetting("APIKey", apiKeySetting, "password");
