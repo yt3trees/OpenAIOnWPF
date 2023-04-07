@@ -31,6 +31,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel HorizontalAlignment="Left"
                         Margin="15,0,0,0"
@@ -52,23 +53,33 @@
                 <Label Content="Instruction"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Top" />
-                <ComboBox x:Name="InstructionComboBox"
-                          VerticalAlignment="Center"
-                          MaxDropDownHeight="500"
-                          SelectionChanged="InstructionComboBox_SelectionChanged" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="InstructionComboBox"
+                              MaxDropDownHeight="500"
+                              Grid.Column="0"
+                              SelectionChanged="InstructionComboBox_SelectionChanged"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Margin="0,0,5,0" />
+                    <Button x:Name="InstructionSettingButton"
+                              Grid.Column="1"
+                            Content="..."
+                            Click="InstructionSettingButton_Click"
+                            VerticalAlignment="Center" />
+                </Grid>
             </StackPanel>
-            <Menu Grid.Column="2"
-                  Margin="10,0,10,0"
+            <Menu Grid.Column="3"
+                  Margin="15,0,0,0"
                   Height="60"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Right">
                 <MenuItem Header="Settings"
                           Padding="0,0,0,0"
                           Height="60">
-                    <MenuItem x:Name="InstructionMenuItem"
-                              Header="Instruction"
-                              InputGestureText="F2"
-                              Click="InstructionMenuItem_Click" />
                     <MenuItem x:Name="TemperatureMenuItem"
                               Header="Temperature"
                               InputGestureText="F3"

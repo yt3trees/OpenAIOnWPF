@@ -347,6 +347,6 @@ namespace OpenAIOnWPF
                 instructionList[instructionList.Length - 1] = "";
                 InstructionComboBox.ItemsSource = instructionList;
             }
-        } 
+        }
     }
 }

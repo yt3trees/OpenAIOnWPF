@@ -137,7 +137,7 @@ namespace OpenAIOnWPF
         {
             ShowTable();
         }
-        private void InstructionMenuItem_Click(object sender, RoutedEventArgs e)
+        private void InstructionSettingButton_Click(object sender, RoutedEventArgs e)
         {
             InstructionSettingWindowOpen();
         }
