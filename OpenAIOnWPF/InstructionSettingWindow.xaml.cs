@@ -16,6 +16,18 @@ namespace OpenAIOnWPF
             InitializeComponent();
             items = param;
 
+            InstructionListBox.ContextMenu = new ContextMenu();
+            MenuItem UpSwap = new MenuItem();
+            UpSwap.Header = "⬆";
+            UpSwap.Click += UpSwap_Click;
+            UpSwap.HorizontalAlignment = HorizontalAlignment.Center;
+            MenuItem DownSwap = new MenuItem();
+            DownSwap.Header = "⬇";
+            DownSwap.Click += DownSwap_Click;
+            DownSwap.HorizontalAlignment = HorizontalAlignment.Center;
+            InstructionListBox.ContextMenu.Items.Add(UpSwap);
+            InstructionListBox.ContextMenu.Items.Add(DownSwap);
+
             // itemsがnullなら[0,0]で初期化
             if (items == null)
             {
@@ -102,7 +114,7 @@ namespace OpenAIOnWPF
                 newItems[i, 0] = items[i, 0];
                 newItems[i, 1] = items[i, 1];
             }
-            newItems[items.GetLength(0), 0] = "new item";
+            newItems[items.GetLength(0), 0] = "";
             newItems[items.GetLength(0), 1] = "";
             items = newItems;
 
@@ -144,82 +156,76 @@ namespace OpenAIOnWPF
             }
             InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
         }
+        private void SwapItems(int index, bool isUp)
+        {
+            // 入力が不正であるか、先頭または末尾での入れ替えを試みる場合は何もしない
+            if (index == -1 || (isUp && index == 0) || (!isUp && index == items.GetLength(0) - 1))
+            {
+                return;
+            }
+            // 入れ替え先のインデックスを計算
+            int newIndex = isUp ? index - 1 : index + 1;
+            string[,] newItems = new string[items.GetLength(0), 2];
 
+            for (int i = 0; i < items.GetLength(0); i++)
+            {
+                if (i == index)
+                {
+                    // 現在のアイテムを入れ替え先の位置に移動
+                    newItems[newIndex, 0] = items[i, 0];
+                    newItems[newIndex, 1] = items[i, 1];
+                }
+                else if (i == newIndex)
+                {
+                    // 入れ替え先のアイテムを現在の位置に移動
+                    newItems[index, 0] = items[i, 0];
+                    newItems[index, 1] = items[i, 1];
+                }
+                else
+                {
+                    // その他のアイテムはそのままコピー
+                    newItems[i, 0] = items[i, 0];
+                    newItems[i, 1] = items[i, 1];
+                }
+            }
+            // 新しいアイテム配列をセット
+            items = newItems;
+            // ListBoxにアイテムを再セット
+            InstructionListBox.Items.Clear();
+            for (int i = 0; i < items.GetLength(0); i++)
+            {
+                InstructionListBox.Items.Add(items[i, 0]);
+            }
+            // 入れ替え後のインデックスを選択状態にする
+            InstructionListBox.SelectedIndex = newIndex;
+        }
+        private void UpSwap()
+        {
+            int index = InstructionListBox.SelectedIndex;
+            SwapItems(index, true);
+        }
+        private void DownSwap()
+        {
+            int index = InstructionListBox.SelectedIndex;
+            SwapItems(index, false);
+        }
+        void UpSwap_Click(object sender, RoutedEventArgs e)
+        {
+            UpSwap();
+        }
+        void DownSwap_Click(object sender, RoutedEventArgs e)
+        {
+            DownSwap();
+        }
         private void InstructionListBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.K)
             {
-                //InstructionListBoxのアイテムを上と入れ替える
-                int index = InstructionListBox.SelectedIndex;
-                if (index == -1)
-                {
-                    return;
-                }
-                if (index == 0)
-                {
-                    return;
-                }
-                string[,] newItems = new string[items.GetLength(0), 2];
-                for (int i = 0; i < index - 1; i++)
-                {
-                    newItems[i, 0] = items[i, 0];
-                    newItems[i, 1] = items[i, 1];
-                }
-                newItems[index - 1, 0] = items[index, 0];
-                newItems[index - 1, 1] = items[index, 1];
-                newItems[index, 0] = items[index - 1, 0];
-                newItems[index, 1] = items[index - 1, 1];
-                for (int i = index + 1; i < items.GetLength(0); i++)
-                {
-                    newItems[i, 0] = items[i, 0];
-                    newItems[i, 1] = items[i, 1];
-                }
-                items = newItems;
-                // 再セット
-                InstructionListBox.Items.Clear();
-                for (int i = 0; i < items.GetLength(0); i++)
-                {
-                    InstructionListBox.Items.Add(items[i, 0]);
-                }
-                InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
-                InstructionListBox.SelectedIndex = index - 1;
+                UpSwap();
             }
             if (e.Key == Key.J)
             {
-                //InstructionListBoxのアイテムを下と入れ替える
-                int index = InstructionListBox.SelectedIndex;
-                if (index == -1)
-                {
-                    return;
-                }
-                if (index == items.GetLength(0) - 1)
-                {
-                    return;
-                }
-                string[,] newItems = new string[items.GetLength(0), 2];
-                for (int i = 0; i < index; i++)
-                {
-                    newItems[i, 0] = items[i, 0];
-                    newItems[i, 1] = items[i, 1];
-                }
-                newItems[index, 0] = items[index + 1, 0];
-                newItems[index, 1] = items[index + 1, 1];
-                newItems[index + 1, 0] = items[index, 0];
-                newItems[index + 1, 1] = items[index, 1];
-                for (int i = index + 2; i < items.GetLength(0); i++)
-                {
-                    newItems[i, 0] = items[i, 0];
-                    newItems[i, 1] = items[i, 1];
-                }
-                items = newItems;
-                // 再セット
-                InstructionListBox.Items.Clear();
-                for (int i = 0; i < items.GetLength(0); i++)
-                {
-                    InstructionListBox.Items.Add(items[i, 0]);
-                }
-                InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
-                InstructionListBox.SelectedIndex = index + 1;
+                DownSwap();
             }
         }
     }
