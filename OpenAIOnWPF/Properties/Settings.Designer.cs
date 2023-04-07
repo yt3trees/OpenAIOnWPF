@@ -37,18 +37,6 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Language Japanese")]
-        public string Premise {
-            get {
-                return ((string)(this["Premise"]));
-            }
-            set {
-                this["Premise"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string APIKey {
             get {
@@ -85,7 +73,7 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
         public float Temperature {
             get {
                 return ((float)(this["Temperature"]));
@@ -104,6 +92,30 @@ namespace OpenAIOnWPF.Properties {
             }
             set {
                 this["NoticeFlg"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[[""Language Instruction"",""Please speak Japanese""],[""Summarize"",""Summarize the following text and bullet the most important points""],[""Question"",""Ask questions to achieve the objectives you communicate next.\n- Ask questions to see if this condition is met or to achieve this goal\n- Please ask only one question\n- Please ask the question in Japanese""]]")]
+        public string InstructionList {
+            get {
+                return ((string)(this["InstructionList"]));
+            }
+            set {
+                this["InstructionList"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Instruction {
+            get {
+                return ((string)(this["Instruction"]));
+            }
+            set {
+                this["Instruction"] = value;
             }
         }
     }

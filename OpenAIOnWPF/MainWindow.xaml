@@ -23,11 +23,12 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="35" />
             <RowDefinition />
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
         <Grid Height="60"
               Grid.Row="0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
@@ -41,18 +42,33 @@
                 <ComboBox x:Name="ModelComboBox"
                           VerticalAlignment="Center"
                           MaxDropDownHeight="500"
-                          SelectionChanged="ModelComboBox_SelectionChanged" />
+                          SelectionChanged="ModelComboBox_SelectionChanged"
+                          HorizontalAlignment="Left" />
             </StackPanel>
-            <Menu Grid.Column="1"
+            <StackPanel Grid.Column="1"
+                        Margin="15,0,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center">
+                <Label Content="Instruction"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top" />
+                <ComboBox x:Name="InstructionComboBox"
+                          VerticalAlignment="Center"
+                          MaxDropDownHeight="500"
+                          SelectionChanged="InstructionComboBox_SelectionChanged" />
+            </StackPanel>
+            <Menu Grid.Column="2"
                   Margin="10,0,10,0"
-                  Height="60">
+                  Height="60"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Right">
                 <MenuItem Header="Settings"
                           Padding="0,0,0,0"
                           Height="60">
-                    <MenuItem x:Name="PremiseMenuItem"
-                              Header="Premise"
+                    <MenuItem x:Name="InstructionMenuItem"
+                              Header="Instruction"
                               InputGestureText="F2"
-                              Click="PremiseMenuItem_Click" />
+                              Click="InstructionMenuItem_Click" />
                     <MenuItem x:Name="TemperatureMenuItem"
                               Header="Temperature"
                               InputGestureText="F3"
@@ -86,7 +102,7 @@
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button x:Name="ExecButton"
                     Content="Send"
@@ -95,7 +111,7 @@
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch"
                     Grid.Column="0"
-                    Margin="0,0,0,0"/>
+                    Margin="0,0,0,0" />
             <ProgressBar x:Name="ProgressBar"
                          Grid.Row="2"
                          Grid.Column="0"
@@ -124,7 +140,8 @@
                                     Padding="10,10,10,10"
                                     MouseWheel="AssistantMarkdownText_MouseWheel" />
         <StatusBar Grid.Row="4">
-            <StatusBarItem HorizontalAlignment="Right" DockPanel.Dock="Right">
+            <StatusBarItem HorizontalAlignment="Right"
+                           DockPanel.Dock="Right">
                 <Label x:Name="ConversationHistoryButton"
                        Content="💬"
                        Padding="10,0,10,0"

@@ -1,15 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
+﻿using Microsoft.Extensions.Primitives;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Newtonsoft.Json;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.Tokenizer.GPT3;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace OpenAIOnWPF
 {
@@ -27,9 +31,13 @@ namespace OpenAIOnWPF
         /// </summary>
         public List<string> modelListSetting = Properties.Settings.Default.ModelList.Split(',').ToList();
         /// <summary>
-        /// AIに指定する前提
+        /// 指示内容
         /// </summary>
-        public string premiseSetting = Properties.Settings.Default.Premise;
+        public string instructionSetting = Properties.Settings.Default.Instruction;
+        /// <summary>
+        /// 指示内容のリスト
+        /// </summary>
+        public string[,] instructionListSetting = DeserializeArray(Properties.Settings.Default.InstructionList);
         /// <summary>
         /// APIキー
         /// </summary>
@@ -59,6 +67,18 @@ namespace OpenAIOnWPF
             ModelComboBox.ItemsSource = modelListSetting;
             ModelComboBox.Text = modelSetting;
             NoticeCheckbox.IsChecked = noticeFlgSetting;
+
+            string[] instructionList = instructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
+            if (instructionList != null)
+            {
+                Array.Resize(ref instructionList, instructionList.Length + 1);
+                instructionList[instructionList.Length - 1] = "";
+                InstructionComboBox.ItemsSource =instructionList ;
+                InstructionComboBox.Text = String.IsNullOrEmpty(instructionSetting) ? "" : instructionSetting;
+            }
+
+            var appSettings = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.PerUserRoamingAndLocal);
+            Debug.Print("Path to save the configuration file:" + appSettings.FilePath);
         }
         /// <summary>
         /// APIを実行
@@ -83,7 +103,7 @@ namespace OpenAIOnWPF
 
                 if (apiKeySetting == null)
                 {
-                    ModernWpf.MessageBox.Show("The environment variable OPENAI_API_KEY is not set.");
+                    ModernWpf.MessageBox.Show("OPENAI_API_KEY is not set.");
                     return;
                 }
                 var openAiService = new OpenAIService(new OpenAiOptions()
@@ -98,15 +118,24 @@ namespace OpenAIOnWPF
                 // 今回の送信
                 var userMessage = UserTextBox.Text;
 
+                //instructionSettingをキーにinstructionListSettingの2列目を取得
+                string selectInstructionContent = "";
+                if (!String.IsNullOrEmpty(instructionSetting))
+                {
+                    string[] instructionList = instructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
+                    int index = Array.IndexOf(instructionList, instructionSetting);
+                    selectInstructionContent = instructionListSetting[index, 1];
+                }
+
                 Debug.Print("----- Parameter -----");
                 Debug.Print($"Temperature:{temperatureSetting}");
                 Debug.Print("----- Contents of this message sent -----");
-                Debug.Print(premiseSetting);
+                Debug.Print(selectInstructionContent);
                 Debug.Print(userMessage);
 
                 List<ChatMessage> messages = new List<ChatMessage>();
                 messages.AddRange(conversationHistory);
-                messages.Add(ChatMessage.FromSystem(premiseSetting));
+                messages.Add(ChatMessage.FromSystem(selectInstructionContent));
                 messages.Add(ChatMessage.FromUser(userMessage));
 
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
@@ -134,14 +163,14 @@ namespace OpenAIOnWPF
                         conversationHistoryString += item.Content;
                     }
                     var conversationResultTokens = TokenizerGpt3.Encode(conversationHistoryString);
-                    var premiseTokens = TokenizerGpt3.Encode(premiseSetting);
+                    var instructionTokens = TokenizerGpt3.Encode(selectInstructionContent);
                     var userTokens = TokenizerGpt3.Encode(userMessage);
                     var responseTokens = TokenizerGpt3.Encode(completionResult.Choices.First().Message.Content);
-                    var totalTokens = conversationResultTokens.Count() + premiseTokens.Count() + userTokens.Count() + responseTokens.Count();
+                    var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
                     string tooltip = "";
-                    tooltip += $"Conversation Result Tokens : {conversationResultTokens.Count()}\r\n";
-                    tooltip += $"Premise Tokens : {premiseTokens.Count()}\r\n";
-                    tooltip += $"User Messages Tokens : {userTokens.Count()}\r\n";
+                    tooltip += $"Conversation History Tokens : {conversationResultTokens.Count()}\r\n";
+                    tooltip += $"Instruction Tokens : {instructionTokens.Count()}\r\n";
+                    tooltip += $"User Message Tokens : {userTokens.Count()}\r\n";
                     tooltip += $"AI Response Tokens : {responseTokens.Count()}\r\n";
                     tooltip += $"Total Tokens : {totalTokens}";
                     TokensLabel.Content = totalTokens;
@@ -240,16 +269,13 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
         }
-        /// <summary>
-        /// AIに指定する前提を設定する
-        /// </summary>
-        private void PremiseSettingWindowOpen()
+        private static string SerializeArray(string[,] array)
         {
-            string result = ShowSetting("Premise", premiseSetting, "text");
-            if (result != "")
-            {
-                premiseSetting = result;
-            }
+            return JsonConvert.SerializeObject(array);
+        }
+        private static string[,] DeserializeArray(string serializedArray)
+        {
+            return JsonConvert.DeserializeObject<string[,]>(serializedArray);
         }
         /// <summary>
         /// Temperatureパラメータを設定する
@@ -303,5 +329,24 @@ namespace OpenAIOnWPF
                 apiKeySetting = result;
             }
         }
+        /// <summary>
+        /// 指示内容を設定する
+        /// </summary>
+        private void  InstructionSettingWindowOpen()
+        {
+            var window = new InstructionSettingWindow(instructionListSetting);
+            window.Owner = this;
+            bool result = (bool)window.ShowDialog();
+            string[,] resultList = window.inputResult;
+            if (result)
+            {
+                instructionListSetting = result ? window.inputResult : null;
+                //instructionListSettingの1列目を取得
+                string[] instructionList = instructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
+                Array.Resize(ref instructionList, instructionList.Length + 1);
+                instructionList[instructionList.Length - 1] = "";
+                InstructionComboBox.ItemsSource = instructionList;
+            }
+        } 
     }
 }

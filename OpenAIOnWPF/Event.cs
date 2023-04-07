@@ -1,9 +1,7 @@
 ﻿using OpenAI.GPT3.Tokenizer.GPT3;
 using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,7 +18,7 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F1)
             {
                 string content = "Ctrl + Enter -> Send Message\r\n"
-                                + "F2 -> Set Premise\r\n"
+                                + "F2 -> Set Instruction List\r\n"
                                 + "F3 -> Set Temperature\r\n"
                                 + "F4 -> Set Conversation History Count\r\n"
                                 + "F5 -> Set ModelList\r\n"
@@ -30,7 +28,7 @@ namespace OpenAIOnWPF
             }
             if (e.Key == Key.F2)
             {
-                PremiseSettingWindowOpen();
+                InstructionSettingWindowOpen();
             }
             if (e.Key == Key.F3)
             {
@@ -90,16 +88,22 @@ namespace OpenAIOnWPF
                 list += item + (item == modelListSetting.Last() ? "" : ",");
             }
             Properties.Settings.Default.ModelList = list;
-            Properties.Settings.Default.Premise = premiseSetting;
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
             Properties.Settings.Default.Temperature = temperatureSetting;
             Properties.Settings.Default.APIKey = apiKeySetting;
             Properties.Settings.Default.NoticeFlg = noticeFlgSetting;
+            Properties.Settings.Default.Instruction = instructionSetting;
+            Properties.Settings.Default.InstructionList = SerializeArray(instructionListSetting);
             Properties.Settings.Default.Save();
         }
         private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             modelSetting = ModelComboBox.SelectedItem.ToString();
+        }
+        private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (InstructionComboBox.SelectedItem == null) return;
+            instructionSetting = InstructionComboBox.SelectedItem.ToString();
         }
         private void AssistantMarkdownText_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -133,9 +137,9 @@ namespace OpenAIOnWPF
         {
             ShowTable();
         }
-        private void PremiseMenuItem_Click(object sender, RoutedEventArgs e)
+        private void InstructionMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            PremiseSettingWindowOpen();
+            InstructionSettingWindowOpen();
         }
         private void TemperatureMenuItem_Click(object sender, RoutedEventArgs e)
         {

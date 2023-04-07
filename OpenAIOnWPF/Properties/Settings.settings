@@ -5,9 +5,6 @@
     <Setting Name="Model" Type="System.String" Scope="User">
       <Value Profile="(Default)">gpt-3.5-turbo</Value>
     </Setting>
-    <Setting Name="Premise" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Language Japanese</Value>
-    </Setting>
     <Setting Name="APIKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
@@ -18,10 +15,16 @@
       <Value Profile="(Default)">gpt-3.5-turbo,gpt-4</Value>
     </Setting>
     <Setting Name="Temperature" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">0.2</Value>
     </Setting>
     <Setting Name="NoticeFlg" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="InstructionList" Type="System.String" Scope="User">
+      <Value Profile="(Default)">[["Language Instruction","Please speak Japanese"],["Summarize","Summarize the following text and bullet the most important points"],["Question","Ask questions to achieve the objectives you communicate next.\n- Ask questions to see if this condition is met or to achieve this goal\n- Please ask only one question\n- Please ask the question in Japanese"]]</Value>
+    </Setting>
+    <Setting Name="Instruction" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

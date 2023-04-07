@@ -10,12 +10,18 @@
         Title="Table"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
-        MinWidth="400"
+        MinWidth="600"
         MinHeight="200"
         HorizontalContentAlignment="Center"
         SizeToContent="WidthAndHeight"
         WindowStyle="None"
+        Closing="Window_Closing"
         KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <Style TargetType="TextBox" x:Key="editingTextBoxStyle">
+            <EventSetter Event="KeyDown" Handler="editingTextBox_KeyDown" />
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -31,22 +37,8 @@
                 MinWidth="60"
                 Click="OkButton_Click" />
         <DataGrid x:Name="DataTable"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Role" Binding="{Binding Role}"/>
-                <DataGridTextColumn Header="Content"
-                                    Binding="{Binding Content}"
-                                    Width="Auto">
-                        <DataGridTextColumn.ElementStyle>
-                         <Style>                            
-                             <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
-                         </Style>
-                         </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+                  AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
+                  AutoGenerateColumns="True"/>
 
     </Grid>
 </Window>
