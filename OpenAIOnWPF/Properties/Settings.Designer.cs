@@ -130,5 +130,65 @@ namespace OpenAIOnWPF.Properties {
                 this["TokenUsage"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("OpenAi")]
+        public string Provider {
+            get {
+                return ((string)(this["Provider"]));
+            }
+            set {
+                this["Provider"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AzureAPIKey {
+            get {
+                return ((string)(this["AzureAPIKey"]));
+            }
+            set {
+                this["AzureAPIKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AzureBaseDomain {
+            get {
+                return ((string)(this["AzureBaseDomain"]));
+            }
+            set {
+                this["AzureBaseDomain"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AzureApiVersion {
+            get {
+                return ((string)(this["AzureApiVersion"]));
+            }
+            set {
+                this["AzureApiVersion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AzureDeploymentId {
+            get {
+                return ((string)(this["AzureDeploymentId"]));
+            }
+            set {
+                this["AzureDeploymentId"] = value;
+            }
+        }
     }
 }

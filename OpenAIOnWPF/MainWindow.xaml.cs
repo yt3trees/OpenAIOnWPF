@@ -8,6 +8,7 @@ using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.Tokenizer.GPT3;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -42,7 +43,7 @@ namespace OpenAIOnWPF
         /// </summary>
         public string[,] instructionListSetting = DeserializeArray(Properties.Settings.Default.InstructionList);
         /// <summary>
-        /// APIキー
+        /// APIキー(OpenAi)
         /// </summary>
         public string apiKeySetting = Properties.Settings.Default.APIKey;
         /// <summary>
@@ -61,6 +62,26 @@ namespace OpenAIOnWPF
         /// トークン使用量
         /// </summary>
         public string[,] tokenUsageSetting = DeserializeArray(Properties.Settings.Default.TokenUsage);
+        /// <summary>
+        /// 選択プロバイダ
+        /// </summary>
+        public static string providerSetting = Properties.Settings.Default.Provider;
+        /// <summary>
+        /// APIキー(Azure)
+        /// </summary>
+        public static string azureApiKeySetting = Properties.Settings.Default.AzureAPIKey;
+        /// <summary>
+        /// Azureエンドポイント
+        /// </summary>
+        public static string baseDomainSetting = Properties.Settings.Default.AzureBaseDomain;
+        /// <summary>
+        /// Azureモデルデプロイ名
+        /// </summary>
+        public static string deploymentIdSetting = Properties.Settings.Default.AzureDeploymentId;
+        /// <summary>
+        /// Apiバージョン
+        /// </summary>
+        public static string apiVersionSetting = Properties.Settings.Default.AzureApiVersion;
         /// <summary>
         /// 会話履歴
         /// </summary>
@@ -86,6 +107,14 @@ namespace OpenAIOnWPF
 
             var appSettings = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.PerUserRoamingAndLocal);
             Debug.Print("Path to save the configuration file:" + appSettings.FilePath);
+
+            List<string> providers = new List<string>
+            {
+                "OpenAi",
+                "Azure"
+            };
+            ProviderComboBox.ItemsSource = providers;
+            ProviderComboBox.SelectedValue = providerSetting ;
         }
         /// <summary>
         /// APIを実行
@@ -113,9 +142,33 @@ namespace OpenAIOnWPF
                     ModernWpf.MessageBox.Show("OPENAI_API_KEY is not set.");
                     return;
                 }
+
+                ProviderType targetType = new ProviderType();
+                string targetApiKey = "";
+                string? targetBaseDomain = null;
+                string? targetDeploymentId = null;
+                string? targetApiVersion = null;
+                switch(providerSetting)
+                {
+                    case "OpenAi":
+                        targetType = ProviderType.OpenAi;
+                        targetApiKey = apiKeySetting;
+                        break;
+                    case "Azure":
+                        targetType = ProviderType.Azure;
+                        targetApiKey = azureApiKeySetting;
+                        targetBaseDomain = baseDomainSetting;
+                        targetDeploymentId = deploymentIdSetting;
+                        targetApiVersion = apiVersionSetting;
+                        break;
+                }
                 var openAiService = new OpenAIService(new OpenAiOptions()
                 {
-                    ApiKey = apiKeySetting
+                    ProviderType = targetType,
+                    ApiKey = targetApiKey,
+                    BaseDomain = targetBaseDomain,
+                    DeploymentId = targetDeploymentId,
+                    ApiVersion = targetApiVersion,
                 });
 
                 // デフォルトモデルを設定
@@ -361,8 +414,8 @@ namespace OpenAIOnWPF
             int colCount = tokenUsageSetting.GetLength(1);
             if (tokenUsageSetting == null || rowCount == 0 || colCount == 0)
             {
-                // 日付、モデル、トークン量
-                string[,] temp = new string[0, 3];
+                // 日付、プロバイダ、モデル、トークン量
+                string[,] temp = new string[0, 4];
                 tokenUsageSetting = temp;
             }
 
@@ -375,10 +428,10 @@ namespace OpenAIOnWPF
             bool todayTokenUsageExist = false;
             for (int i = 0; i < tokenUsageCount; i++)
             {
-                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == ModelComboBox.Text)
+                if (tokenUsage[i, 0] == todayString && tokenUsage[i,1] == providerSetting && tokenUsage[i, 2] == ModelComboBox.Text)
                 {
                     // トークン使用量を加算
-                    tokenUsage[i, 2] = (int.Parse(tokenUsage[i, 2]) + token).ToString();
+                    tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
                     todayTokenUsageExist = true;
                 }
             }
@@ -386,10 +439,11 @@ namespace OpenAIOnWPF
             if (!todayTokenUsageExist)
             {
                 //Array.Resize(ref tokenUsage, tokenUsageCount + 1);
-                tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 3);
+                tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 4);
                 tokenUsage[tokenUsageCount, 0] = todayString;
-                tokenUsage[tokenUsageCount, 1] = ModelComboBox.Text;
-                tokenUsage[tokenUsageCount, 2] = token.ToString();
+                tokenUsage[tokenUsageCount, 1] = providerSetting;
+                tokenUsage[tokenUsageCount, 2] = ModelComboBox.Text;
+                tokenUsage[tokenUsageCount, 3] = token.ToString();
             }
             tokenUsageSetting = tokenUsage;
             Properties.Settings.Default.TokenUsage = SerializeArray(tokenUsageSetting);

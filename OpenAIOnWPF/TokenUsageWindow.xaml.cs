@@ -23,6 +23,7 @@ namespace OpenAIOnWPF
         public class TokenUsageDisplayItem
         { 
             public string? Date { get; set; }
+            public string? Provider { get; set; }
             public string? GptVersion { get; set; }
             public string? TokensUsed { get; set; }
         }
@@ -38,8 +39,9 @@ namespace OpenAIOnWPF
             {
                 TokenUsageDisplayItem tokenUsageDisplayItem = new TokenUsageDisplayItem();
                 tokenUsageDisplayItem.Date = savedTokenUsage[i, 0];
-                tokenUsageDisplayItem.GptVersion = savedTokenUsage[i, 1];
-                tokenUsageDisplayItem.TokensUsed = savedTokenUsage[i, 2];
+                tokenUsageDisplayItem.Provider = savedTokenUsage[i, 1];
+                tokenUsageDisplayItem.GptVersion = savedTokenUsage[i, 2];
+                tokenUsageDisplayItem.TokensUsed = savedTokenUsage[i, 3];
                 TokenUsageDisplayItems.Add(tokenUsageDisplayItem);
             }
             TokenUsageDataGrid.ItemsSource = TokenUsageDisplayItems;

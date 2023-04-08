@@ -89,6 +89,11 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.NoticeFlg = noticeFlgSetting;
             Properties.Settings.Default.Instruction = instructionSetting;
             Properties.Settings.Default.InstructionList = SerializeArray(instructionListSetting);
+            Properties.Settings.Default.Provider = providerSetting;
+            Properties.Settings.Default.AzureAPIKey = azureApiKeySetting;
+            Properties.Settings.Default.AzureBaseDomain = baseDomainSetting;
+            Properties.Settings.Default.AzureDeploymentId = deploymentIdSetting;
+            Properties.Settings.Default.AzureApiVersion = apiVersionSetting;
             Properties.Settings.Default.Save();
         }
         private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -153,6 +158,24 @@ namespace OpenAIOnWPF
         private void APIKeyMenuItem_Click(object sender, RoutedEventArgs e)
         {
             APIKeySettingWindowOpen();
+        }
+        private void ProviderComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            providerSetting = ProviderComboBox.SelectedItem.ToString();
+            if (providerSetting == "Azure")
+            {
+                ModelComboBox.IsEnabled = false;
+            }
+            else
+            {
+                ModelComboBox.IsEnabled = true;
+            }
+        }
+        private void AzureMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new AzureParameterWindow();
+            window.Owner = this;
+            window.ShowDialog();
         }
     }
 }

@@ -31,11 +31,27 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <StackPanel HorizontalAlignment="Left"
                         Margin="15,0,0,0"
                         Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Width="90">
+                <Label Content="Provider"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top" />
+                <ComboBox x:Name="ProviderComboBox"
+                          VerticalAlignment="Center"
+                          MaxDropDownHeight="500"
+                          SelectionChanged="ProviderComboBox_SelectionChanged"
+                          HorizontalAlignment="Left"
+                          Width="90" />
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left"
+                        Margin="15,0,0,0"
+                        Grid.Column="1"
                         VerticalAlignment="Center">
                 <Label Content="Model"
                        HorizontalAlignment="Left"
@@ -46,7 +62,7 @@
                           SelectionChanged="ModelComboBox_SelectionChanged"
                           HorizontalAlignment="Left" />
             </StackPanel>
-            <StackPanel Grid.Column="1"
+            <StackPanel Grid.Column="2"
                         Margin="15,0,0,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center">
@@ -72,7 +88,7 @@
                             VerticalAlignment="Center" />
                 </Grid>
             </StackPanel>
-            <Menu Grid.Column="3"
+            <Menu Grid.Column="4"
                   Height="60"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Right"
@@ -89,9 +105,13 @@
                               InputGestureText="F5"
                               Click="ModelListMenuItem_Click" />
                     <MenuItem x:Name="APIKeyMenuItem"
-                              Header="APIKey"
+                              Header="OpenAI APIKey"
                               InputGestureText="F12"
                               Click="APIKeyMenuItem_Click" />
+                    <MenuItem x:Name="AzureMenuItem"
+                              Header="Azure Parameter"
+                              InputGestureText="F13"
+                              Click="AzureMenuItem_Click" />
                 </MenuItem>
             </Menu>
         </Grid>

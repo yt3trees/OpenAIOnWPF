@@ -13,7 +13,7 @@
         KeyDown="Window_KeyDown"
         VerticalAlignment="Center"
         HorizontalAlignment="Center"
-        Width="400"
+        Width="420"
         Height="300">
     <Grid>
         <DataGrid x:Name="TokenUsageDataGrid" AutoGenerateColumns="False"
@@ -23,6 +23,7 @@
                   IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Date" Binding="{Binding Date}" />
+                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" />
                 <DataGridTextColumn Header="GptVersion" Binding="{Binding GptVersion}" />
                 <DataGridTextColumn Header="TokensUsed" Binding="{Binding TokensUsed}" />
             </DataGrid.Columns>
