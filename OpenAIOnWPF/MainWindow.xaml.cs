@@ -368,7 +368,7 @@ namespace OpenAIOnWPF
         /// </summary>
         private void APIKeySettingWindowOpen()
         {
-            string result = ShowSetting("APIKey", apiKeySetting, "password");
+            string result = ShowSetting("API Key (OpenAI)", apiKeySetting, "password");
             if (result != "")
             {
                 apiKeySetting = result;

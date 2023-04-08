@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 using static OpenAIOnWPF.MainWindow;
 
 namespace OpenAIOnWPF
@@ -29,6 +30,13 @@ namespace OpenAIOnWPF
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
+        }
+        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                DialogResult = false;
+            }
         }
     }
 }

@@ -20,9 +20,10 @@ namespace OpenAIOnWPF
                 string content = "Ctrl + Enter -> Send Message\r\n"
                                 + "F2 -> Set Instruction List\r\n"
                                 + "F3 -> Set Temperature\r\n"
+                                + "F4 -> View conversation history\r\n"
                                 + "F5 -> Set ModelList\r\n"
-                                + "F11 -> View conversation history\r\n"
-                                + "F12 -> Set API key\r\n";
+                                + "F11 -> Set Api key(OpenAI)\r\n"
+                                + "F12 -> Set Azure OpenAI Parameter\r\n";
                 ShowMessagebox("Help",content);
             }
             if (e.Key == Key.F2)
@@ -33,17 +34,23 @@ namespace OpenAIOnWPF
             {
                 TemperatureSettingWindowOpen();
             }
+            if (e.Key == Key.F4)
+            {
+                ShowTable();
+            }
             if (e.Key == Key.F5)
             {
                 ModelListSettingWindowOpen();
             }
             if (e.Key == Key.F11)
             {
-                ShowTable();
+                APIKeySettingWindowOpen();
             }
             if (e.Key == Key.F12)
             {
-                APIKeySettingWindowOpen();
+                var window = new AzureParameterWindow();
+                window.Owner = this;
+                window.ShowDialog();
             }
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)

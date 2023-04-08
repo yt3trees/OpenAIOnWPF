@@ -106,11 +106,11 @@
                               Click="ModelListMenuItem_Click" />
                     <MenuItem x:Name="APIKeyMenuItem"
                               Header="OpenAI APIKey"
-                              InputGestureText="F12"
+                              InputGestureText="F11"
                               Click="APIKeyMenuItem_Click" />
                     <MenuItem x:Name="AzureMenuItem"
                               Header="Azure Parameter"
-                              InputGestureText="F13"
+                              InputGestureText="F12"
                               Click="AzureMenuItem_Click" />
                 </MenuItem>
             </Menu>
