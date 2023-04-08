@@ -1,21 +1,14 @@
-﻿using Microsoft.Extensions.Primitives;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.Tokenizer.GPT3;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -201,19 +194,11 @@ namespace OpenAIOnWPF
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
                 {
                     Messages = messages,
-                    Temperature = temperatureSetting 
-                    //Messages = new List<ChatMessage>
-                    //{
-                    //    ChatMessage.FromSystem(premiseSetting),
-                    //    ChatMessage.FromSystem(logSummary),
-                    //    ChatMessage.FromUser(userMessage)
-                    //},
-                    //MaxTokens = 50,
+                    Temperature = temperatureSetting
                 });
 
                 if (completionResult.Successful)
                 {
-                    var result = completionResult.Choices.First();
                     AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
 
                     // トークン量を計算してツールチップで表示
@@ -237,7 +222,7 @@ namespace OpenAIOnWPF
                     TokensLabel.ToolTip = tooltip;
 
                     conversationHistory.Add(ChatMessage.FromUser(userMessage));
-                    conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
+                    conversationHistory.Add(ChatMessage.FromAssistant(completionResult.Choices.First().Message.Content));
 
                     // その日のトークン使用量記録に追加
                     AddTokenUsage(totalTokens);
