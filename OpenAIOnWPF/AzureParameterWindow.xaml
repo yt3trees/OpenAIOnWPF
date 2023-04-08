@@ -57,7 +57,6 @@
                     MinWidth="60"
                     VerticalAlignment="Bottom"
                     Margin="160,0,0,0"
-                    Height="32"
                     Click="OkButton_Click" />
             <Button x:Name="CancelButton"
                     Content="Cancel"
