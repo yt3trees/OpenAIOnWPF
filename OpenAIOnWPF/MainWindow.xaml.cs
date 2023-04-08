@@ -48,7 +48,7 @@ namespace OpenAIOnWPF
         /// <summary>
         /// 会話履歴の保持数
         /// </summary>
-        public int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
+        public static int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
         /// <summary>
         /// Temperatureパラメータ(0~2)
         /// </summary>

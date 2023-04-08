@@ -11,25 +11,29 @@
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         MinWidth="600"
-        MinHeight="200"
+        MinHeight="250"
         HorizontalContentAlignment="Center"
         SizeToContent="WidthAndHeight"
         WindowStyle="None"
         Closing="Window_Closing"
         KeyDown="Window_KeyDown">
     <Window.Resources>
-        <Style TargetType="TextBox" x:Key="editingTextBoxStyle">
-            <EventSetter Event="KeyDown" Handler="editingTextBox_KeyDown" />
+        <Style TargetType="TextBox"
+               x:Key="editingTextBoxStyle">
+               <Setter Property="TextWrapping" Value="Wrap" />
+            <EventSetter Event="KeyDown"
+                         Handler="editingTextBox_KeyDown" />
         </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Button x:Name="OkButton"
                 Content="OK"
-                Grid.Row="1"
+                Grid.Row="2"
                 Style="{StaticResource AccentButtonStyle}"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Right"
@@ -37,8 +41,25 @@
                 MinWidth="60"
                 Click="OkButton_Click" />
         <DataGrid x:Name="DataTable"
+                  Grid.Row="1"
                   AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
-                  AutoGenerateColumns="True"/>
-
+                  AutoGenerateColumns="True"
+                  AlternatingRowBackground="#19FFFFFF" />
+        <StackPanel HorizontalAlignment="Center"
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center">
+            <Label Content="Number of conversation histories to keep"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
+            <ui:NumberBox x:Name="Numberbox"
+                          MinWidth="200"
+                          MinHeight="0"
+                          SpinButtonPlacementMode="Inline"
+                          SmallChange="1"
+                          Padding="10,10,10,10"
+                          Minimum="0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+        </StackPanel>
     </Grid>
 </Window>

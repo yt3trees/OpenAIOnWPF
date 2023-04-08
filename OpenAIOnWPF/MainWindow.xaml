@@ -84,10 +84,6 @@
                               Header="Temperature"
                               InputGestureText="F3"
                               Click="TemperatureMenuItem_Click" />
-                    <MenuItem x:Name="ConversationHistoryCountMenuItem"
-                              Header="Conversation history count"
-                              InputGestureText="F4"
-                              Click="ConversationHistoryCountMenuItem_Click" />
                     <MenuItem x:Name="ModelListMenuItem"
                               Header="ModelList"
                               InputGestureText="F5"

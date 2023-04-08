@@ -20,7 +20,6 @@ namespace OpenAIOnWPF
                 string content = "Ctrl + Enter -> Send Message\r\n"
                                 + "F2 -> Set Instruction List\r\n"
                                 + "F3 -> Set Temperature\r\n"
-                                + "F4 -> Set Conversation History Count\r\n"
                                 + "F5 -> Set ModelList\r\n"
                                 + "F11 -> View conversation history\r\n"
                                 + "F12 -> Set API key\r\n";
@@ -33,10 +32,6 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F3)
             {
                 TemperatureSettingWindowOpen();
-            }
-            if (e.Key == Key.F4)
-            {
-                ConversationHistoryCountSettingWindowOpen();
             }
             if (e.Key == Key.F5)
             {
@@ -150,10 +145,6 @@ namespace OpenAIOnWPF
         private void TemperatureMenuItem_Click(object sender, RoutedEventArgs e)
         {
             TemperatureSettingWindowOpen();
-        }
-        private void ConversationHistoryCountMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            ConversationHistoryCountSettingWindowOpen();
         }
         private void ModelListMenuItem_Click(object sender, RoutedEventArgs e)
         {
