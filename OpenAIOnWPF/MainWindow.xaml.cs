@@ -307,17 +307,6 @@ namespace OpenAIOnWPF
             }
         }
         /// <summary>
-        /// 会話履歴の保持数を設定する
-        /// </summary>
-        private void ConversationHistoryCountSettingWindowOpen()
-        {
-            string result = ShowSetting("Number of conversation histories to keep", conversationHistoryCountSetting.ToString(), "text");
-            if (result != "")
-            {
-                conversationHistoryCountSetting = int.Parse(result);
-            }
-        }
-        /// <summary>
         /// 選択できるモデルのリストを設定する
         /// </summary>
         private void ModelListSettingWindowOpen()
