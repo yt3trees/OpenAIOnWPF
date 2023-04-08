@@ -137,6 +137,12 @@ namespace OpenAIOnWPF
         {
             ShowTable();
         }
+        private void TokenUsage_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var window = new TokenUsageWindow();
+            window.Owner = this;
+            window.ShowDialog();
+        }
         private void InstructionSettingButton_Click(object sender, RoutedEventArgs e)
         {
             InstructionSettingWindowOpen();

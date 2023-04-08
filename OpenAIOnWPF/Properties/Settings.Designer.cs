@@ -118,5 +118,17 @@ namespace OpenAIOnWPF.Properties {
                 this["Instruction"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TokenUsage {
+            get {
+                return ((string)(this["TokenUsage"]));
+            }
+            set {
+                this["TokenUsage"] = value;
+            }
+        }
     }
 }

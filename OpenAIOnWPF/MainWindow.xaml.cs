@@ -1,14 +1,17 @@
 ﻿using Microsoft.Extensions.Primitives;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.Tokenizer.GPT3;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -54,6 +57,10 @@ namespace OpenAIOnWPF
         /// 通知フラグ
         /// </summary>
         public bool noticeFlgSetting = Properties.Settings.Default.NoticeFlg;
+        /// <summary>
+        /// トークン使用量
+        /// </summary>
+        public string[,] tokenUsageSetting = DeserializeArray(Properties.Settings.Default.TokenUsage);
         /// <summary>
         /// 会話履歴
         /// </summary>
@@ -179,6 +186,9 @@ namespace OpenAIOnWPF
                     conversationHistory.Add(ChatMessage.FromUser(userMessage));
                     conversationHistory.Add(ChatMessage.FromAssistant(result.Message.Content));
 
+                    // その日のトークン使用量記録に追加
+                    AddTokenUsage(totalTokens);
+
                     if (noticeFlgSetting)
                     {
                         new ToastContentBuilder()
@@ -269,13 +279,21 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
         }
-        private static string SerializeArray(string[,] array)
+        public static string SerializeArray(string[,] array)
         {
             return JsonConvert.SerializeObject(array);
         }
-        private static string[,] DeserializeArray(string serializedArray)
+        public static string[,] DeserializeArray(string serializedArray)
         {
-            return JsonConvert.DeserializeObject<string[,]>(serializedArray);
+            if (serializedArray == "" || serializedArray == null)
+            {
+                return new string[0, 0];
+            }
+            else
+            {
+                return JsonConvert.DeserializeObject<string[,]>(serializedArray);
+            }
+            //return JsonConvert.DeserializeObject<string[,]>(serializedArray);
         }
         /// <summary>
         /// Temperatureパラメータを設定する
@@ -347,6 +365,66 @@ namespace OpenAIOnWPF
                 instructionList[instructionList.Length - 1] = "";
                 InstructionComboBox.ItemsSource = instructionList;
             }
+        }
+        private void AddTokenUsage(int token)
+        {
+            int rowCount = tokenUsageSetting.GetLength(0);
+            int colCount = tokenUsageSetting.GetLength(1);
+            if (tokenUsageSetting == null || rowCount == 0 || colCount == 0)
+            {
+                // 日付、モデル、トークン量
+                string[,] temp = new string[0, 3];
+                tokenUsageSetting = temp;
+            }
+
+
+            string todayString = DateTime.Today.ToString("yyyy/MM/dd");
+            string[,] tokenUsage = tokenUsageSetting;
+            int tokenUsageCount = tokenUsage.GetLength(0);
+
+            //今日のトークン使用量があるか
+            bool todayTokenUsageExist = false;
+            for (int i = 0; i < tokenUsageCount; i++)
+            {
+                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == ModelComboBox.Text)
+                {
+                    // トークン使用量を加算
+                    tokenUsage[i, 2] = (int.Parse(tokenUsage[i, 2]) + token).ToString();
+                    todayTokenUsageExist = true;
+                }
+            }
+            //今日のトークン使用量がなければ追加
+            if (!todayTokenUsageExist)
+            {
+                //Array.Resize(ref tokenUsage, tokenUsageCount + 1);
+                tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 3);
+                tokenUsage[tokenUsageCount, 0] = todayString;
+                tokenUsage[tokenUsageCount, 1] = ModelComboBox.Text;
+                tokenUsage[tokenUsageCount, 2] = token.ToString();
+            }
+            tokenUsageSetting = tokenUsage;
+            Properties.Settings.Default.TokenUsage = SerializeArray(tokenUsageSetting);
+            Properties.Settings.Default.Save();
+        }
+        /// <summary>
+        /// 他次元配列のサイズを変更する
+        /// </summary>
+        public static string[,] ResizeArray(string[,] originalArray, int newRowCount, int newColCount)
+        {
+            int originalRowCount = originalArray.GetLength(0);
+            int originalColCount = originalArray.GetLength(1);
+
+            string[,] newArray = new string[newRowCount, newColCount];
+
+            for (int i = 0; i < Math.Min(originalRowCount, newRowCount); i++)
+            {
+                for (int j = 0; j < Math.Min(originalColCount, newColCount); j++)
+                {
+                    newArray[i, j] = originalArray[i, j];
+                }
+            }
+
+            return newArray;
         }
     }
 }

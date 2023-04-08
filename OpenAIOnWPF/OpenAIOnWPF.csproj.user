@@ -19,6 +19,9 @@
     <Compile Update="Table.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="TokenUsageWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
@@ -34,6 +37,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Table.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="TokenUsageWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

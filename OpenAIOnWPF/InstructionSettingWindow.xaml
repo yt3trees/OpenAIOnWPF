@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         mc:Ignorable="d"
-        Title="InstructionSettingWindow"
+        Title="Instruction Setting Window"
         Height="450"
         Width="600"
         KeyDown="Window_KeyDown">
