@@ -80,7 +80,8 @@
                               SelectionChanged="InstructionComboBox_SelectionChanged"
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
-                              Margin="0,0,5,0" />
+                              Margin="0,0,5,0"
+                              MaxWidth="170" />
                     <Button x:Name="InstructionSettingButton"
                               Grid.Column="1"
                             Content="..."

@@ -118,6 +118,16 @@ namespace OpenAIOnWPF
         {
             if (InstructionComboBox.SelectedItem == null) return;
             instructionSetting = InstructionComboBox.SelectedItem.ToString();
+            // ツールチップに内容を表示
+            string selectInstructionContent = "";
+            if (!String.IsNullOrEmpty(instructionSetting))
+            {
+                string[] instructionList = instructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
+                int index = Array.IndexOf(instructionList, instructionSetting);
+                selectInstructionContent = instructionListSetting[index, 1];
+            }
+            InstructionComboBox.ToolTip = "# " + instructionSetting + "\r\n"
+                                            + selectInstructionContent;
         }
         private void AssistantMarkdownText_MouseWheel(object sender, MouseWheelEventArgs e)
         {

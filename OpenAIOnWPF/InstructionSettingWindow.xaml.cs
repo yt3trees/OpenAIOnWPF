@@ -49,7 +49,7 @@ namespace OpenAIOnWPF
             // コンボボックスで選択している指示を開く
             for (int i = 0; i < items.GetLength(0); i++)
             {
-                if (instructionSetting == "")
+                if (instructionSetting == "" || instructionSetting == null)
                 {
                     InstructionListBox.SelectedIndex = 0;
                     break;
@@ -71,6 +71,15 @@ namespace OpenAIOnWPF
         }
         private void Save()
         {
+            if (InstructionListBox.SelectedIndex == -1)
+            {
+                return;
+            }
+            if (InstructionTextBox.Text == "")
+            {
+                ModernWpf.MessageBox.Show("The instruction name has not been entered.", "Error", MessageBoxButton.OK);
+                return;
+            }
             int index = InstructionListBox.SelectedIndex;
             items[index, 0] = InstructionTextBox.Text;
             items[index, 1] = ContentsTextBox.Text;
@@ -127,6 +136,10 @@ namespace OpenAIOnWPF
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Save();
+            }
+            if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 Save();
             }

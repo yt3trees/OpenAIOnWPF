@@ -51,7 +51,8 @@
                      MinWidth="150"
                      Grid.Row="0"
                      Margin="10,10,5,0"
-                     KeyDown="InstructionListBox_KeyDown" />
+                     KeyDown="InstructionListBox_KeyDown"
+                     Width="150" />
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
@@ -92,7 +93,18 @@
                         Width="120"
                         HorizontalAlignment="Center"
                         Margin="0,0,5,0"
-                        Click="SaveButton_Click" />
+                        Click="SaveButton_Click">
+                    <ui:FlyoutService.Flyout>
+                        <ui:Flyout x:Name="Flyout1">
+                            <StackPanel x:Name="StackPanelFlyout">
+                                <TextBlock Style="{StaticResource BaseTextBlockStyle}"
+                                           Text="Saved"
+                                           Margin="0,0,0,0" />
+                            </StackPanel>
+                        </ui:Flyout>
+                    </ui:FlyoutService.Flyout>
+                </Button>
+
                 <Button x:Name="CloseButton"
                         Content="Close"
                         VerticalAlignment="Top"
