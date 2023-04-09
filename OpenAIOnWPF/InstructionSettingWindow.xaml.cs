@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Windows;
@@ -52,6 +53,25 @@ namespace OpenAIOnWPF
             items[index, 0] = InstructionTextBox.Text;
             items[index, 1] = ContentsTextBox.Text;
 
+            for (int i = 0; i < items.GetLength(0); i++)
+            {
+                string currentName = items[i, 0];
+
+                for (int j = 0; j < items.GetLength(0); j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+
+                    if (items[i, 0] == items[j, 0])
+                    {
+                        currentName += "*";
+                        items[j, 0] = currentName;
+                    }
+                }
+            }
+            // Reset
             InstructionListBox.Items.Clear();
             for (int i = 0; i < items.GetLength(0); i++)
             {
@@ -235,6 +255,8 @@ namespace OpenAIOnWPF
         {
             // 登録内容をjsonファイルに出力
             string json = JsonConvert.SerializeObject(items);
+            json = JToken.Parse(json).ToString(Formatting.Indented);
+            
             // 出力先フォルダを選択
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
             dialog.Description = "Please select an output folder.";
