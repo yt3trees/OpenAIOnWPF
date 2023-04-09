@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using ModernWpf;
 using Newtonsoft.Json;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
@@ -11,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace OpenAIOnWPF
 {
@@ -83,6 +85,7 @@ namespace OpenAIOnWPF
         public MainWindow()
         {
             InitializeComponent();
+            InitialColorSet();
             UserTextBox.Focus();
             UserTextBox.MaxHeight = SystemParameters.PrimaryScreenHeight / 2;
             ModelComboBox.ItemsSource = modelListSetting;
@@ -103,7 +106,7 @@ namespace OpenAIOnWPF
 
             List<string> providers = new List<string>
             {
-                "OpenAi",
+                "OpenAI",
                 "Azure"
             };
             ProviderComboBox.ItemsSource = providers;
@@ -143,7 +146,7 @@ namespace OpenAIOnWPF
                 string? targetApiVersion = null;
                 switch(providerSetting)
                 {
-                    case "OpenAi":
+                    case "OpenAI":
                         targetType = ProviderType.OpenAi;
                         targetApiKey = apiKeySetting;
                         break;
@@ -453,6 +456,33 @@ namespace OpenAIOnWPF
             }
 
             return newArray;
+        }
+        public static void InitialColorSet()
+        {
+            string theme = Properties.Settings.Default.Theme;
+            if (theme == "Dark")
+            {
+                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            }
+            else if (theme == "Light")
+            {
+                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+            }
+            else
+            {
+                ThemeManager.Current.ApplicationTheme = null;
+            }
+            
+            string accentColor = Properties.Settings.Default.AccentColor;
+            if (accentColor == "Default" || accentColor == "")
+            {
+                ThemeManager.Current.AccentColor = null;
+            }
+            else
+            {
+                var color = (Color)ColorConverter.ConvertFromString(accentColor);
+                ThemeManager.Current.AccentColor = color;
+            }
         }
     }
 }

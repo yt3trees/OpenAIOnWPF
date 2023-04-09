@@ -104,6 +104,10 @@
                               Header="ModelList"
                               InputGestureText="F5"
                               Click="ModelListMenuItem_Click" />
+                    <MenuItem x:Name="ColorMenuItem"
+                              Header="Color Theme"
+                              InputGestureText="F6"
+                              Click="ColorMenuItem_Click" />
                     <MenuItem x:Name="APIKeyMenuItem"
                               Header="OpenAI APIKey"
                               InputGestureText="F11"
@@ -115,6 +119,7 @@
                 </MenuItem>
             </Menu>
         </Grid>
+     <Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" />
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
@@ -165,7 +170,8 @@
                                     ScrollViewer.CanContentScroll="True"
                                     Grid.Row="3"
                                     Padding="10,10,10,10"
-                                    MouseWheel="AssistantMarkdownText_MouseWheel" />
+                                    MouseWheel="AssistantMarkdownText_MouseWheel"
+                                    />
         <StatusBar Grid.Row="4">
             <StatusBarItem HorizontalAlignment="Right"
                            DockPanel.Dock="Right">

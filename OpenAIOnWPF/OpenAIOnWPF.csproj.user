@@ -10,6 +10,9 @@
     <Compile Update="AzureParameterWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ColorSettings.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Messagebox.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -28,6 +31,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="AzureParameterWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ColorSettings.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MainWindow.xaml">

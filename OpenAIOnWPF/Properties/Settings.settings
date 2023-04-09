@@ -30,7 +30,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Provider" Type="System.String" Scope="User">
-      <Value Profile="(Default)">OpenAi</Value>
+      <Value Profile="(Default)">OpenAI</Value>
     </Setting>
     <Setting Name="AzureAPIKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -42,6 +42,12 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="AzureDeploymentId" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AccentColor" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Theme" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

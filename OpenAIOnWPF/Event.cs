@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 namespace OpenAIOnWPF
@@ -41,6 +42,12 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F5)
             {
                 ModelListSettingWindowOpen();
+            }
+            if (e.Key == Key.F6)
+            {
+                var window = new ColorSettings();
+                window.Owner = this;
+                window.ShowDialog();
             }
             if (e.Key == Key.F11)
             {
@@ -183,6 +190,17 @@ namespace OpenAIOnWPF
             var window = new AzureParameterWindow();
             window.Owner = this;
             window.ShowDialog();
+        }
+        private void ColorMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new ColorSettings();
+            window.Owner = this;
+            window.ShowDialog();
+        }
+        private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            //UserTextBox.Width = Math.Max(UserTextBox.ActualWidth + e.HorizontalChange, UserTextBox.MinWidth);
+            UserTextBox.Height = Math.Max(UserTextBox.ActualHeight + e.VerticalChange, UserTextBox.MinHeight);
         }
     }
 }
