@@ -22,7 +22,6 @@ namespace OpenAIOnWPF
                                 + "F2 -> Set Instruction List\r\n"
                                 + "F3 -> Set Temperature\r\n"
                                 + "F4 -> View conversation history\r\n"
-                                + "F5 -> Set ModelList\r\n"
                                 + "F11 -> Set Api key(OpenAI)\r\n"
                                 + "F12 -> Set Azure OpenAI Parameter\r\n";
                 ShowMessagebox("Help",content);
@@ -38,10 +37,6 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F4)
             {
                 ShowTable();
-            }
-            if (e.Key == Key.F5)
-            {
-                ModelListSettingWindowOpen();
             }
             if (e.Key == Key.F6)
             {
@@ -174,10 +169,6 @@ namespace OpenAIOnWPF
         private void TemperatureMenuItem_Click(object sender, RoutedEventArgs e)
         {
             TemperatureSettingWindowOpen();
-        }
-        private void ModelListMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            ModelListSettingWindowOpen();
         }
         private void APIKeyMenuItem_Click(object sender, RoutedEventArgs e)
         {

@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using ModernWpf;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using static OpenAIOnWPF.MainWindow;
 
@@ -41,6 +43,16 @@ namespace OpenAIOnWPF
                 });
             }
             DataTable.ItemsSource = list;
+            if (ThemeManager.Current.ApplicationTheme == ApplicationTheme.Light)
+            {
+                Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19000000"));
+                DataTable.AlternatingRowBackground = brush;
+            }
+            else
+            {
+                Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19FFFFFF"));
+                DataTable.AlternatingRowBackground = brush;
+            }
         }
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {

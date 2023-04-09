@@ -359,25 +359,6 @@ namespace OpenAIOnWPF
             }
         }
         /// <summary>
-        /// 選択できるモデルのリストを設定する
-        /// </summary>
-        private void ModelListSettingWindowOpen()
-        {
-            string modelListString = "";
-            foreach (var item in modelListSetting)
-            {
-                modelListString += item + ",";
-            }
-            modelListString = modelListString.TrimEnd(',');
-
-            string result = ShowSetting("Model", modelListString, "text");
-            if (result != "")
-            {
-                modelListSetting = result.Split(',').ToList();
-            }
-            ModelComboBox.ItemsSource = modelListSetting;
-        }
-        /// <summary>
         /// APIKeyを設定する
         /// </summary>
         private void APIKeySettingWindowOpen()

@@ -10,8 +10,8 @@
         ShowInTaskbar="False"
         mc:Ignorable="d"
         Title="Instruction Setting Window"
-        Height="450"
-        Width="600"
+        Height="433"
+        Width="700"
         KeyDown="Window_KeyDown">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -52,7 +52,7 @@
                      Grid.Row="0"
                      Margin="10,10,5,0"
                      KeyDown="InstructionListBox_KeyDown"
-                     Width="150" />
+                     Width="170" />
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

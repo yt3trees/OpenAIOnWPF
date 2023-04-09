@@ -43,8 +43,7 @@
         <DataGrid x:Name="DataTable"
                   Grid.Row="1"
                   AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
-                  AutoGenerateColumns="True"
-                  AlternatingRowBackground="#19FFFFFF" />
+                  AutoGenerateColumns="True" />
         <StackPanel HorizontalAlignment="Center"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center">

@@ -9,14 +9,13 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         mc:Ignorable="d"
         Title="OpenAI"
-        Width="600"
+        Width="700"
         WindowStartupLocation="CenterScreen"
-        Height="300"
-        SizeToContent="Height"
         KeyDown="Window_KeyDown"
         Icon="/OpenAI.png"
         Topmost="True"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        Height="433">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
@@ -81,7 +80,7 @@
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
                               Margin="0,0,5,0"
-                              MaxWidth="170" />
+                              MaxWidth="200" />
                     <Button x:Name="InstructionSettingButton"
                               Grid.Column="1"
                             Content="..."
@@ -101,10 +100,6 @@
                               Header="Temperature"
                               InputGestureText="F3"
                               Click="TemperatureMenuItem_Click" />
-                    <MenuItem x:Name="ModelListMenuItem"
-                              Header="ModelList"
-                              InputGestureText="F5"
-                              Click="ModelListMenuItem_Click" />
                     <MenuItem x:Name="ColorMenuItem"
                               Header="Color Theme"
                               InputGestureText="F6"
@@ -125,7 +120,7 @@
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
-                 MinHeight="80"
+                 MinHeight="100"
                  MinWidth="0"
                  KeyDown="UserTextBox_KeyDown"
                  FontSize="16"
