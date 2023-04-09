@@ -56,5 +56,10 @@ namespace OpenAIOnWPF
                 DialogResult = false;
             }
         }
+
+        private void OkButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+        }
     }
 }
