@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -226,6 +229,52 @@ namespace OpenAIOnWPF
             if (e.Key == Key.J)
             {
                 DownSwap();
+            }
+        }
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 登録内容をjsonファイルに出力
+            string json = JsonConvert.SerializeObject(items);
+            // 出力先フォルダを選択
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            dialog.Description = "Please select an output folder.";
+            dialog.RootFolder = Environment.SpecialFolder.Desktop;
+            //dialog.SelectedPath = "C:\\work\\dev\\OpenAI\\OpenAIOnWPF\\OpenAIOnWPF\\";
+            dialog.ShowNewFolderButton = true;
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string path = dialog.SelectedPath;
+                File.WriteAllText(path + "\\instruction.json", json);
+            }
+            ModernWpf.MessageBox.Show("Exported successfully.");
+        }
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            var okFlg = ModernWpf.MessageBox.Show("Overwrite with the contents of the selected json file. Are you sure?", "Question", MessageBoxButton.YesNo);
+            if (okFlg == MessageBoxResult.Yes)
+            {
+                // jsonファイルを読み込み
+                var dialog = new System.Windows.Forms.OpenFileDialog();
+                dialog.Title = "Please select a json file.";
+                dialog.Filter = "json files (*.json)|*.json|All files (*.*)|*.*";
+                dialog.FilterIndex = 1;
+                dialog.RestoreDirectory = true;
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    string path = dialog.FileName;
+                    string json = File.ReadAllText(path);
+                    items = JsonConvert.DeserializeObject<string[,]>(json);
+                    // ListBoxにアイテムを再セット
+                    InstructionListBox.Items.Clear();
+                    for (int i = 0; i < items.GetLength(0); i++)
+                    {
+                        InstructionListBox.Items.Add(items[i, 0]);
+                    }
+                    InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
+                }
+                ModernWpf.MessageBox.Show("Imported successfully.");
             }
         }
     }

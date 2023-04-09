@@ -81,6 +81,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Button x:Name="SaveButton"
                         Content="Save"
@@ -99,6 +101,30 @@
                         HorizontalAlignment="Center"
                         Margin="5,0,0,0"
                         Click="CloseButton_Click" />
+            <Button x:Name="ExportButton"
+                        Content="📤"
+                    Grid.Row="2"
+                        Grid.Column="2"
+                        VerticalAlignment="Top"
+                        Margin="5,0,0,0"
+                        Width="30"
+                        Height="30"
+                        Padding="0,0,0,0"
+                        VerticalContentAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Click="ExportButton_Click" />
+            <Button x:Name="ImportButton"
+                        Content="📥"
+                    Grid.Row="2"
+                        Grid.Column="3"
+                        VerticalAlignment="Top"
+                        Margin="5,0,0,0"
+                        Width="30"
+                        Height="30"
+                        Padding="0,0,0,0"
+                        VerticalContentAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Click="ImportButton_Click" />
             </Grid>
         </Grid>
     </Grid>
