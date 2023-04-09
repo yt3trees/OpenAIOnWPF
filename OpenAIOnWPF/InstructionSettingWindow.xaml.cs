@@ -268,8 +268,8 @@ namespace OpenAIOnWPF
             {
                 string path = dialog.SelectedPath;
                 File.WriteAllText(path + "\\instruction.json", json);
+                ModernWpf.MessageBox.Show("Exported successfully.");
             }
-            ModernWpf.MessageBox.Show("Exported successfully.");
         }
         private void ImportButton_Click(object sender, RoutedEventArgs e)
         {
@@ -295,8 +295,8 @@ namespace OpenAIOnWPF
                         InstructionListBox.Items.Add(items[i, 0]);
                     }
                     InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
+                    ModernWpf.MessageBox.Show("Imported successfully.");
                 }
-                ModernWpf.MessageBox.Show("Imported successfully.");
             }
         }
     }
