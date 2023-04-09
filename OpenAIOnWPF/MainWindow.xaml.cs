@@ -46,6 +46,10 @@ namespace OpenAIOnWPF
         /// </summary>
         public static int conversationHistoryCountSetting = Properties.Settings.Default.ConversationHistoryCount;
         /// <summary>
+        /// MAXトークン数
+        /// </summary>
+        public int maxTokensSetting = Properties.Settings.Default.MaxTokens;
+        /// <summary>
         /// Temperatureパラメータ(0~2)
         /// </summary>
         public float temperatureSetting = Properties.Settings.Default.Temperature;
@@ -204,7 +208,8 @@ namespace OpenAIOnWPF
                 var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
                 {
                     Messages = messages,
-                    Temperature = temperatureSetting
+                    Temperature = temperatureSetting,
+                    MaxTokens = maxTokensSetting
                 });
 
                 if (completionResult.Successful)
@@ -352,10 +357,32 @@ namespace OpenAIOnWPF
         /// </summary>
         private void TemperatureSettingWindowOpen()
         {
-            string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
-            if (result != "")
+            try
             {
-                temperatureSetting = float.Parse(result);
+                string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
+                if (result != "")
+                {
+                    temperatureSetting = float.Parse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModernWpf.MessageBox.Show(ex.ToString());
+            }
+        }
+        private void MaxTokensSettingWindowOpen()
+        {
+            try
+            {
+                string result = ShowSetting("MaxTokens", maxTokensSetting.ToString(), "int");
+                if (result != "")
+                {
+                    maxTokensSetting = int.Parse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModernWpf.MessageBox.Show(ex.ToString());
             }
         }
         /// <summary>

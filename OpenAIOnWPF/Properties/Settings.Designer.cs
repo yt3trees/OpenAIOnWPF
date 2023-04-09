@@ -214,5 +214,17 @@ namespace OpenAIOnWPF.Properties {
                 this["Theme"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2048")]
+        public int MaxTokens {
+            get {
+                return ((int)(this["MaxTokens"]));
+            }
+            set {
+                this["MaxTokens"] = value;
+            }
+        }
     }
 }

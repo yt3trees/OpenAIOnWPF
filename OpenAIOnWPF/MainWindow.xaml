@@ -96,9 +96,13 @@
                 <MenuItem Header="Settings"
                           Padding="0,0,0,0"
                           Height="60">
+                    <MenuItem x:Name="MaxTokensMenuItem"
+                              Header="MaxTokens"
+                              InputGestureText="F3"
+                              Click="MaxTokensMenuItem_Click" />
                     <MenuItem x:Name="TemperatureMenuItem"
                               Header="Temperature"
-                              InputGestureText="F3"
+                              InputGestureText="F4"
                               Click="TemperatureMenuItem_Click" />
                     <MenuItem x:Name="ColorMenuItem"
                               Header="Color Theme"

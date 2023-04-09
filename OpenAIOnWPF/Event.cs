@@ -20,8 +20,9 @@ namespace OpenAIOnWPF
             {
                 string content = "Ctrl + Enter -> Send Message\r\n"
                                 + "F2 -> Set Instruction List\r\n"
-                                + "F3 -> Set Temperature\r\n"
-                                + "F4 -> View conversation history\r\n"
+                                + "F3 -> Set MaxTokens\r\n"
+                                + "F4 -> Set Temperature\r\n"
+                                + "F5 -> View conversation history\r\n"
                                 + "F11 -> Set Api key(OpenAI)\r\n"
                                 + "F12 -> Set Azure OpenAI Parameter\r\n";
                 ShowMessagebox("Help",content);
@@ -32,9 +33,13 @@ namespace OpenAIOnWPF
             }
             if (e.Key == Key.F3)
             {
-                TemperatureSettingWindowOpen();
+                MaxTokensSettingWindowOpen();
             }
             if (e.Key == Key.F4)
+            {
+                TemperatureSettingWindowOpen();
+            }
+            if (e.Key == Key.F5)
             {
                 ShowTable();
             }
@@ -93,6 +98,7 @@ namespace OpenAIOnWPF
             }
             Properties.Settings.Default.ModelList = list;
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
+            Properties.Settings.Default.MaxTokens = maxTokensSetting;
             Properties.Settings.Default.Temperature = temperatureSetting;
             Properties.Settings.Default.APIKey = apiKeySetting;
             Properties.Settings.Default.NoticeFlg = noticeFlgSetting;
@@ -165,6 +171,10 @@ namespace OpenAIOnWPF
         private void InstructionSettingButton_Click(object sender, RoutedEventArgs e)
         {
             InstructionSettingWindowOpen();
+        }
+        private void MaxTokensMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MaxTokensSettingWindowOpen();
         }
         private void TemperatureMenuItem_Click(object sender, RoutedEventArgs e)
         {

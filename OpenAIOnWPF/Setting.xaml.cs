@@ -45,6 +45,12 @@ namespace OpenAIOnWPF
             {
                 isNumber = true;
             }
+            else if (type == "int")
+            {
+                isNumber = true;
+                SettingNumberbox.SmallChange = 1;
+                SettingNumberbox.Maximum = 10000000000000;
+            }
             else
             {
                 isText = true;
