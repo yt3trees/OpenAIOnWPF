@@ -69,21 +69,8 @@ namespace OpenAIOnWPF
                 InstructionListBox.Items.Add(items[i, 0]);
             }
         }
-        private void Save()
+        private void DuplicateControl()
         {
-            if (InstructionListBox.SelectedIndex == -1)
-            {
-                return;
-            }
-            if (InstructionTextBox.Text == "")
-            {
-                ModernWpf.MessageBox.Show("The instruction name has not been entered.", "Error", MessageBoxButton.OK);
-                return;
-            }
-            int index = InstructionListBox.SelectedIndex;
-            items[index, 0] = InstructionTextBox.Text;
-            items[index, 1] = ContentsTextBox.Text;
-
             for (int i = 0; i < items.GetLength(0); i++)
             {
                 string currentName = items[i, 0];
@@ -102,6 +89,23 @@ namespace OpenAIOnWPF
                     }
                 }
             }
+        }
+        private void Save()
+        {
+            if (InstructionListBox.SelectedIndex == -1)
+            {
+                return;
+            }
+            if (InstructionTextBox.Text == "")
+            {
+                ModernWpf.MessageBox.Show("The instruction name has not been entered.", "Error", MessageBoxButton.OK);
+                return;
+            }
+            int index = InstructionListBox.SelectedIndex;
+            items[index, 0] = InstructionTextBox.Text;
+            items[index, 1] = ContentsTextBox.Text;
+
+            DuplicateControl();
             UpdateInstructionListBox();
             InstructionListBox.SelectedIndex = index;
         }
@@ -304,6 +308,9 @@ namespace OpenAIOnWPF
                         ModernWpf.MessageBox.Show("Imported successfully.");
                     }
                 }
+
+                DuplicateControl();
+                UpdateInstructionListBox();
             }
             catch (Exception ex)
             {
