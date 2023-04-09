@@ -119,7 +119,8 @@
                 </MenuItem>
             </Menu>
         </Grid>
-     <Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" />
+     <Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
+            ToolTip="You can resize the user text box by dragging it with the mouse."/>
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
