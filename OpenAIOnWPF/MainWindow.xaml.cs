@@ -81,6 +81,13 @@ namespace OpenAIOnWPF
         /// 会話履歴
         /// </summary>
         private List<ChatMessage> conversationHistory = new List<ChatMessage>();
+        /// <summary>
+        /// DataBinding用クラス
+        /// </summary>
+        public class DataBind
+        {
+            public string? PlaceHolder { get; set; }
+        }
 
         public MainWindow()
         {
@@ -239,6 +246,10 @@ namespace OpenAIOnWPF
 
                     sw.Stop();
                     TimeLabel.Content = $"{sw.ElapsedMilliseconds} ms";
+
+                    // 入力内容を消してプレースホルダーに入力内容を入れる
+                    this.DataContext = new DataBind { PlaceHolder = userMessage };
+                    UserTextBox.Text = "";
                 }
                 else
                 {

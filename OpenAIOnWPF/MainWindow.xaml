@@ -130,6 +130,7 @@
                  Grid.Row="1"
                  VerticalScrollBarVisibility="Auto"
                  MouseWheel="UserTextBox_MouseWheel"
+                 ui:ControlHelper.PlaceholderText="{Binding PlaceHolder}"
                  TextChanged="UserTextBox_TextChanged" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
