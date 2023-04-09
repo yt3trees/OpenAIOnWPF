@@ -32,7 +32,7 @@ namespace OpenAIOnWPF
         /// <summary>
         /// 指示内容
         /// </summary>
-        public string instructionSetting = Properties.Settings.Default.Instruction;
+        public static string instructionSetting = Properties.Settings.Default.Instruction;
         /// <summary>
         /// 指示内容のリスト
         /// </summary>
@@ -396,7 +396,6 @@ namespace OpenAIOnWPF
             var window = new InstructionSettingWindow(instructionListSetting);
             window.Owner = this;
             bool result = (bool)window.ShowDialog();
-            string[,] resultList = window.inputResult;
             if (result)
             {
                 instructionListSetting = result ? window.inputResult : null;

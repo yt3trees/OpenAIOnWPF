@@ -65,7 +65,7 @@
                 <TextBox x:Name="InstructionTextBox"
                          ui:ControlHelper.PlaceholderText="Title"
                          MinWidth="150"
-                         KeyDown="InstructionTextBox_KeyDown" />
+                         KeyDown="TextBox_KeyDown" />
             </StackPanel>
             <TextBox x:Name="ContentsTextBox"
                      Margin="5,0,10,0"
@@ -74,7 +74,7 @@
                      AcceptsReturn="True"
                      ui:ControlHelper.PlaceholderText="Contents of instruction"
                      AcceptsTab="True"
-                     KeyDown="ContentsTextBox_KeyDown" />
+                     KeyDown="TextBox_KeyDown" />
             <Grid Grid.Row="2"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center">

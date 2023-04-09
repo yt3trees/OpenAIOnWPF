@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static OpenAIOnWPF.MainWindow;
 
 namespace OpenAIOnWPF
 {
@@ -13,7 +14,7 @@ namespace OpenAIOnWPF
     /// </summary>
     public partial class InstructionSettingWindow : Window
     {
-        public string[,] inputResult { get { return ReturnItems(); } }
+        public string[,] inputResult => items;
         string[,] items { get; set; }
         public InstructionSettingWindow(string[,] param)
         {
@@ -40,12 +41,33 @@ namespace OpenAIOnWPF
                 items[0, 1] = "";
             }
 
-            //itemsの1列目をInstructionListBoxに格納
+            // itemsの1列目をInstructionListBoxに格納
             for (int i = 0; i < items.GetLength(0); i++)
             {
                 InstructionListBox.Items.Add(items[i, 0]);
             }
-            InstructionListBox.SelectedIndex = 0;
+            // コンボボックスで選択している指示を開く
+            for (int i = 0; i < items.GetLength(0); i++)
+            {
+                if (instructionSetting == "")
+                {
+                    InstructionListBox.SelectedIndex = 0;
+                    break;
+                }
+                if (items[i, 0] == instructionSetting)
+                {
+                    InstructionListBox.SelectedIndex = i;
+                    break;
+                }
+            }
+        }
+        private void UpdateInstructionListBox()
+        {
+            InstructionListBox.Items.Clear();
+            for (int i = 0; i < items.GetLength(0); i++)
+            {
+                InstructionListBox.Items.Add(items[i, 0]);
+            }
         }
         private void Save()
         {
@@ -71,17 +93,8 @@ namespace OpenAIOnWPF
                     }
                 }
             }
-            // Reset
-            InstructionListBox.Items.Clear();
-            for (int i = 0; i < items.GetLength(0); i++)
-            {
-                InstructionListBox.Items.Add(items[i, 0]);
-            }
+            UpdateInstructionListBox();
             InstructionListBox.SelectedIndex = index;
-        }
-        private string[,] ReturnItems()
-        {
-            return items;
         }
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -111,23 +124,13 @@ namespace OpenAIOnWPF
                 DialogResult = false;
             }
         }
-
-        private void ContentsTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 Save();
             }
         }
-
-        private void InstructionTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                Save();
-            }
-        }
-
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             // itemsの行数を1増やす
@@ -141,12 +144,7 @@ namespace OpenAIOnWPF
             newItems[items.GetLength(0), 1] = "";
             items = newItems;
 
-            // 再セット
-            InstructionListBox.Items.Clear();
-            for (int i = 0; i < items.GetLength(0); i++)
-            {
-                InstructionListBox.Items.Add(items[i, 0]);
-            }
+            UpdateInstructionListBox();
             InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
         }
 
@@ -171,12 +169,7 @@ namespace OpenAIOnWPF
             }
             items = newItems;
 
-            // 再セット
-            InstructionListBox.Items.Clear();
-            for (int i = 0; i < items.GetLength(0); i++)
-            {
-                InstructionListBox.Items.Add(items[i, 0]);
-            }
+            UpdateInstructionListBox();
             InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
         }
         private void SwapItems(int index, bool isUp)
@@ -213,12 +206,7 @@ namespace OpenAIOnWPF
             }
             // 新しいアイテム配列をセット
             items = newItems;
-            // ListBoxにアイテムを再セット
-            InstructionListBox.Items.Clear();
-            for (int i = 0; i < items.GetLength(0); i++)
-            {
-                InstructionListBox.Items.Add(items[i, 0]);
-            }
+            UpdateInstructionListBox();
             // 入れ替え後のインデックスを選択状態にする
             InstructionListBox.SelectedIndex = newIndex;
         }
@@ -253,50 +241,60 @@ namespace OpenAIOnWPF
         }
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
-            // 登録内容をjsonファイルに出力
-            string json = JsonConvert.SerializeObject(items);
-            json = JToken.Parse(json).ToString(Formatting.Indented);
-            
-            // 出力先フォルダを選択
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
-            dialog.Description = "Please select an output folder.";
-            dialog.RootFolder = Environment.SpecialFolder.Desktop;
-            //dialog.SelectedPath = "C:\\work\\dev\\OpenAI\\OpenAIOnWPF\\OpenAIOnWPF\\";
-            dialog.ShowNewFolderButton = true;
-            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
+            try
             {
-                string path = dialog.SelectedPath;
-                File.WriteAllText(path + "\\instruction.json", json);
-                ModernWpf.MessageBox.Show("Exported successfully.");
+                // 登録内容をjsonファイルに出力
+                string json = JsonConvert.SerializeObject(items);
+                json = JToken.Parse(json).ToString(Formatting.Indented);
+
+                // 出力先フォルダを選択
+                var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                dialog.Description = "Please select an output folder.";
+                dialog.RootFolder = Environment.SpecialFolder.Desktop;
+                //dialog.SelectedPath = "C:\\work\\dev\\OpenAI\\OpenAIOnWPF\\OpenAIOnWPF\\";
+                dialog.ShowNewFolderButton = true;
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    string path = dialog.SelectedPath;
+                    File.WriteAllText(path + "\\instruction.json", json);
+                    ModernWpf.MessageBox.Show("Exported successfully.");
+                }
+            }
+            catch(Exception ex)
+            {
+                ModernWpf.MessageBox.Show(ex.Message);
             }
         }
         private void ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            var okFlg = ModernWpf.MessageBox.Show("Overwrite with the contents of the selected json file. Are you sure?", "Question", MessageBoxButton.YesNo);
-            if (okFlg == MessageBoxResult.Yes)
+            try
             {
-                // jsonファイルを読み込み
-                var dialog = new System.Windows.Forms.OpenFileDialog();
-                dialog.Title = "Please select a json file.";
-                dialog.Filter = "json files (*.json)|*.json|All files (*.*)|*.*";
-                dialog.FilterIndex = 1;
-                dialog.RestoreDirectory = true;
-                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-                if (result == System.Windows.Forms.DialogResult.OK)
+                var okFlg = ModernWpf.MessageBox.Show("Overwrite with the contents of the selected json file. Are you sure?", "Question", MessageBoxButton.YesNo);
+                if (okFlg == MessageBoxResult.Yes)
                 {
-                    string path = dialog.FileName;
-                    string json = File.ReadAllText(path);
-                    items = JsonConvert.DeserializeObject<string[,]>(json);
-                    // ListBoxにアイテムを再セット
-                    InstructionListBox.Items.Clear();
-                    for (int i = 0; i < items.GetLength(0); i++)
+                    // jsonファイルを読み込み
+                    var dialog = new System.Windows.Forms.OpenFileDialog();
+                    dialog.Title = "Please select a json file.";
+                    dialog.Filter = "json files (*.json)|*.json|All files (*.*)|*.*";
+                    dialog.FilterIndex = 1;
+                    dialog.RestoreDirectory = true;
+                    System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK)
                     {
-                        InstructionListBox.Items.Add(items[i, 0]);
+                        string path = dialog.FileName;
+                        string json = File.ReadAllText(path);
+                        items = JsonConvert.DeserializeObject<string[,]>(json);
+                        // ListBoxにアイテムを再セット
+                        UpdateInstructionListBox();
+                        InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
+                        ModernWpf.MessageBox.Show("Imported successfully.");
                     }
-                    InstructionListBox.SelectedIndex = items.GetLength(0) - 1;
-                    ModernWpf.MessageBox.Show("Imported successfully.");
                 }
+            }
+            catch (Exception ex)
+            {
+                ModernWpf.MessageBox.Show(ex.Message);
             }
         }
     }
