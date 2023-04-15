@@ -5,11 +5,11 @@
 OpenAIOnWPF is a WPF application for interacting with desktop applications using the OpenAI API.
 
 ## Usage
-1. run the application
-2. Press F12 (first time only) to set the API key you got.
-3. Type your question or comment in the text box and press Ctrl + Enter or click the Send button to send it to the API. 
+1. run the application.
+2. Click the button next to the Configuration combo box and set the API key.
+3. Type your question or comment in the text box and press Ctrl + Enter or click the Send button to submit.
 4. The response from the API will appear in the Assistant text box.
-5. If necessary, send further messages to continue the dialogue.
+5. continue the dialogue by sending further messages if necessary.
 
 ## Author
 
