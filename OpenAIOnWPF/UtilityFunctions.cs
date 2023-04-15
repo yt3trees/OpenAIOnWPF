@@ -48,7 +48,6 @@ namespace OpenAIOnWPF
         {
             if (AppSettings.ConfigDataTable == null)
             {
-                InitializeConfigDataTable();
                 DataSet ds = new DataSet();
                 AppSettings.ConfigDataTable = new DataTable();
                 AppSettings.ConfigDataTable.Columns.Add("ConfigurationName", typeof(string));
