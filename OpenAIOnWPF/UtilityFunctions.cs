@@ -98,7 +98,7 @@ namespace OpenAIOnWPF
         public static void ShowMessagebox(string title, string content)
         {
             var window = new Messagebox(title, content);
-            window.Owner = Window.GetWindow(window);
+            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             window.ShowDialog();
         }
         /// <summary>
