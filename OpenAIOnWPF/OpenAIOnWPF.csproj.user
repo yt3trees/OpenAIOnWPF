@@ -19,6 +19,9 @@
     <Compile Update="InstructionSettingWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ConfigSettingWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Setting.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -43,6 +46,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="InstructionSettingWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ConfigSettingWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Setting.xaml">

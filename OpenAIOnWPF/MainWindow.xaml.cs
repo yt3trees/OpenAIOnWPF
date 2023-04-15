@@ -9,10 +9,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Xml.Serialization;
 
 namespace OpenAIOnWPF
 {
@@ -24,11 +27,11 @@ namespace OpenAIOnWPF
         /// <summary>
         /// モデル
         /// </summary>
-        public string modelSetting =  Properties.Settings.Default.Model;
+        public string modelSetting;
         /// <summary>
         /// 指定できるモデルのリスト
         /// </summary>
-        public List<string> modelListSetting = Properties.Settings.Default.ModelList.Split(',').ToList();
+        public List<string> modelListSetting;
         /// <summary>
         /// 指示内容
         /// </summary>
@@ -38,9 +41,9 @@ namespace OpenAIOnWPF
         /// </summary>
         public string[,] instructionListSetting = DeserializeArray(Properties.Settings.Default.InstructionList);
         /// <summary>
-        /// APIキー(OpenAi)
+        /// APIキー
         /// </summary>
-        public string apiKeySetting = Properties.Settings.Default.APIKey;
+        public string apiKeySetting;
         /// <summary>
         /// 会話履歴の保持数
         /// </summary>
@@ -48,11 +51,11 @@ namespace OpenAIOnWPF
         /// <summary>
         /// MAXトークン数
         /// </summary>
-        public int maxTokensSetting = Properties.Settings.Default.MaxTokens;
+        public int maxTokensSetting;
         /// <summary>
         /// Temperatureパラメータ(0~2)
         /// </summary>
-        public float temperatureSetting = Properties.Settings.Default.Temperature;
+        public float temperatureSetting;
         /// <summary>
         /// 通知フラグ
         /// </summary>
@@ -64,23 +67,25 @@ namespace OpenAIOnWPF
         /// <summary>
         /// 選択プロバイダ
         /// </summary>
-        public static string providerSetting = Properties.Settings.Default.Provider;
+        public static string providerSetting;
         /// <summary>
         /// APIキー(Azure)
         /// </summary>
-        public static string azureApiKeySetting = Properties.Settings.Default.AzureAPIKey;
+        public static string azureApiKeySetting;
         /// <summary>
         /// Azureエンドポイント
         /// </summary>
-        public static string baseDomainSetting = Properties.Settings.Default.AzureBaseDomain;
+        public static string baseDomainSetting;
         /// <summary>
         /// Azureモデルデプロイ名
         /// </summary>
-        public static string deploymentIdSetting = Properties.Settings.Default.AzureDeploymentId;
+        public static string deploymentIdSetting;
         /// <summary>
         /// Apiバージョン
         /// </summary>
-        public static string apiVersionSetting = Properties.Settings.Default.AzureApiVersion;
+        public static string apiVersionSetting;
+        public static DataTable configDataTable = DeserializeDataTable(Properties.Settings.Default.ConfigDataTable);
+        public static string selectConfigSetting = Properties.Settings.Default.SelectConfig;
         /// <summary>
         /// 会話履歴
         /// </summary>
@@ -98,10 +103,9 @@ namespace OpenAIOnWPF
             InitializeComponent();
             InitialColorSet();
             UserTextBox.Focus();
-            UserTextBox.MaxHeight = SystemParameters.PrimaryScreenHeight / 2;
-            ModelComboBox.ItemsSource = modelListSetting;
-            ModelComboBox.Text = modelSetting;
+            //UserTextBox.MaxHeight = SystemParameters.PrimaryScreenHeight / 2;
             NoticeCheckbox.IsChecked = noticeFlgSetting;
+            this.DataContext = new DataBind { PlaceHolder = "Send a message..." };
 
             string[] instructionList = instructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
             if (instructionList != null)
@@ -115,13 +119,24 @@ namespace OpenAIOnWPF
             var appSettings = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.PerUserRoamingAndLocal);
             Debug.Print("Path to save the configuration file:" + appSettings.FilePath);
 
-            List<string> providers = new List<string>
+            if (configDataTable == null)
             {
-                "OpenAI",
-                "Azure"
-            };
-            ProviderComboBox.ItemsSource = providers;
-            ProviderComboBox.SelectedValue = providerSetting ;
+                DataSet ds = new DataSet();
+                configDataTable = new DataTable();
+                configDataTable.Columns.Add("ConfigurationName", typeof(string));
+                configDataTable.Columns.Add("Provider", typeof(string));
+                configDataTable.Columns.Add("Model", typeof(string));
+                configDataTable.Columns.Add("APIKey", typeof(string));
+                configDataTable.Columns.Add("DeploymentId", typeof(string));
+                configDataTable.Columns.Add("BaseDomain", typeof(string));
+                configDataTable.Columns.Add("ApiVersion", typeof(string));
+                configDataTable.Columns.Add("Temperature", typeof(string));
+                configDataTable.Columns.Add("MaxTokens", typeof(string));
+                ds.Tables.Add(configDataTable);
+            }
+            //CongiruationComboboxにconfigDataTableの内容を設定
+            ConfigurationComboBox.ItemsSource = configDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
+            ConfigurationComboBox.Text = selectConfigSetting;
         }
         /// <summary>
         /// APIを実行
@@ -144,9 +159,37 @@ namespace OpenAIOnWPF
                 ExecButton.IsEnabled = false;
                 ExecButton.Content = "Sending...";
 
-                if (apiKeySetting == null)
+                //ConfigurationComboBoxの内容を取得し、内容をもとにconfigDataTableの各値を取得する
+                string configName = ConfigurationComboBox.Text;
+                DataRow[] rows = configDataTable.Select("ConfigurationName = '" + configName + "'");
+                if (rows.Length > 0)
                 {
-                    ModernWpf.MessageBox.Show("OPENAI_API_KEY is not set.");
+                    providerSetting = rows[0]["Provider"].ToString();
+                    modelSetting = rows[0]["Model"].ToString();
+                    apiKeySetting = rows[0]["APIKey"].ToString();
+                    deploymentIdSetting = rows[0]["DeploymentId"].ToString();
+                    baseDomainSetting = rows[0]["BaseDomain"].ToString();
+                    apiVersionSetting = rows[0]["ApiVersion"].ToString();
+                    if (string.IsNullOrEmpty(rows[0]["Temperature"].ToString()) == false)
+                    {
+                        temperatureSetting = float.Parse(rows[0]["Temperature"].ToString());
+                    }
+                    else
+                    {
+                        temperatureSetting = 1;
+                    }
+                    if (string.IsNullOrEmpty(rows[0]["MaxTokens"].ToString()) == false)
+                    {
+                        maxTokensSetting = int.Parse(rows[0]["MaxTokens"].ToString());
+                    }
+                    else
+                    {
+                        maxTokensSetting = 2048;
+                    }
+                }
+                else
+                {
+                    ModernWpf.MessageBox.Show("ConfigurationName is not set.");
                     return;
                 }
 
@@ -155,7 +198,7 @@ namespace OpenAIOnWPF
                 string? targetBaseDomain = null;
                 string? targetDeploymentId = null;
                 string? targetApiVersion = null;
-                switch(providerSetting)
+                switch (providerSetting)
                 {
                     case "OpenAI":
                         targetType = ProviderType.OpenAi;
@@ -163,7 +206,7 @@ namespace OpenAIOnWPF
                         break;
                     case "Azure":
                         targetType = ProviderType.Azure;
-                        targetApiKey = azureApiKeySetting;
+                        targetApiKey = apiKeySetting;
                         targetBaseDomain = baseDomainSetting;
                         targetDeploymentId = deploymentIdSetting;
                         targetApiVersion = apiVersionSetting;
@@ -352,48 +395,30 @@ namespace OpenAIOnWPF
             }
             //return JsonConvert.DeserializeObject<string[,]>(serializedArray);
         }
-        /// <summary>
-        /// Temperatureパラメータを設定する
-        /// </summary>
-        private void TemperatureSettingWindowOpen()
+        public static string SerializeDataTable(DataTable dataTable)
         {
-            try
+            //空の場合
+            if (dataTable == null)
             {
-                string result = ShowSetting("Temperature", temperatureSetting.ToString(), "number");
-                if (result != "")
-                {
-                    temperatureSetting = float.Parse(result);
-                }
+                return "";
             }
-            catch (Exception ex)
+            using (var stream = new MemoryStream())
             {
-                ModernWpf.MessageBox.Show(ex.ToString());
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(stream, dataTable);
+                return Convert.ToBase64String(stream.ToArray());
             }
         }
-        private void MaxTokensSettingWindowOpen()
+        public static DataTable DeserializeDataTable(string serializedDataTable)
         {
-            try
+            //空の場合
+            if (serializedDataTable == "" || serializedDataTable == null)
             {
-                string result = ShowSetting("MaxTokens", maxTokensSetting.ToString(), "int");
-                if (result != "")
-                {
-                    maxTokensSetting = int.Parse(result);
-                }
-            }
-            catch (Exception ex)
+                return null;            }
+            using (var stream = new MemoryStream(Convert.FromBase64String(serializedDataTable)))
             {
-                ModernWpf.MessageBox.Show(ex.ToString());
-            }
-        }
-        /// <summary>
-        /// APIKeyを設定する
-        /// </summary>
-        private void APIKeySettingWindowOpen()
-        {
-            string result = ShowSetting("API Key (OpenAI)", apiKeySetting, "password");
-            if (result != "")
-            {
-                apiKeySetting = result;
+                var formatter = new BinaryFormatter();
+                return (DataTable)formatter.Deserialize(stream);
             }
         }
         /// <summary>
@@ -425,16 +450,26 @@ namespace OpenAIOnWPF
                 tokenUsageSetting = temp;
             }
 
-
             string todayString = DateTime.Today.ToString("yyyy/MM/dd");
             string[,] tokenUsage = tokenUsageSetting;
             int tokenUsageCount = tokenUsage.GetLength(0);
+
+            // OpenAIの場合はモデル、AzureOpenAIの場合はデプロイメントIDで集計する
+            string model;
+            if (modelSetting != "")
+            {
+                model = modelSetting;
+            }
+            else
+            {
+                model = deploymentIdSetting;
+            }
 
             //今日のトークン使用量があるか
             bool todayTokenUsageExist = false;
             for (int i = 0; i < tokenUsageCount; i++)
             {
-                if (tokenUsage[i, 0] == todayString && tokenUsage[i,1] == providerSetting && tokenUsage[i, 2] == ModelComboBox.Text)
+                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == providerSetting && tokenUsage[i, 2] == model)
                 {
                     // トークン使用量を加算
                     tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
@@ -448,7 +483,7 @@ namespace OpenAIOnWPF
                 tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 4);
                 tokenUsage[tokenUsageCount, 0] = todayString;
                 tokenUsage[tokenUsageCount, 1] = providerSetting;
-                tokenUsage[tokenUsageCount, 2] = ModelComboBox.Text;
+                tokenUsage[tokenUsageCount, 2] = model;
                 tokenUsage[tokenUsageCount, 3] = token.ToString();
             }
             tokenUsageSetting = tokenUsage;

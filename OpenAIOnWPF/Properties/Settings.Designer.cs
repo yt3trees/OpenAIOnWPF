@@ -25,30 +25,6 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("gpt-3.5-turbo")]
-        public string Model {
-            get {
-                return ((string)(this["Model"]));
-            }
-            set {
-                this["Model"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string APIKey {
-            get {
-                return ((string)(this["APIKey"]));
-            }
-            set {
-                this["APIKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("10")]
         public int ConversationHistoryCount {
             get {
@@ -56,30 +32,6 @@ namespace OpenAIOnWPF.Properties {
             }
             set {
                 this["ConversationHistoryCount"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("gpt-3.5-turbo,gpt-4")]
-        public string ModelList {
-            get {
-                return ((string)(this["ModelList"]));
-            }
-            set {
-                this["ModelList"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
-        public float Temperature {
-            get {
-                return ((float)(this["Temperature"]));
-            }
-            set {
-                this["Temperature"] = value;
             }
         }
         
@@ -133,66 +85,6 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("OpenAI")]
-        public string Provider {
-            get {
-                return ((string)(this["Provider"]));
-            }
-            set {
-                this["Provider"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AzureAPIKey {
-            get {
-                return ((string)(this["AzureAPIKey"]));
-            }
-            set {
-                this["AzureAPIKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AzureBaseDomain {
-            get {
-                return ((string)(this["AzureBaseDomain"]));
-            }
-            set {
-                this["AzureBaseDomain"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AzureApiVersion {
-            get {
-                return ((string)(this["AzureApiVersion"]));
-            }
-            set {
-                this["AzureApiVersion"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AzureDeploymentId {
-            get {
-                return ((string)(this["AzureDeploymentId"]));
-            }
-            set {
-                this["AzureDeploymentId"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string AccentColor {
             get {
@@ -217,13 +109,25 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2048")]
-        public int MaxTokens {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ConfigDataTable {
             get {
-                return ((int)(this["MaxTokens"]));
+                return ((string)(this["ConfigDataTable"]));
             }
             set {
-                this["MaxTokens"] = value;
+                this["ConfigDataTable"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectConfig {
+            get {
+                return ((string)(this["SelectConfig"]));
+            }
+            set {
+                this["SelectConfig"] = value;
             }
         }
     }

@@ -19,9 +19,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="35" />
-            <RowDefinition />
             <RowDefinition Height="25" />
         </Grid.RowDefinitions>
         <Grid Height="60"
@@ -31,37 +31,37 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <StackPanel HorizontalAlignment="Left"
                         Margin="15,0,0,0"
                         Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Width="90">
-                <Label Content="Provider"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top" />
-                <ComboBox x:Name="ProviderComboBox"
-                          VerticalAlignment="Center"
-                          MaxDropDownHeight="500"
-                          SelectionChanged="ProviderComboBox_SelectionChanged"
-                          HorizontalAlignment="Left"
-                          Width="90" />
-            </StackPanel>
-            <StackPanel HorizontalAlignment="Left"
-                        Margin="15,0,0,0"
-                        Grid.Column="1"
                         VerticalAlignment="Center">
-                <Label Content="Model"
+                <Label Content="Configuration"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Top" />
-                <ComboBox x:Name="ModelComboBox"
-                          VerticalAlignment="Center"
-                          MaxDropDownHeight="500"
-                          SelectionChanged="ModelComboBox_SelectionChanged"
-                          HorizontalAlignment="Left" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="ConfigurationComboBox"
+                              VerticalAlignment="Center"
+                              MaxDropDownHeight="500"
+                              MaxWidth="200"
+                              Margin="0,0,5,0"
+                              SelectionChanged="ConfigurationComboBox_SelectionChanged"
+                              HorizontalAlignment="Stretch"
+                              MinWidth="100" />
+                    <Button x:Name="ConfigurationSettingButton"
+                            Grid.Column="1"
+                            Content="..."
+                            Click="ConfigurationSettingButton_Click"
+                            VerticalAlignment="Center" />
+                </Grid>
             </StackPanel>
-            <StackPanel Grid.Column="2"
+            <StackPanel Grid.Column="3"
                         Margin="15,0,0,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center">
@@ -80,7 +80,8 @@
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"
                               Margin="0,0,5,0"
-                              MaxWidth="200" />
+                              MaxWidth="200"
+                              MinWidth="100" />
                     <Button x:Name="InstructionSettingButton"
                               Grid.Column="1"
                             Content="..."
@@ -88,7 +89,7 @@
                             VerticalAlignment="Center" />
                 </Grid>
             </StackPanel>
-            <Menu Grid.Column="4"
+            <Menu Grid.Column="5"
                   Height="60"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Right"
@@ -96,44 +97,40 @@
                 <MenuItem Header="Settings"
                           Padding="0,0,0,0"
                           Height="60">
-                    <MenuItem x:Name="MaxTokensMenuItem"
-                              Header="MaxTokens"
-                              InputGestureText="F3"
-                              Click="MaxTokensMenuItem_Click" />
-                    <MenuItem x:Name="TemperatureMenuItem"
-                              Header="Temperature"
-                              InputGestureText="F4"
-                              Click="TemperatureMenuItem_Click" />
                     <MenuItem x:Name="ColorMenuItem"
                               Header="Color Theme"
-                              InputGestureText="F6"
+                              InputGestureText="F2"
                               Click="ColorMenuItem_Click" />
-                    <MenuItem x:Name="APIKeyMenuItem"
-                              Header="OpenAI APIKey"
-                              InputGestureText="F11"
-                              Click="APIKeyMenuItem_Click" />
-                    <MenuItem x:Name="AzureMenuItem"
-                              Header="Azure Parameter"
-                              InputGestureText="F12"
-                              Click="AzureMenuItem_Click" />
                 </MenuItem>
             </Menu>
         </Grid>
-     <Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
-            ToolTip="You can resize the user text box by dragging it with the mouse."/>
+     <!--<Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
+            ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
+                    <mdxam:MarkdownScrollViewer xml:space="preserve"
+                                    x:Name="AssistantMarkdownText"
+                                    MinHeight="80"
+                                    MinWidth="0"
+                                    MarkdownStyleName="Sasabune"
+                                    ScrollViewer.CanContentScroll="True"
+                                    Grid.Row="1"
+                                    Padding="10,10,10,10"
+                                    MouseWheel="AssistantMarkdownText_MouseWheel"
+                                    />
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
-                 MinHeight="100"
                  MinWidth="0"
                  KeyDown="UserTextBox_KeyDown"
                  FontSize="16"
-                 Grid.Row="1"
+                 Grid.Row="2"
                  VerticalScrollBarVisibility="Auto"
                  MouseWheel="UserTextBox_MouseWheel"
                  ui:ControlHelper.PlaceholderText="{Binding PlaceHolder}"
-                 TextChanged="UserTextBox_TextChanged" />
-        <Grid Grid.Row="2">
+                 TextChanged="UserTextBox_TextChanged"
+                 VerticalAlignment="Bottom"
+                 MaxHeight="180"
+                 Padding="10,10,10,10" />
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
@@ -147,7 +144,7 @@
                     Grid.Column="0"
                     Margin="0,0,0,0" />
             <ProgressBar x:Name="ProgressBar"
-                         Grid.Row="2"
+                         Grid.Row="3"
                          Grid.Column="0"
                          Visibility="Collapsed"
                          VerticalAlignment="Bottom"
@@ -164,16 +161,6 @@
                       Click="NoticeCheckbox_Click"
                       IsChecked="False" />
         </Grid>
-        <mdxam:MarkdownScrollViewer xml:space="preserve"
-                                    x:Name="AssistantMarkdownText"
-                                    MinHeight="80"
-                                    MinWidth="0"
-                                    MarkdownStyleName="Sasabune"
-                                    ScrollViewer.CanContentScroll="True"
-                                    Grid.Row="3"
-                                    Padding="10,10,10,10"
-                                    MouseWheel="AssistantMarkdownText_MouseWheel"
-                                    />
         <StatusBar Grid.Row="4">
             <StatusBarItem HorizontalAlignment="Right"
                            DockPanel.Dock="Right">

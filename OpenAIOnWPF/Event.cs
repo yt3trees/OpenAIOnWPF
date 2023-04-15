@@ -16,42 +16,37 @@ namespace OpenAIOnWPF
             {
                 this.Close();
             }
-            if (e.Key == Key.F1)
-            {
-                string content = "Ctrl + Enter -> Send Message\r\n"
-                                + "F2 -> Set Instruction List\r\n"
-                                + "F3 -> Set MaxTokens\r\n"
-                                + "F4 -> Set Temperature\r\n"
-                                + "F5 -> View conversation history\r\n"
-                                + "F11 -> Set Api key(OpenAI)\r\n"
-                                + "F12 -> Set Azure OpenAI Parameter\r\n";
-                ShowMessagebox("Help",content);
-            }
+            //if (e.Key == Key.F1)
+            //{
+            //    string content = "Ctrl + Enter -> Send Message\r\n"
+            //                    + "F2 -> Set Instruction List\r\n"
+            //                    + "F3 -> Set MaxTokens\r\n"
+            //                    + "F4 -> Set Temperature\r\n"
+            //                    + "F5 -> View conversation history\r\n"
+            //                    + "F11 -> Set Api key(OpenAI)\r\n"
+            //                    + "F12 -> Set Azure OpenAI Parameter\r\n";
+            //    ShowMessagebox("Help",content);
+            //}
             if (e.Key == Key.F2)
-            {
-                InstructionSettingWindowOpen();
-            }
-            if (e.Key == Key.F3)
-            {
-                MaxTokensSettingWindowOpen();
-            }
-            if (e.Key == Key.F4)
-            {
-                TemperatureSettingWindowOpen();
-            }
-            if (e.Key == Key.F5)
-            {
-                ShowTable();
-            }
-            if (e.Key == Key.F6)
             {
                 var window = new ColorSettings();
                 window.Owner = this;
                 window.ShowDialog();
             }
-            if (e.Key == Key.F11)
+            if (e.Key == Key.F3)
             {
-                APIKeySettingWindowOpen();
+                var window = new ConfigSettingWindow();
+                window.Owner = this;
+                window.ShowDialog();
+                ConfigurationComboBox.ItemsSource = configDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
+            }
+            if (e.Key == Key.F4)
+            {
+                InstructionSettingWindowOpen();
+            }
+            if (e.Key == Key.F5)
+            {
+                ShowTable();
             }
             if (e.Key == Key.F12)
             {
@@ -90,30 +85,17 @@ namespace OpenAIOnWPF
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Properties.Settings.Default.Model = modelSetting;
-            string list = "";
-            foreach (var item in modelListSetting)
-            {
-                list += item + (item == modelListSetting.Last() ? "" : ",");
-            }
-            Properties.Settings.Default.ModelList = list;
             Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
-            Properties.Settings.Default.MaxTokens = maxTokensSetting;
-            Properties.Settings.Default.Temperature = temperatureSetting;
-            Properties.Settings.Default.APIKey = apiKeySetting;
             Properties.Settings.Default.NoticeFlg = noticeFlgSetting;
             Properties.Settings.Default.Instruction = instructionSetting;
             Properties.Settings.Default.InstructionList = SerializeArray(instructionListSetting);
-            Properties.Settings.Default.Provider = providerSetting;
-            Properties.Settings.Default.AzureAPIKey = azureApiKeySetting;
-            Properties.Settings.Default.AzureBaseDomain = baseDomainSetting;
-            Properties.Settings.Default.AzureDeploymentId = deploymentIdSetting;
-            Properties.Settings.Default.AzureApiVersion = apiVersionSetting;
+            Properties.Settings.Default.ConfigDataTable = SerializeDataTable(configDataTable);
+            Properties.Settings.Default.SelectConfig = selectConfigSetting;
             Properties.Settings.Default.Save();
         }
-        private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ConfigurationComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            modelSetting = ModelComboBox.SelectedItem.ToString();
+            selectConfigSetting = ConfigurationComboBox.SelectedItem.ToString();
         }
         private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -168,33 +150,16 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
         }
+        private void ConfigurationSettingButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new ConfigSettingWindow();
+            window.Owner = this;
+            window.ShowDialog();
+            ConfigurationComboBox.ItemsSource = configDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
+        }
         private void InstructionSettingButton_Click(object sender, RoutedEventArgs e)
         {
             InstructionSettingWindowOpen();
-        }
-        private void MaxTokensMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            MaxTokensSettingWindowOpen();
-        }
-        private void TemperatureMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            TemperatureSettingWindowOpen();
-        }
-        private void APIKeyMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            APIKeySettingWindowOpen();
-        }
-        private void ProviderComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            providerSetting = ProviderComboBox.SelectedItem.ToString();
-            if (providerSetting == "Azure")
-            {
-                ModelComboBox.IsEnabled = false;
-            }
-            else
-            {
-                ModelComboBox.IsEnabled = true;
-            }
         }
         private void AzureMenuItem_Click(object sender, RoutedEventArgs e)
         {
