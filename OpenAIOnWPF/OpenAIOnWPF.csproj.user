@@ -6,52 +6,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Compile Update="ColorSettings.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Messagebox.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="InstructionSettingWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="ConfigSettingWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Setting.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Table.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="TokenUsageWindow.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="ColorSettings.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="MainWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Messagebox.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="InstructionSettingWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="ConfigSettingWindow.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Setting.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Table.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="TokenUsageWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -1,23 +1,11 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
-using ModernWpf;
-using Newtonsoft.Json;
-using OpenAI.GPT3;
-using OpenAI.GPT3.Managers;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.Tokenizer.GPT3;
+﻿using OpenAI.GPT3.Tokenizer.GPT3;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Xml.Serialization;
 using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
