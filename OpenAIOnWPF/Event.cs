@@ -89,6 +89,7 @@ namespace OpenAIOnWPF
         }
         private void ConfigurationComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            if (ConfigurationComboBox.SelectedItem == null) return;
             AppSettings.SelectConfigSetting = ConfigurationComboBox.SelectedItem.ToString();
         }
         private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
