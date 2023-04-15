@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static OpenAIOnWPF.MainWindow;
+using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
 {

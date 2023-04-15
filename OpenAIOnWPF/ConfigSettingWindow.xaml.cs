@@ -321,7 +321,6 @@ namespace OpenAIOnWPF
                 ModernWpf.MessageBox.Show(ex.Message);
             }
         }
-
         private void ConfigListBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.K)
@@ -371,7 +370,6 @@ namespace OpenAIOnWPF
                 Save();
             }
         }
-
         private void ProviderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ProviderComboBox.SelectedItem == null) return;
@@ -389,6 +387,7 @@ namespace OpenAIOnWPF
                 ApiVersionTextbox.IsEnabled = true;
                 BaseDomainTextbox.IsEnabled = true;
             }
+            ConfigurationNameTextBox.Focus();
         }
     }
 }

@@ -6,11 +6,11 @@ namespace OpenAIOnWPF
 {
     public static class AppSettings
     {
-        public static DataTable ConfigDataTable { get; set; } = MainWindow.DeserializeDataTable(Properties.Settings.Default.ConfigDataTable);
+        public static DataTable ConfigDataTable { get; set; } = UtilityFunctions.DeserializeDataTable(Properties.Settings.Default.ConfigDataTable);
         public static string SelectConfigSetting { get; set; } = Properties.Settings.Default.SelectConfig;
         public static string InstructionSetting { get; set; } = Properties.Settings.Default.Instruction;
-        public static string[,] InstructionListSetting { get; set; } = MainWindow.DeserializeArray(Properties.Settings.Default.InstructionList);
-        public static string[,] TokenUsageSetting { get; set; } = MainWindow.DeserializeArray(Properties.Settings.Default.TokenUsage);
+        public static string[,] InstructionListSetting { get; set; } = UtilityFunctions.DeserializeArray(Properties.Settings.Default.InstructionList);
+        public static string[,] TokenUsageSetting { get; set; } = UtilityFunctions.DeserializeArray(Properties.Settings.Default.TokenUsage);
         public static int ConversationHistoryCountSetting { get; set; } = Properties.Settings.Default.ConversationHistoryCount;
         public static List<ChatMessage> _conversationHistory = new List<ChatMessage>();
         public static List<ChatMessage> ConversationHistory

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
 {
@@ -250,6 +251,77 @@ namespace OpenAIOnWPF
                 }
                 ModernWpf.MessageBox.Show($"{completionResult.Error.Code}: {completionResult.Error.Message}");
             }
+        }
+        private void AddTokenUsage(int token)
+        {
+            int rowCount = AppSettings.TokenUsageSetting.GetLength(0);
+            int colCount = AppSettings.TokenUsageSetting.GetLength(1);
+            if (AppSettings.TokenUsageSetting == null || rowCount == 0 || colCount == 0)
+            {
+                // 日付、プロバイダ、モデル、トークン量
+                string[,] temp = new string[0, 4];
+                AppSettings.TokenUsageSetting = temp;
+            }
+
+            string todayString = DateTime.Today.ToString("yyyy/MM/dd");
+            string[,] tokenUsage = AppSettings.TokenUsageSetting;
+            int tokenUsageCount = tokenUsage.GetLength(0);
+
+            // OpenAIの場合はモデル、AzureOpenAIの場合はデプロイメントIDで集計する
+            string model;
+            if (AppSettings.ModelSetting != "")
+            {
+                model = AppSettings.ModelSetting;
+            }
+            else
+            {
+                model = AppSettings.DeploymentIdSetting;
+            }
+
+            //今日のトークン使用量があるか
+            bool todayTokenUsageExist = false;
+            for (int i = 0; i < tokenUsageCount; i++)
+            {
+                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == AppSettings.ProviderSetting && tokenUsage[i, 2] == model)
+                {
+                    // トークン使用量を加算
+                    tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
+                    todayTokenUsageExist = true;
+                }
+            }
+            //今日のトークン使用量がなければ追加
+            if (!todayTokenUsageExist)
+            {
+                //Array.Resize(ref tokenUsage, tokenUsageCount + 1);
+                tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 4);
+                tokenUsage[tokenUsageCount, 0] = todayString;
+                tokenUsage[tokenUsageCount, 1] = AppSettings.ProviderSetting;
+                tokenUsage[tokenUsageCount, 2] = model;
+                tokenUsage[tokenUsageCount, 3] = token.ToString();
+            }
+            AppSettings.TokenUsageSetting = tokenUsage;
+            Properties.Settings.Default.TokenUsage = SerializeArray(AppSettings.TokenUsageSetting);
+            Properties.Settings.Default.Save();
+        }
+        /// <summary>
+        /// 他次元配列のサイズを変更する
+        /// </summary>
+        public static string[,] ResizeArray(string[,] originalArray, int newRowCount, int newColCount)
+        {
+            int originalRowCount = originalArray.GetLength(0);
+            int originalColCount = originalArray.GetLength(1);
+
+            string[,] newArray = new string[newRowCount, newColCount];
+
+            for (int i = 0; i < Math.Min(originalRowCount, newRowCount); i++)
+            {
+                for (int j = 0; j < Math.Min(originalColCount, newColCount); j++)
+                {
+                    newArray[i, j] = originalArray[i, j];
+                }
+            }
+
+            return newArray;
         }
     }
 }
