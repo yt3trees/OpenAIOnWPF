@@ -49,12 +49,12 @@ namespace OpenAIOnWPF
             // コンボボックスで選択している指示を開く
             for (int i = 0; i < items.GetLength(0); i++)
             {
-                if (instructionSetting == "" || instructionSetting == null)
+                if (AppSettings.InstructionSetting == "" || AppSettings.InstructionSetting == null)
                 {
                     InstructionListBox.SelectedIndex = 0;
                     break;
                 }
-                if (items[i, 0] == instructionSetting)
+                if (items[i, 0] == AppSettings.InstructionSetting)
                 {
                     InstructionListBox.SelectedIndex = i;
                     break;

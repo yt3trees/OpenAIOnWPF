@@ -31,7 +31,7 @@ namespace OpenAIOnWPF
             };
 
             // 会話履歴の保持件数を設定
-            Numberbox.Text = conversationHistoryCountSetting.ToString();
+            Numberbox.Text = AppSettings.ConversationHistoryCountSetting.ToString();
 
             List<DataTableItem> list = new List<DataTableItem>();
             for (int i = 0; i < arg.GetLength(0); i++)
@@ -56,7 +56,7 @@ namespace OpenAIOnWPF
         }
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            conversationHistoryCountSetting = int.Parse(Numberbox.Text);
+            AppSettings.ConversationHistoryCountSetting = int.Parse(Numberbox.Text);
             DialogResult = true;
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)

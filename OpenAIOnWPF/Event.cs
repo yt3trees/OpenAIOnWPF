@@ -38,7 +38,7 @@ namespace OpenAIOnWPF
                 var window = new ConfigSettingWindow();
                 window.Owner = this;
                 window.ShowDialog();
-                ConfigurationComboBox.ItemsSource = configDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
+                ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
             }
             if (e.Key == Key.F4)
             {
@@ -47,12 +47,6 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F5)
             {
                 ShowTable();
-            }
-            if (e.Key == Key.F12)
-            {
-                var window = new AzureParameterWindow();
-                window.Owner = this;
-                window.ShowDialog();
             }
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -76,7 +70,7 @@ namespace OpenAIOnWPF
         }
         private void NoticeCheckbox_Click(object sender, RoutedEventArgs e)
         {
-            noticeFlgSetting = (bool)NoticeCheckbox.IsChecked;
+            AppSettings.NoticeFlgSetting = (bool)NoticeCheckbox.IsChecked;
         }
 
         private void TokensLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -85,31 +79,31 @@ namespace OpenAIOnWPF
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Properties.Settings.Default.ConversationHistoryCount = conversationHistoryCountSetting;
-            Properties.Settings.Default.NoticeFlg = noticeFlgSetting;
-            Properties.Settings.Default.Instruction = instructionSetting;
-            Properties.Settings.Default.InstructionList = SerializeArray(instructionListSetting);
-            Properties.Settings.Default.ConfigDataTable = SerializeDataTable(configDataTable);
-            Properties.Settings.Default.SelectConfig = selectConfigSetting;
+            Properties.Settings.Default.ConversationHistoryCount = AppSettings.ConversationHistoryCountSetting;
+            Properties.Settings.Default.NoticeFlg = AppSettings.NoticeFlgSetting;
+            Properties.Settings.Default.Instruction = AppSettings.InstructionSetting;
+            Properties.Settings.Default.InstructionList = SerializeArray(AppSettings.InstructionListSetting);
+            Properties.Settings.Default.ConfigDataTable = SerializeDataTable(AppSettings.ConfigDataTable);
+            Properties.Settings.Default.SelectConfig = AppSettings.SelectConfigSetting;
             Properties.Settings.Default.Save();
         }
         private void ConfigurationComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            selectConfigSetting = ConfigurationComboBox.SelectedItem.ToString();
+            AppSettings.SelectConfigSetting = ConfigurationComboBox.SelectedItem.ToString();
         }
         private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (InstructionComboBox.SelectedItem == null) return;
-            instructionSetting = InstructionComboBox.SelectedItem.ToString();
+            AppSettings.InstructionSetting = InstructionComboBox.SelectedItem.ToString();
             // ツールチップに内容を表示
             string selectInstructionContent = "";
-            if (!String.IsNullOrEmpty(instructionSetting))
+            if (!String.IsNullOrEmpty(AppSettings.InstructionSetting))
             {
-                string[] instructionList = instructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
-                int index = Array.IndexOf(instructionList, instructionSetting);
-                selectInstructionContent = instructionListSetting[index, 1];
+                string[] instructionList = AppSettings.InstructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
+                int index = Array.IndexOf(instructionList, AppSettings.InstructionSetting);
+                selectInstructionContent = AppSettings.InstructionListSetting[index, 1];
             }
-            InstructionComboBox.ToolTip = "# " + instructionSetting + "\r\n"
+            InstructionComboBox.ToolTip = "# " + AppSettings.InstructionSetting + "\r\n"
                                             + selectInstructionContent;
         }
         private void AssistantMarkdownText_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -155,17 +149,11 @@ namespace OpenAIOnWPF
             var window = new ConfigSettingWindow();
             window.Owner = this;
             window.ShowDialog();
-            ConfigurationComboBox.ItemsSource = configDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
+            ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
         }
         private void InstructionSettingButton_Click(object sender, RoutedEventArgs e)
         {
             InstructionSettingWindowOpen();
-        }
-        private void AzureMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var window = new AzureParameterWindow();
-            window.Owner = this;
-            window.ShowDialog();
         }
         private void ColorMenuItem_Click(object sender, RoutedEventArgs e)
         {

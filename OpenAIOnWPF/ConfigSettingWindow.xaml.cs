@@ -56,49 +56,49 @@ namespace OpenAIOnWPF
 
             ModelComboBox.Items.Add("gpt-3.5-turbo");
             ModelComboBox.Items.Add("gpt-4");
-            if (configDataTable == null)
+            if (AppSettings.ConfigDataTable == null)
             {
                 DataSet ds = new DataSet();
-                configDataTable = new DataTable();
-                configDataTable.Columns.Add("ConfigurationName", typeof(string));
-                configDataTable.Columns.Add("Provider", typeof(string));
-                configDataTable.Columns.Add("Model", typeof(string));
-                configDataTable.Columns.Add("APIKey", typeof(string));
-                configDataTable.Columns.Add("DeploymentId", typeof(string));
-                configDataTable.Columns.Add("BaseDomain", typeof(string));
-                configDataTable.Columns.Add("ApiVersion", typeof(string));
-                configDataTable.Columns.Add("Temperature", typeof(string));
-                configDataTable.Columns.Add("MaxTokens", typeof(string));
-                ds.Tables.Add(configDataTable);
+                AppSettings.ConfigDataTable = new DataTable();
+                AppSettings.ConfigDataTable.Columns.Add("ConfigurationName", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("Provider", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("Model", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("APIKey", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("DeploymentId", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("BaseDomain", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("ApiVersion", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("Temperature", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("MaxTokens", typeof(string));
+                ds.Tables.Add(AppSettings.ConfigDataTable);
             }
-            //configDataTable.Rows.Add("Default", "OpenAI", "gpt-3.5-turbo", "APIKey", "DeploymentId", "BaseDomain", "ApiVersion", "0.2", "2048");
+            //AppSettings.ConfigDataTable.Rows.Add("Default", "OpenAI", "gpt-3.5-turbo", "APIKey", "DeploymentId", "BaseDomain", "ApiVersion", "0.2", "2048");
 
-            foreach (DataRow row in configDataTable.Rows)
+            foreach (DataRow row in AppSettings.ConfigDataTable.Rows)
             {
                 ConfigListBox.Items.Add(row["ConfigurationName"]);
                 //ConfigListBox.SelectedIndex = 0;
             }
-            var index = configDataTable.Rows.IndexOf(configDataTable.AsEnumerable().Where(a => a.Field<string>(0) == selectConfigSetting).FirstOrDefault());
+            var index = AppSettings.ConfigDataTable.Rows.IndexOf(AppSettings.ConfigDataTable.AsEnumerable().Where(a => a.Field<string>(0) == AppSettings.SelectConfigSetting).FirstOrDefault());
             ConfigListBox.SelectedIndex = index;
         }
         private void DuplicateControl()
         {
             //重複している名前に*をつける
-            for (int i = 0; i < configDataTable.Rows.Count; i++)
+            for (int i = 0; i < AppSettings.ConfigDataTable.Rows.Count; i++)
             {
-                string currentName = configDataTable.Rows[i]["ConfigurationName"].ToString();
+                string currentName = AppSettings.ConfigDataTable.Rows[i]["ConfigurationName"].ToString();
 
-                for (int j = 0; j < configDataTable.Rows.Count; j++)
+                for (int j = 0; j < AppSettings.ConfigDataTable.Rows.Count; j++)
                 {
                     if (i == j)
                     {
                         continue;
                     }
 
-                    if (configDataTable.Rows[i]["ConfigurationName"].ToString() == configDataTable.Rows[j]["ConfigurationName"].ToString())
+                    if (AppSettings.ConfigDataTable.Rows[i]["ConfigurationName"].ToString() == AppSettings.ConfigDataTable.Rows[j]["ConfigurationName"].ToString())
                     {
                         currentName += "*";
-                        configDataTable.Rows[j]["ConfigurationName"] = currentName;
+                        AppSettings.ConfigDataTable.Rows[j]["ConfigurationName"] = currentName;
                     }
                 }
             }
@@ -115,21 +115,21 @@ namespace OpenAIOnWPF
                 return;
             }
 
-            // 入力内容をconfigDataTableに保存
+            // 入力内容をAppSettings.ConfigDataTableに保存
             int index = ConfigListBox.SelectedIndex;
-            configDataTable.Rows[index]["ConfigurationName"] = ConfigurationNameTextBox.Text;
-            configDataTable.Rows[index]["Provider"] = ProviderComboBox.Text;
-            configDataTable.Rows[index]["APIKey"] = APIKeyPasswordbox.Password;
-            configDataTable.Rows[index]["Model"] = ModelComboBox.Text;
-            configDataTable.Rows[index]["DeploymentId"] = DeploymentIdTextbox.Text;
-            configDataTable.Rows[index]["BaseDomain"] = BaseDomainTextbox.Text;
-            configDataTable.Rows[index]["ApiVersion"] = ApiVersionTextbox.Text;
-            configDataTable.Rows[index]["Temperature"] = TemperatureNumberbox.Text;
-            configDataTable.Rows[index]["MaxTokens"] = MaxTokensNumberbox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["ConfigurationName"] = ConfigurationNameTextBox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["Provider"] = ProviderComboBox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["APIKey"] = APIKeyPasswordbox.Password;
+            AppSettings.ConfigDataTable.Rows[index]["Model"] = ModelComboBox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["DeploymentId"] = DeploymentIdTextbox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["BaseDomain"] = BaseDomainTextbox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["ApiVersion"] = ApiVersionTextbox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["Temperature"] = TemperatureNumberbox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["MaxTokens"] = MaxTokensNumberbox.Text;
 
             DuplicateControl();
             ConfigListBox.SelectedIndex = index;
-            ConfigListBox.Items[index] = configDataTable.Rows[index]["ConfigurationName"];
+            ConfigListBox.Items[index] = AppSettings.ConfigDataTable.Rows[index]["ConfigurationName"];
         }
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -138,26 +138,26 @@ namespace OpenAIOnWPF
             {
                 return;
             }
-            ConfigurationNameTextBox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["ConfigurationName"].ToString();
-            ProviderComboBox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["Provider"].ToString();
-            APIKeyPasswordbox.Password = configDataTable.Rows[ConfigListBox.SelectedIndex]["APIKey"].ToString();
-            ModelComboBox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["Model"].ToString();
-            DeploymentIdTextbox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["DeploymentId"].ToString();
-            BaseDomainTextbox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["BaseDomain"].ToString();
-            ApiVersionTextbox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["ApiVersion"].ToString();
-            TemperatureNumberbox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["Temperature"].ToString();
-            MaxTokensNumberbox.Text = configDataTable.Rows[ConfigListBox.SelectedIndex]["MaxTokens"].ToString();
+            ConfigurationNameTextBox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["ConfigurationName"].ToString();
+            ProviderComboBox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Provider"].ToString();
+            APIKeyPasswordbox.Password = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["APIKey"].ToString();
+            ModelComboBox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Model"].ToString();
+            DeploymentIdTextbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["DeploymentId"].ToString();
+            BaseDomainTextbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["BaseDomain"].ToString();
+            ApiVersionTextbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["ApiVersion"].ToString();
+            TemperatureNumberbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Temperature"].ToString();
+            MaxTokensNumberbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["MaxTokens"].ToString();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             //confgDataTableに1つ追加
-            DataRow row = configDataTable.NewRow();
+            DataRow row = AppSettings.ConfigDataTable.NewRow();
             row["ConfigurationName"] = "New Item";
             row["Provider"] = "OpenAI";
             row["Temperature"] = "1";
             row["MaxTokens"] = "2048";
-            configDataTable.Rows.Add(row);
+            AppSettings.ConfigDataTable.Rows.Add(row);
             ConfigListBox.Items.Add(row["ConfigurationName"].ToString());
             ConfigListBox.SelectedIndex = ConfigListBox.Items.Count - 1;
         }
@@ -169,8 +169,8 @@ namespace OpenAIOnWPF
             if (index == -1) return;
             //ListBoxから削除
             ConfigListBox.Items.RemoveAt(index);
-            //configDataTableから削除
-            configDataTable.Rows[index].Delete();
+            //AppSettings.ConfigDataTableから削除
+            AppSettings.ConfigDataTable.Rows[index].Delete();
             //選択を一つ上に
             ConfigListBox.SelectedIndex = index - 1;
         }
@@ -180,11 +180,11 @@ namespace OpenAIOnWPF
             {
                 //上に移動
                 if (index == 0) return;
-                //configDataTableの入れ替え
-                DataRow row = configDataTable.NewRow();
-                row.ItemArray = configDataTable.Rows[index - 1].ItemArray.Clone() as object[];
-                configDataTable.Rows[index - 1].ItemArray = configDataTable.Rows[index].ItemArray.Clone() as object[];
-                configDataTable.Rows[index].ItemArray = row.ItemArray.Clone() as object[];
+                //AppSettings.ConfigDataTableの入れ替え
+                DataRow row = AppSettings.ConfigDataTable.NewRow();
+                row.ItemArray = AppSettings.ConfigDataTable.Rows[index - 1].ItemArray.Clone() as object[];
+                AppSettings.ConfigDataTable.Rows[index - 1].ItemArray = AppSettings.ConfigDataTable.Rows[index].ItemArray.Clone() as object[];
+                AppSettings.ConfigDataTable.Rows[index].ItemArray = row.ItemArray.Clone() as object[];
                 //ListBoxの入れ替え
                 string name = ConfigListBox.Items[index - 1].ToString();
                 ConfigListBox.Items[index - 1] = ConfigListBox.Items[index];
@@ -195,11 +195,11 @@ namespace OpenAIOnWPF
             {
                 //下に移動
                 if (index == ConfigListBox.Items.Count - 1) return;
-                //configDataTableの入れ替え
-                DataRow row = configDataTable.NewRow();
-                row.ItemArray = configDataTable.Rows[index + 1].ItemArray.Clone() as object[];
-                configDataTable.Rows[index + 1].ItemArray = configDataTable.Rows[index].ItemArray.Clone() as object[];
-                configDataTable.Rows[index].ItemArray = row.ItemArray.Clone() as object[];
+                //AppSettings.ConfigDataTableの入れ替え
+                DataRow row = AppSettings.ConfigDataTable.NewRow();
+                row.ItemArray = AppSettings.ConfigDataTable.Rows[index + 1].ItemArray.Clone() as object[];
+                AppSettings.ConfigDataTable.Rows[index + 1].ItemArray = AppSettings.ConfigDataTable.Rows[index].ItemArray.Clone() as object[];
+                AppSettings.ConfigDataTable.Rows[index].ItemArray = row.ItemArray.Clone() as object[];
                 //ListBoxの入れ替え
                 string name = ConfigListBox.Items[index + 1].ToString();
                 ConfigListBox.Items[index + 1] = ConfigListBox.Items[index];
@@ -231,7 +231,7 @@ namespace OpenAIOnWPF
             {
                 //ConfigListBoxをjsonファイルに出力
                 List<ModelList> items = new List<ModelList>();
-                foreach (DataRow row in configDataTable.Rows)
+                foreach (DataRow row in AppSettings.ConfigDataTable.Rows)
                 {
                     ModelList item = new ModelList();
                     item.ConfigurationName = row["ConfigurationName"].ToString();
@@ -289,10 +289,10 @@ namespace OpenAIOnWPF
                         List<ModelList> items = JsonConvert.DeserializeObject<List<ModelList>>(json);
 
                         // ListBoxにアイテムを再セット
-                        configDataTable.Rows.Clear();
+                        AppSettings.ConfigDataTable.Rows.Clear();
                         foreach (ModelList item in items)
                         {
-                            DataRow row = configDataTable.NewRow();
+                            DataRow row = AppSettings.ConfigDataTable.NewRow();
                             row["ConfigurationName"] = item.ConfigurationName;
                             row["Provider"] = item.Provider;
                             row["Model"] = item.Model;
@@ -302,10 +302,10 @@ namespace OpenAIOnWPF
                             row["ApiVersion"] = item.ApiVersion;
                             row["Temperature"] = item.Temperature;
                             row["MaxTokens"] = item.MaxTokens;
-                            configDataTable.Rows.Add(row);
+                            AppSettings.ConfigDataTable.Rows.Add(row);
                         }
                         ConfigListBox.Items.Clear();
-                        foreach (DataRow row in configDataTable.Rows)
+                        foreach (DataRow row in AppSettings.ConfigDataTable.Rows)
                         {
                             ConfigListBox.Items.Add(row["ConfigurationName"]);
                         }
