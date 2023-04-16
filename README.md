@@ -1,3 +1,5 @@
+[日本語版 README](./README-ja.md)
+
 # OpenAIOnWPF
 
 ![gif](./!image/OpenAIOnWPF.gif)
