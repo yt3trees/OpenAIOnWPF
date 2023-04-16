@@ -4,7 +4,7 @@
 
 OpenAIOnWPFは、OpenAI APIを使用してデスクトップアプリケーションと対話するためのWPFアプリケーションです。
 
-# Requirement
+## Requirement
 - Windows 10
 
 ## 使用方法

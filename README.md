@@ -6,6 +6,9 @@
 
 OpenAIOnWPF is a WPF application for interacting with desktop applications using the OpenAI API.
 
+## Requirement
+- Windows 10
+
 ## Usage
 1. run the application.
 2. Click the button next to the Configuration combo box and set the API key.
