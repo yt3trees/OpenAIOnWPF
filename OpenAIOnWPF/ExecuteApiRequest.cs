@@ -10,12 +10,20 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
 {
     public partial class MainWindow
     {
+        bool resultFlg = true;
+        // 描画遅延対策
+        private void DummySub() { }
+        private void FlushWindowsMessageQueue()
+        {
+            Application.Current.Dispatcher.Invoke(new Action(DummySub), DispatcherPriority.Background, new Object[] { });
+        }
         /// <summary>
         /// APIを実行
         /// </summary>
@@ -23,7 +31,7 @@ namespace OpenAIOnWPF
         private async Task ProcessOpenAIAsync()
         {
             Debug.Print("===== Start processing =====");
-
+            resultFlg = true;
             PrepareUI();
 
             try
@@ -37,15 +45,26 @@ namespace OpenAIOnWPF
                 var openAiService = CreateOpenAiService();
                 var messages = PrepareMessages();
 
-                var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                if (1 == 2)
                 {
-                    Messages = messages,
-                    Temperature = AppSettings.TemperatureSetting,
-                    MaxTokens = AppSettings.MaxTokensSetting
-                });
-
-                HandleCompletionResult(completionResult);
-
+                    var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                    {
+                        Messages = messages,
+                        Temperature = AppSettings.TemperatureSetting,
+                        MaxTokens = AppSettings.MaxTokensSetting
+                    });
+                    HandleCompletionResult(completionResult);
+                }
+                else
+                {
+                    var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(new ChatCompletionCreateRequest
+                    {
+                        Messages = messages,
+                        Temperature = AppSettings.TemperatureSetting,
+                        MaxTokens = AppSettings.MaxTokensSetting
+                    });
+                    HandleCompletionResultStream(completionResult);
+                }
             }
             catch (Exception ex)
             {
@@ -53,7 +72,6 @@ namespace OpenAIOnWPF
             }
             finally
             {
-                ResetUI();
                 Debug.Print("===== End of process =====");
             }
         }
@@ -188,48 +206,7 @@ namespace OpenAIOnWPF
             if (completionResult.Successful)
             {
                 AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
-
-                // トークン量を計算してツールチップで表示
-                string conversationHistoryString = "";
-                foreach (var item in AppSettings.ConversationHistory)
-                {
-                    conversationHistoryString += item.Content;
-                }
-                var conversationResultTokens = TokenizerGpt3.Encode(conversationHistoryString);
-                var instructionTokens = TokenizerGpt3.Encode(selectInstructionContent);
-                var userTokens = TokenizerGpt3.Encode(userMessage);
-                var responseTokens = TokenizerGpt3.Encode(completionResult.Choices.First().Message.Content);
-                var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
-                string tooltip = "";
-                tooltip += $"Conversation History Tokens : {conversationResultTokens.Count()}\r\n";
-                tooltip += $"Instruction Tokens : {instructionTokens.Count()}\r\n";
-                tooltip += $"User Message Tokens : {userTokens.Count()}\r\n";
-                tooltip += $"AI Response Tokens : {responseTokens.Count()}\r\n";
-                tooltip += $"Total Tokens : {totalTokens}";
-                TokensLabel.Content = totalTokens;
-                TokensLabel.ToolTip = tooltip;
-
-                AppSettings.ConversationHistory.Add(ChatMessage.FromUser(userMessage));
-                AppSettings.ConversationHistory.Add(ChatMessage.FromAssistant(completionResult.Choices.First().Message.Content));
-
-                // 入力内容を消してプレースホルダーに入力内容を入れる
-                this.DataContext = new DataBind { PlaceHolder = userMessage };
-
-                // 閾値超え会話履歴を削除
-                if (AppSettings.ConversationHistory.Count > AppSettings.ConversationHistoryCountSetting)
-                {
-                   AppSettings.ConversationHistory.RemoveRange(0, AppSettings.ConversationHistory.Count - AppSettings.ConversationHistoryCountSetting);
-                    Debug.Print($"Deleted because conversation history exceeded {AppSettings.ConversationHistoryCountSetting} conversations.");
-                }
-                Debug.Print("----- Conversation History -----");
-                foreach (var item in AppSettings.ConversationHistory)
-                {
-                    Debug.Print($"{item.Role}: {item.Content}");
-                }
-
-                // その日のトークン使用量記録に追加
-                AddTokenUsage(totalTokens);
-
+                CaluculateTokenUsage();
                 if (AppSettings.NoticeFlgSetting)
                 {
                     new ToastContentBuilder()
@@ -249,7 +226,91 @@ namespace OpenAIOnWPF
                         .AddText("️An error has occurred.")
                         .Show();
                 }
+                resultFlg = false;
                 ModernWpf.MessageBox.Show($"{completionResult.Error.Code}: {completionResult.Error.Message}");
+            }
+            ResetUI();
+        }
+        private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.GPT3.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
+        {
+            string resultText = "";
+            await foreach (var completion in completionResult)
+            {
+                if (completion.Successful)
+                {
+                    resultText = completion.Choices.First().Message.Content;
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        AssistantMarkdownText.Markdown += $"{resultText}";
+                        FlushWindowsMessageQueue(); // 描画遅延対策
+                    });
+                }
+                else
+                {
+                    if (completion.Error == null)
+                    {
+                        throw new Exception("Unknown Error");
+                    }
+                    resultText = $"{completion.Error.Code}: {completion.Error.Message}";
+                    ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
+                    resultFlg = false;
+                }
+            }
+            CaluculateTokenUsage();
+            if (AppSettings.NoticeFlgSetting && resultFlg)
+            {
+                new ToastContentBuilder()
+                    .AddText("️AI responded back.")
+                    .Show();
+            }
+            ResetUI();
+        }
+        /// <summary>
+        /// トークン量を計算
+        /// </summary>
+        private void CaluculateTokenUsage()
+        {
+            string conversationHistoryString = "";
+            foreach (var item in AppSettings.ConversationHistory)
+            {
+                conversationHistoryString += item.Content;
+            }
+            var conversationResultTokens = TokenizerGpt3.Encode(conversationHistoryString);
+            var instructionTokens = TokenizerGpt3.Encode(selectInstructionContent);
+            var userTokens = TokenizerGpt3.Encode(userMessage);
+            var responseTokens = TokenizerGpt3.Encode(AssistantMarkdownText.Markdown);
+            var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
+            string tooltip = "";
+            tooltip += $"Conversation History Tokens : {conversationResultTokens.Count()}\r\n";
+            tooltip += $"Instruction Tokens : {instructionTokens.Count()}\r\n";
+            tooltip += $"User Message Tokens : {userTokens.Count()}\r\n";
+            tooltip += $"AI Response Tokens : {responseTokens.Count()}\r\n";
+            tooltip += $"Total Tokens : {totalTokens}";
+            TokensLabel.Content = totalTokens;
+            TokensLabel.ToolTip = tooltip;
+
+            AppSettings.ConversationHistory.Add(ChatMessage.FromUser(userMessage));
+            AppSettings.ConversationHistory.Add(ChatMessage.FromAssistant(AssistantMarkdownText.Markdown));
+
+            // 入力内容を消してプレースホルダーに入力内容を入れる
+            this.DataContext = new DataBind { PlaceHolder = userMessage };
+
+            // 閾値超え会話履歴を削除
+            if (AppSettings.ConversationHistory.Count > AppSettings.ConversationHistoryCountSetting)
+            {
+                AppSettings.ConversationHistory.RemoveRange(0, AppSettings.ConversationHistory.Count - AppSettings.ConversationHistoryCountSetting);
+                Debug.Print($"Deleted because conversation history exceeded {AppSettings.ConversationHistoryCountSetting} conversations.");
+            }
+            Debug.Print("----- Conversation History -----");
+            foreach (var item in AppSettings.ConversationHistory)
+            {
+                Debug.Print($"{item.Role}: {item.Content}");
+            }
+
+            // その日のトークン使用量記録に追加
+            if (resultFlg)
+            {
+                AddTokenUsage(totalTokens);
             }
         }
         private void AddTokenUsage(int token)
