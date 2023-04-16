@@ -256,7 +256,10 @@ namespace OpenAIOnWPF
                     resultFlg = false;
                 }
             }
-            CaluculateTokenUsage();
+            if (resultFlg)
+            {
+                CaluculateTokenUsage();
+            }
             if (AppSettings.NoticeFlgSetting && resultFlg)
             {
                 new ToastContentBuilder()
@@ -308,10 +311,7 @@ namespace OpenAIOnWPF
             }
 
             // その日のトークン使用量記録に追加
-            if (resultFlg)
-            {
-                AddTokenUsage(totalTokens);
-            }
+            AddTokenUsage(totalTokens);
         }
         private void AddTokenUsage(int token)
         {
