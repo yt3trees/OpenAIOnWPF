@@ -10,10 +10,8 @@
         mc:Ignorable="d"
         Title="OpenAI"
         Width="700"
-        WindowStartupLocation="CenterScreen"
         KeyDown="Window_KeyDown"
         Icon="/OpenAI.png"
-        Topmost="True"
         Closing="Window_Closing"
         Height="433">
     <Grid>

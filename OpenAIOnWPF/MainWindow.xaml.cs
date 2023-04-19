@@ -1,5 +1,6 @@
 ﻿using OpenAI.GPT3.Tokenizer.GPT3;
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace OpenAIOnWPF
         public MainWindow()
         {
             InitializeComponent();
+            RecoverWindowBounds();
             InitializeSettings();
         }
         private void InitializeSettings()
@@ -207,6 +209,49 @@ namespace OpenAIOnWPF
         {
             //UserTextBox.Width = Math.Max(UserTextBox.ActualWidth + e.HorizontalChange, UserTextBox.MinWidth);
             UserTextBox.Height = Math.Max(UserTextBox.ActualHeight + e.VerticalChange, UserTextBox.MinHeight);
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // ウィンドウのサイズを保存
+            SaveWindowBounds();
+            base.OnClosing(e);
+        }
+        void SaveWindowBounds()
+        {
+            var settings = Properties.Settings.Default;
+            settings.WindowMaximized = WindowState == WindowState.Maximized;
+            WindowState = WindowState.Normal; // 最大化解除
+            settings.WindowLeft = Left;
+            settings.WindowTop = Top;
+            settings.WindowWidth = Width;
+            settings.WindowHeight = Height;
+            settings.Save();
+        }
+        void RecoverWindowBounds()
+        {
+            var settings = Properties.Settings.Default;
+            // 左
+            if (settings.WindowLeft >= 0 &&
+                (settings.WindowLeft + settings.WindowWidth) < SystemParameters.VirtualScreenWidth)
+            { Left = settings.WindowLeft; }
+            // 上
+            if (settings.WindowTop >= 0 &&
+                (settings.WindowTop + settings.WindowHeight) < SystemParameters.VirtualScreenHeight)
+            { Top = settings.WindowTop; }
+            // 幅
+            if (settings.WindowWidth > 0 &&
+                settings.WindowWidth <= SystemParameters.WorkArea.Width)
+            { Width = settings.WindowWidth; }
+            // 高さ
+            if (settings.WindowHeight > 0 &&
+                settings.WindowHeight <= SystemParameters.WorkArea.Height)
+            { Height = settings.WindowHeight; }
+            // 最大化
+            if (settings.WindowMaximized)
+            {
+                // ロード後に最大化
+                Loaded += (o, e) => WindowState = WindowState.Maximized;
+            }
         }
     }
 }
