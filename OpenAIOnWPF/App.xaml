@@ -7,7 +7,22 @@
     <Application.Resources>
          <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ui:ThemeResources />
+                <ui:ThemeResources>
+
+    <ui:ThemeResources.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ColorPaletteResources
+                    TargetTheme="Dark"
+                    AltMediumLow="#202020"
+                    AltMedium="#202020"
+                    BaseLow="#3c3c3c"
+                    ChromeMedium="#2b2b2b"
+                    AltHigh="#202020" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ui:ThemeResources.ThemeDictionaries>
+                </ui:ThemeResources>
                 <ui:XamlControlsResources />
                 <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
