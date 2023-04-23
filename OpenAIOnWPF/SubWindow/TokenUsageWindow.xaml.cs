@@ -19,7 +19,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// TokenUsageWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class TokenUsageWindow : Window
+    public partial class TokenUsageWindow
     {
         public class TokenUsageDisplayItem
         { 

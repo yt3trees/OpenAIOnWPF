@@ -13,7 +13,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// ColorSettings.xaml の相互作用ロジック
     /// </summary>
-    public partial class ColorSettings : Window
+    public partial class ColorSettings
     {
         public static IReadOnlyList<string> KnownColorNames { get; } =
             typeof(Colors)
@@ -28,6 +28,17 @@ namespace OpenAIOnWPF
         {
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            if(ThemeManager.Current.AccentColor !=  null)
+            {
+                var color = ThemeManager.Current.AccentColor;
+                //OkButton.Background = new SolidColorBrush((Color)color);
+            }
+            else
+            {
+                var color = ThemeManager.Current.ActualAccentColor;
+                //OkButton.Background = new SolidColorBrush(color);
+            }
 
             OkFlg = false;
             AccentColorList.ItemsSource = KnownColorNames;
@@ -74,14 +85,17 @@ namespace OpenAIOnWPF
             if (ctrl == ThemeLight)
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Light;
             }
             else if (ctrl == ThemeDark)
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Dark;
             }
             else
             {
                 ThemeManager.Current.ApplicationTheme = null;
+                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = null;
             }
         }
 
@@ -135,6 +149,7 @@ namespace OpenAIOnWPF
         {
             var color = (Color)ColorConverter.ConvertFromString(AccentColorList.SelectedValue.ToString());
             ThemeManager.Current.AccentColor = color;
+            //OkButton.Background = new SolidColorBrush(color);
         }
     }
 }

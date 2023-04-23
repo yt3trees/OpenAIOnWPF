@@ -12,7 +12,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// InstructionSettingWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class InstructionSettingWindow : Window
+    public partial class InstructionSettingWindow
     {
         public string[,] inputResult => items;
         string[,] items { get; set; }

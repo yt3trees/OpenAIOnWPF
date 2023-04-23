@@ -8,25 +8,40 @@
          <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemeResources>
-
-    <ui:ThemeResources.ThemeDictionaries>
-        <ResourceDictionary x:Key="Dark">
-            <ResourceDictionary.MergedDictionaries>
-                <ui:ColorPaletteResources
-                    TargetTheme="Dark"
-                    AltMediumLow="#202020"
-                    AltMedium="#202020"
-                    BaseLow="#3c3c3c"
-                    ChromeMedium="#2b2b2b"
-                    AltHigh="#202020" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </ui:ThemeResources.ThemeDictionaries>
+                    <ui:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Dark2">
+                            <ResourceDictionary.MergedDictionaries>
+                                <ui:ColorPaletteResources
+                                    TargetTheme="Dark"
+                                    AltMediumLow="#202020"
+                                    AltMedium="#202020"
+                                    BaseLow="#3c3c3c"
+                                    ChromeMedium="#2b2b2b"
+                                    AltHigh="#202020" />
+                            </ResourceDictionary.MergedDictionaries>
+                        </ResourceDictionary>
+                        <ResourceDictionary x:Key="Dark">
+                            <ResourceDictionary.MergedDictionaries>
+                                <ResourceDictionary Source="/FluentWPF;component/Styles/Colors.Dark.xaml" />
+                                <ResourceDictionary Source="/FluentWPF;component/Styles/Brushes.xaml" />
+                                <ResourceDictionary Source="/ModernWpf;component/ThemeResources/Dark.xaml" />
+                                <ResourceDictionary Source="pack://application:,,,/FluentWPF;component/Styles/Controls.xaml" />
+                            </ResourceDictionary.MergedDictionaries>
+                            <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="{StaticResource SystemBaseHighColor}" />
+                        </ResourceDictionary>
+                        <ResourceDictionary x:Key="Light">
+                            <ResourceDictionary.MergedDictionaries>
+                                <ResourceDictionary Source="/FluentWPF;component/Styles/Colors.Light.xaml" />
+                                <ResourceDictionary Source="/FluentWPF;component/Styles/Brushes.xaml" />
+                                <ResourceDictionary Source="/ModernWpf;component/ThemeResources/Light.xaml" />
+                                <ResourceDictionary Source="pack://application:,,,/FluentWPF;component/Styles/Controls.xaml" />
+                            </ResourceDictionary.MergedDictionaries>
+                            <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="{StaticResource SystemBaseHighColor}" />
+                        </ResourceDictionary>
+                    </ui:ThemeResources.ThemeDictionaries>
                 </ui:ThemeResources>
                 <ui:XamlControlsResources />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
         </ResourceDictionary>        
     </Application.Resources>
 </Application>

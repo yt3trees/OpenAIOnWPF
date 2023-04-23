@@ -1,4 +1,4 @@
-﻿<Window x:Class="OpenAIOnWPF.MainWindow"
+﻿<fw:AcrylicWindow x:Class="OpenAIOnWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,22 +6,29 @@
         xmlns:local="clr-namespace:OpenAIOnWPF"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
-        ui:WindowHelper.UseModernWindowStyle="True"
+        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+        fw:PointerTracker.Enabled="True" 
         mc:Ignorable="d"
         Title="OpenAI"
         Width="700"
+        Height="433"
         KeyDown="Window_KeyDown"
         Icon="/OpenAI.png"
         Closing="Window_Closing"
-        Height="433">
+        BorderBrush="{DynamicResource SystemAltHighColor}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="35" />
             <RowDefinition Height="25" />
         </Grid.RowDefinitions>
+        <fw:DropShadowPanel ShadowMode="Inner"
+                            Color="{DynamicResource SystemChromeBlackHighColor}"
+                            Grid.Row="0"
+                            BlurRadius="100"
+                            Panel.ZIndex="-5"
+                            ShadowOpacity="0.2">
         <Grid Height="60"
               Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -44,19 +51,28 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <ComboBox x:Name="ConfigurationComboBox"
-                              VerticalAlignment="Center"
-                              MaxDropDownHeight="500"
-                              MaxWidth="200"
-                              Margin="0,0,5,0"
-                              SelectionChanged="ConfigurationComboBox_SelectionChanged"
-                              HorizontalAlignment="Stretch"
-                              MinWidth="100" />
-                    <Button x:Name="ConfigurationSettingButton"
+                        <ComboBox x:Name="ConfigurationComboBox"
+                                  VerticalAlignment="Center"
+                                  MaxDropDownHeight="500"
+                                  MaxWidth="200"
+                                  Margin="0,0,5,0"
+                                  SelectionChanged="ConfigurationComboBox_SelectionChanged"
+                                  HorizontalAlignment="Stretch"
+                                  MinWidth="100">
+                            <ComboBox.Background>
+                                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                                 Opacity="0.5"></SolidColorBrush>
+                            </ComboBox.Background>
+                        </ComboBox>
+                        <Button x:Name="ConfigurationSettingButton"
                             Grid.Column="1"
                             Content="..."
+                            Style="{StaticResource ButtonRevealStyle}"
+                            fw:RevealElement.BorderRadius="4"
                             Click="ConfigurationSettingButton_Click"
-                            VerticalAlignment="Center" />
+                            VerticalAlignment="Center"
+                            Width="30"
+                            Height="32" />
                 </Grid>
             </StackPanel>
             <StackPanel Grid.Column="3"
@@ -71,20 +87,29 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <ComboBox x:Name="InstructionComboBox"
-                              MaxDropDownHeight="500"
-                              Grid.Column="0"
-                              SelectionChanged="InstructionComboBox_SelectionChanged"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"
-                              Margin="0,0,5,0"
-                              MaxWidth="200"
-                              MinWidth="100" />
-                    <Button x:Name="InstructionSettingButton"
+                        <ComboBox x:Name="InstructionComboBox"
+                                  MaxDropDownHeight="500"
+                                  Grid.Column="0"
+                                  SelectionChanged="InstructionComboBox_SelectionChanged"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,5,0"
+                                  MaxWidth="200"
+                                  MinWidth="100">
+                            <ComboBox.Background>
+                                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                                 Opacity="0.5"></SolidColorBrush>
+                            </ComboBox.Background>
+                        </ComboBox>
+                        <Button x:Name="InstructionSettingButton"
                               Grid.Column="1"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            fw:RevealElement.BorderRadius="4"
                             Content="..."
                             Click="InstructionSettingButton_Click"
-                            VerticalAlignment="Center" />
+                            VerticalAlignment="Center"
+                            Width="30"
+                            Height="32" />
                 </Grid>
             </StackPanel>
             <Menu Grid.Column="5"
@@ -102,56 +127,64 @@
                 </MenuItem>
             </Menu>
         </Grid>
+        </fw:DropShadowPanel>
      <!--<Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
             ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
-                    <mdxam:MarkdownScrollViewer xml:space="preserve"
-                                    x:Name="AssistantMarkdownText"
-                                    MinHeight="80"
-                                    MinWidth="0"
-                                    MarkdownStyleName="Sasabune"
-                                    ScrollViewer.CanContentScroll="True"
-                                    Grid.Row="1"
-                                    Padding="10,10,10,10"
-                                    MouseWheel="AssistantMarkdownText_MouseWheel"
-                                    />
+            <mdxam:MarkdownScrollViewer xml:space="preserve"
+                                        x:Name="AssistantMarkdownText"
+                                        MinHeight="80"
+                                        MinWidth="0"
+                                        Grid.Row="1"
+                                        MarkdownStyleName="Sasabune"
+                                        ScrollViewer.CanContentScroll="True"
+                                        Padding="10,10,10,10"
+                                        MouseWheel="AssistantMarkdownText_MouseWheel"
+                                        FontSize="14" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="43.28" />
+                <ColumnDefinition Width="90" />
+            </Grid.ColumnDefinitions>                      
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
                  MinWidth="0"
                  KeyDown="UserTextBox_KeyDown"
                  FontSize="16"
-                 Grid.Row="2"
+                 Grid.Column="0"
                  VerticalScrollBarVisibility="Auto"
                  MouseWheel="UserTextBox_MouseWheel"
                  ui:ControlHelper.PlaceholderText="{Binding PlaceHolder}"
                  TextChanged="UserTextBox_TextChanged"
                  VerticalAlignment="Bottom"
                  MaxHeight="180"
-                 Padding="10,10,10,10" />
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+                 Padding="10,10,10,10">
+            <TextBox.Background>
+                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                 Opacity="0.5"></SolidColorBrush>
+            </TextBox.Background>
+        </TextBox>
             <Button x:Name="ExecButton"
-                    Content="Send"
-                    Height="35"
+                    Content="↪️"
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                    fw:RevealElement.BorderRadius="4"
                     Click="ExecButton_Click"
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch"
-                    Grid.Column="0"
-                    Margin="0,0,0,0" />
+                    Grid.Column="1"
+                    Margin="0,0,0,0"
+                    FontSize="16" />
             <ProgressBar x:Name="ProgressBar"
-                         Grid.Row="3"
-                         Grid.Column="0"
+                         Grid.Column="1"
                          Visibility="Collapsed"
                          VerticalAlignment="Bottom"
-                         MinHeight="35"
                          Background="#00000000"
                          Opacity="0.5" />
             <CheckBox x:Name="NoticeCheckbox"
                       Content="Notice"
-                      Grid.Column="1"
+                      Grid.Column="2"
                       HorizontalAlignment="Center"
                       MinWidth="0"
                       MinHeight="0"
@@ -159,7 +192,8 @@
                       Click="NoticeCheckbox_Click"
                       IsChecked="False" />
         </Grid>
-        <StatusBar Grid.Row="4">
+        <StatusBar Grid.Row="3"
+                   Background="#00000000">
             <StatusBarItem HorizontalAlignment="Right"
                            DockPanel.Dock="Right">
                 <Label x:Name="TokenUsageButton"
@@ -199,4 +233,4 @@
         </StatusBar>
         <!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
     </Grid>
-</Window>
+</fw:AcrylicWindow>

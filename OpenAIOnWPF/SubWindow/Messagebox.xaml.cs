@@ -17,7 +17,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// Messagebox.xaml の相互作用ロジック
     /// </summary>
-    public partial class Messagebox : Window
+    public partial class Messagebox
     {
         public Messagebox(string title, string content)
         {

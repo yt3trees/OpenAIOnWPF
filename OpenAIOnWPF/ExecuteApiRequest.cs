@@ -85,7 +85,6 @@ namespace OpenAIOnWPF
 
             AssistantMarkdownText.Markdown = "";
             ExecButton.IsEnabled = false;
-            ExecButton.Content = "Sending...";
         }
         private void ResetUI()
         {
@@ -93,7 +92,6 @@ namespace OpenAIOnWPF
             TimeLabel.Content = $"{stopWatch.ElapsedMilliseconds} ms";
             stopWatch.Reset();
             ExecButton.IsEnabled = true;
-            ExecButton.Content = "Send";
             ProgressBar.Visibility = Visibility.Collapsed;
             ProgressBar.IsIndeterminate = false;
             UserTextBox.Text = "";

@@ -12,7 +12,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// Table.xaml の相互作用ロジック
     /// </summary>
-    public partial class Table : Window
+    public partial class Table
     {
         public class DataTableItem
         {

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ModernWpf;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// ConfigSettingWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class ConfigSettingWindow : Window
+    public partial class ConfigSettingWindow
     {
         //public string[,] inputResult => items;
         internal class ModelList
@@ -40,7 +41,9 @@ namespace OpenAIOnWPF
         public ConfigSettingWindow()
         {
             InitializeComponent();
-            //items = param;
+
+            //var color = ThemeManager.Current.ActualAccentColor;
+            //SaveButton.Background = new SolidColorBrush(color);
 
             ConfigListBox.ContextMenu = new ContextMenu();
             MenuItem UpSwap = new MenuItem();

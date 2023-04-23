@@ -1,15 +1,18 @@
-﻿<Window x:Class="OpenAIOnWPF.InstructionSettingWindow"
+﻿<fw:AcrylicWindow x:Class="OpenAIOnWPF.InstructionSettingWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OpenAIOnWPF"
         xmlns:ui="http://schemas.modernwpf.com/2019"
-        ui:WindowHelper.UseModernWindowStyle="True"
+        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+        AcrylicWindowStyle="NoIcon"
+        fw:PointerTracker.Enabled="True" 
         WindowStartupLocation="CenterOwner"
+        BorderBrush="{DynamicResource SystemAltHighColor}"
         ShowInTaskbar="False"
         mc:Ignorable="d"
-        Title="Instruction Setting Window"
+        Title="Instruction Setting"
         Height="433"
         Width="700"
         KeyDown="Window_KeyDown">
@@ -31,20 +34,28 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="AddButton"
                         Content="➕"
+                        Style="{StaticResource ButtonRevealStyle}"
+                        fw:RevealElement.BorderRadius="2"
+                        FontSize="16"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Grid.Column="0"
                         Width="60"
                         Click="AddButton_Click"
-                        Margin="0,0,5,0" />
+                        Margin="0,0,5,0"
+                        Height="32" />
                 <Button x:Name="RemoveButton"
                         Content="➖"
+                        Style="{StaticResource ButtonRevealStyle}"
+                        fw:RevealElement.BorderRadius="2"
+                        FontSize="16"
                         Grid.Column="1"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Width="60"
                         Click="RemoveButton_Click"
-                        Margin="5,0,0,0" />
+                        Margin="5,0,0,0"
+                        Height="32" />
             </Grid>
             <ListBox x:Name="InstructionListBox"
                      SelectionChanged="ListView_SelectionChanged"
@@ -66,7 +77,11 @@
                 <TextBox x:Name="InstructionTextBox"
                          ui:ControlHelper.PlaceholderText="Title"
                          MinWidth="150"
-                         KeyDown="TextBox_KeyDown" />
+                         KeyDown="TextBox_KeyDown">
+                    <TextBox.Background>
+                        <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}" Opacity="0.5" ></SolidColorBrush>
+                    </TextBox.Background> 
+                </TextBox>
             </StackPanel>
             <TextBox x:Name="ContentsTextBox"
                      Margin="5,0,10,0"
@@ -75,7 +90,11 @@
                      AcceptsReturn="True"
                      ui:ControlHelper.PlaceholderText="Contents of instruction"
                      AcceptsTab="True"
-                     KeyDown="TextBox_KeyDown" />
+                     KeyDown="TextBox_KeyDown">
+            <TextBox.Background>
+                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}" Opacity="0.5" ></SolidColorBrush>
+            </TextBox.Background> 
+            </TextBox>
             <Grid Grid.Row="2"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center">
@@ -87,13 +106,16 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="SaveButton"
                         Content="Save"
-                        Style="{StaticResource AccentButtonStyle}"
+                        Style="{StaticResource ButtonAccentRevealStyle}"
+                        fw:RevealElement.BorderRadius="2"
+                        FontSize="16"
                         Grid.Column="0"
                         VerticalAlignment="Top"
                         Width="120"
                         HorizontalAlignment="Center"
                         Margin="0,0,5,0"
-                        Click="SaveButton_Click">
+                        Click="SaveButton_Click"
+                        Height="32">
                     <ui:FlyoutService.Flyout>
                         <ui:Flyout x:Name="Flyout1">
                             <StackPanel x:Name="StackPanelFlyout">
@@ -107,20 +129,27 @@
 
                 <Button x:Name="CloseButton"
                         Content="Close"
+                        Style="{StaticResource ButtonRevealStyle}"
+                        fw:RevealElement.BorderRadius="2"
+                        FontSize="16"
                         VerticalAlignment="Top"
                         Width="120"
                         Grid.Column="1"
                         HorizontalAlignment="Center"
                         Margin="5,0,0,0"
-                        Click="CloseButton_Click" />
+                        Click="CloseButton_Click"
+                        Height="32" />
             <Button x:Name="ExportButton"
                         Content="📤"
+                        Style="{StaticResource ButtonRevealStyle}"
+                        fw:RevealElement.BorderRadius="2"
+                        FontSize="16"
                         Grid.Row="2"
                         Grid.Column="2"
                         VerticalAlignment="Top"
                         Margin="5,0,0,0"
                         Width="30"
-                        Height="30"
+                        Height="32"
                         Padding="0,0,0,0"
                         VerticalContentAlignment="Center"
                         HorizontalAlignment="Center"
@@ -128,12 +157,15 @@
                         Click="ExportButton_Click" />
             <Button x:Name="ImportButton"
                         Content="📥"
+                        Style="{StaticResource ButtonRevealStyle}"
+                        fw:RevealElement.BorderRadius="2"
+                        FontSize="16"
                         Grid.Row="2"
                         Grid.Column="3"
                         VerticalAlignment="Top"
                         Margin="5,0,0,0"
                         Width="30"
-                        Height="30"
+                        Height="32"
                         Padding="0,0,0,0"
                         VerticalContentAlignment="Center"
                         HorizontalAlignment="Center"
@@ -142,4 +174,4 @@
             </Grid>
         </Grid>
     </Grid>
-</Window>
+</fw:AcrylicWindow>

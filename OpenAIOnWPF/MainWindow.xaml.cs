@@ -1,4 +1,6 @@
-﻿using OpenAI.GPT3.Tokenizer.GPT3;
+﻿using ModernWpf;
+using OpenAI.GPT3.Tokenizer.GPT3;
+using SourceChord.FluentWPF;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
@@ -14,7 +17,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow 
     {
         /// <summary>
         /// DataBinding用クラス

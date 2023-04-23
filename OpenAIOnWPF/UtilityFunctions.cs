@@ -68,10 +68,12 @@ namespace OpenAIOnWPF
             if (theme == "Dark")
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Dark;
             }
             else if (theme == "Light")
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Light;
             }
             else
             {

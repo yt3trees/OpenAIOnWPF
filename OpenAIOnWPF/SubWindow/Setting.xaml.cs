@@ -19,7 +19,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// Setting.xaml の相互作用ロジック
     /// </summary>
-    public partial class Setting : Window
+    public partial class Setting
     {
         private string targetSetting = "";
         public string inputResult { get { return ChangeSettings(); } }
