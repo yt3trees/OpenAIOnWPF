@@ -15,6 +15,7 @@
         KeyDown="Window_KeyDown"
         Icon="/OpenAI.png"
         Closing="Window_Closing"
+        ui:ThemeManager.IsThemeAware="True"
         BorderBrush="{DynamicResource SystemAltHighColor}">
     <Grid>
         <Grid.RowDefinitions>
@@ -32,6 +33,8 @@
         <Grid Height="60"
               Grid.Row="0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -112,7 +115,28 @@
                             Height="32" />
                 </Grid>
             </StackPanel>
-            <Menu Grid.Column="5"
+                <StackPanel Grid.Column="4"
+                            Margin="15,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                    <CheckBox x:Name="UseConversationHistoryCheckBox"
+                              Content="UseConversationHistory"
+                              Click="UseConversationHistoryCheckBox_Click" />
+                </StackPanel>
+                <StackPanel Grid.Column="5"
+                            Margin="15,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                        <Button x:Name="ConversationHistoryClearButton"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            fw:RevealElement.BorderRadius="4"
+                            Content="Clear"
+                            Click="ConversationHistoryClearButton_Click"
+                            VerticalAlignment="Center"
+                            Height="30"
+                            Width="40" />
+                </StackPanel>
+                <Menu Grid.Column="7"
                   Height="60"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Right"
@@ -126,24 +150,28 @@
                               Click="ColorMenuItem_Click" />
                 </MenuItem>
             </Menu>
-        </Grid>
+            </Grid>
         </fw:DropShadowPanel>
      <!--<Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
             ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
+        <ScrollViewer x:Name="MessageScrollViewer"
+                      Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="MessagesPanel" />
+        </ScrollViewer>
             <mdxam:MarkdownScrollViewer xml:space="preserve"
                                         x:Name="AssistantMarkdownText"
                                         MinHeight="80"
                                         MinWidth="0"
-                                        Grid.Row="1"
+                                        Grid.Row="3"
                                         MarkdownStyleName="Sasabune"
-                                        ScrollViewer.CanContentScroll="True"
                                         Padding="10,10,10,10"
                                         MouseWheel="AssistantMarkdownText_MouseWheel"
                                         FontSize="14" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="43.28" />
+                <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="90" />
             </Grid.ColumnDefinitions>                      
         <TextBox x:Name="UserTextBox"
@@ -155,7 +183,7 @@
                  Grid.Column="0"
                  VerticalScrollBarVisibility="Auto"
                  MouseWheel="UserTextBox_MouseWheel"
-                 ui:ControlHelper.PlaceholderText="{Binding PlaceHolder}"
+                 ui:ControlHelper.PlaceholderText="Send a message..."
                  TextChanged="UserTextBox_TextChanged"
                  VerticalAlignment="Bottom"
                  MaxHeight="180"
@@ -166,15 +194,15 @@
             </TextBox.Background>
         </TextBox>
             <Button x:Name="ExecButton"
-                    Content="↪️"
+                    Content="Send"
                     Style="{StaticResource ButtonRevealStyle}"
                     Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
                     fw:RevealElement.BorderRadius="4"
                     Click="ExecButton_Click"
+                    Margin="5,0,5,0"
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch"
                     Grid.Column="1"
-                    Margin="0,0,0,0"
                     FontSize="16" />
             <ProgressBar x:Name="ProgressBar"
                          Grid.Column="1"
@@ -233,4 +261,8 @@
         </StatusBar>
         <!-- https://github.com/whistyun/MdXaml/wiki/How-to-customise-style -->
     </Grid>
+            <fw:AcrylicWindow.Background>
+                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                 Opacity="0.3"></SolidColorBrush>
+            </fw:AcrylicWindow.Background>
 </fw:AcrylicWindow>

@@ -1,14 +1,19 @@
 ﻿using ModernWpf;
+using Newtonsoft.Json;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.Tokenizer.GPT3;
 using SourceChord.FluentWPF;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Input.Manipulations;
 using System.Windows.Media;
 using static OpenAIOnWPF.UtilityFunctions;
 
@@ -19,13 +24,6 @@ namespace OpenAIOnWPF
     /// </summary>
     public partial class MainWindow 
     {
-        /// <summary>
-        /// DataBinding用クラス
-        /// </summary>
-        public class DataBind
-        {
-            public string? PlaceHolder { get; set; }
-        }
         string selectInstructionContent = "";
         string userMessage = "";
         Stopwatch stopWatch = new Stopwatch();
@@ -35,13 +33,13 @@ namespace OpenAIOnWPF
             InitializeComponent();
             RecoverWindowBounds();
             InitializeSettings();
+            setMessages();
         }
         private void InitializeSettings()
         {
             InitialColorSet();
             UserTextBox.Focus();
             NoticeCheckbox.IsChecked = AppSettings.NoticeFlgSetting;
-            this.DataContext = new DataBind { PlaceHolder = "Send a message..." };
 
             // Settingsから指示内容リストを取得しセット
             InstructionComboBox.ItemsSource = SetupInstructionComboBox();
@@ -54,6 +52,10 @@ namespace OpenAIOnWPF
 
             ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
             ConfigurationComboBox.Text = AppSettings.SelectConfigSetting;
+
+            UseConversationHistoryCheckBox.IsChecked = AppSettings.UseConversationHistoryFlg;
+
+            MessageScrollViewer.ScrollToBottom();
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -61,17 +63,6 @@ namespace OpenAIOnWPF
             {
                 this.Close();
             }
-            //if (e.Key == Key.F1)
-            //{
-            //    string content = "Ctrl + Enter -> Send Message\r\n"
-            //                    + "F2 -> Set Instruction List\r\n"
-            //                    + "F3 -> Set MaxTokens\r\n"
-            //                    + "F4 -> Set Temperature\r\n"
-            //                    + "F5 -> View conversation history\r\n"
-            //                    + "F11 -> Set Api key(OpenAI)\r\n"
-            //                    + "F12 -> Set Azure OpenAI Parameter\r\n";
-            //    ShowMessagebox("Help",content);
-            //}
             if (e.Key == Key.F2)
             {
                 var window = new ColorSettings();
@@ -255,6 +246,117 @@ namespace OpenAIOnWPF
                 // ロード後に最大化
                 Loaded += (o, e) => WindowState = WindowState.Maximized;
             }
+        }
+        private void setMessages()
+        {
+            var accentColor = ThemeManager.Current.AccentColor;
+            if (accentColor == null)
+            {
+                accentColor = SystemParameters.WindowGlassColor;
+            }
+            var accentColorBrush = new SolidColorBrush((Color)accentColor);
+            //var accentColorBrush =  (Brush)Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
+            accentColorBrush.Opacity = 0.5;
+
+            AppSettings.ConversationHistory = JsonConvert.DeserializeObject<List<ChatMessage>>(Properties.Settings.Default.ConversationHistory);
+
+            if (AppSettings.ConversationHistory != null)
+            {
+                foreach (var message in AppSettings.ConversationHistory)
+                {
+                    TextBlock usermarkdownScrollViewer = new TextBlock();
+                    MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer();
+                    if (message.Role == "user")
+                    {
+                        usermarkdownScrollViewer.Padding = new Thickness(10, 10, 10, 10);
+                        usermarkdownScrollViewer.FontSize = 16;
+                        usermarkdownScrollViewer.Background = accentColorBrush;
+                        MessagesPanel.Children.Add(usermarkdownScrollViewer);
+                        MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
+                        usermarkdownScrollViewer.Text = message.Content;
+                    }
+                    else if (message.Role == "assistant")
+                    {
+                        markdownScrollViewer.Padding = new Thickness(10, 10, 10, 10);
+                        markdownScrollViewer.FontSize = 14;
+                        markdownScrollViewer.MarkdownStyleName = "Sasabune";
+                        markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
+                        MessagesPanel.Children.Add(markdownScrollViewer);
+                        MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
+                        markdownScrollViewer.Markdown = message.Content;
+                    }
+                    ContextMenu contextMenu = CreateFontSizeContextMenu(usermarkdownScrollViewer , markdownScrollViewer);
+                    markdownScrollViewer.ContextMenu = contextMenu;
+                    usermarkdownScrollViewer.ContextMenu = contextMenu;
+                }
+            }
+        }
+        /// <summary>
+        /// フォントサイズを変更する右クリックメニュー
+        /// </summary>
+        public ContextMenu CreateFontSizeContextMenu(TextBlock textBlock, MdXaml.MarkdownScrollViewer markdownScrollViewer)
+        {
+            ContextMenu contextMenu = new ContextMenu();
+
+            MenuItem fontSizeSmall = new MenuItem { Header = "Small Font" };
+            fontSizeSmall.Click += (s, e) => ChangeFontSize(textBlock, markdownScrollViewer, 12);
+            contextMenu.Items.Add(fontSizeSmall);
+
+            MenuItem fontSizeMedium = new MenuItem { Header = "Medium Font" };
+            fontSizeMedium.Click += (s, e) => ChangeFontSize(textBlock, markdownScrollViewer, 14);
+            contextMenu.Items.Add(fontSizeMedium);
+
+            MenuItem fontSizeLarge = new MenuItem { Header = "Large Font" };
+            fontSizeLarge.Click += (s, e) => ChangeFontSize(textBlock, markdownScrollViewer, 18);
+            contextMenu.Items.Add(fontSizeLarge);
+
+            return contextMenu;
+        }
+        /// <summary>
+        /// 親のScrollViewerでスクロールする
+        /// </summary>
+        private void PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            UIElement element = sender as UIElement;
+            // 親要素を辿るループ
+            while (element != null)
+            {
+                // 親要素を取得し、UIElementとしてelementに代入
+                element = VisualTreeHelper.GetParent(element) as UIElement;
+                // elementがScrollViewer型であるかどうかをチェック
+                if (element is ScrollViewer scrollViewer)
+                {
+                    scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - (e.Delta / 3));
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
+        private void UseConversationHistoryCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (UseConversationHistoryCheckBox.IsChecked == false)
+            {
+                AppSettings.UseConversationHistoryFlg = false;
+            }
+            else
+            {
+                AppSettings.UseConversationHistoryFlg = true;
+            }
+        }
+        private void ConversationHistoryClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            var yesno = ModernWpf.MessageBox.Show("Do you want to delete the entire conversation history?", "Delete Conversation History", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (yesno == MessageBoxResult.No)
+            {
+                return;
+            }
+            //AppSettings.ConversationHistoryをすべてクリア
+            AppSettings.ConversationHistory.RemoveAll(x => true);
+            Properties.Settings.Default.ConversationHistory = "";
+            Properties.Settings.Default.Save();
+
+            //MessagesPanelをすべてクリア
+            MessagesPanel.Children.Clear();
         }
     }
 }

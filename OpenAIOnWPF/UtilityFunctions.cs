@@ -1,14 +1,18 @@
 ﻿using ModernWpf;
 using Newtonsoft.Json;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using static OpenAIOnWPF.MainWindow;
 
@@ -27,6 +31,7 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.InstructionList = SerializeArray(AppSettings.InstructionListSetting);
             Properties.Settings.Default.ConfigDataTable = SerializeDataTable(AppSettings.ConfigDataTable);
             Properties.Settings.Default.SelectConfig = AppSettings.SelectConfigSetting;
+            Properties.Settings.Default.UseConversationHistory = AppSettings.UseConversationHistoryFlg;
             Properties.Settings.Default.Save();
         }
         /// <summary>
@@ -68,12 +73,12 @@ namespace OpenAIOnWPF
             if (theme == "Dark")
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Dark;
+                //SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Dark;
             }
             else if (theme == "Light")
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
-                SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Light;
+                //SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = SourceChord.FluentWPF.ElementTheme.Light;
             }
             else
             {
@@ -118,6 +123,10 @@ namespace OpenAIOnWPF
         }
         public static void ShowTable()
         {
+            if (AppSettings.ConversationHistory == null)
+            {
+                AppSettings.ConversationHistory = new List<ChatMessage>();
+            }
             int count = AppSettings.ConversationHistory.Count;
             string[,] table = new string[count, 2];
             foreach (var item in AppSettings.ConversationHistory)

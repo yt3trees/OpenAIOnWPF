@@ -1,4 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using ModernWpf;
+using Newtonsoft.Json;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels.RequestModels;
@@ -10,6 +12,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Media;
 using System.Windows.Threading;
 using static OpenAIOnWPF.UtilityFunctions;
 
@@ -18,11 +23,12 @@ namespace OpenAIOnWPF
     public partial class MainWindow
     {
         bool resultFlg = true;
+        string responseText = "";
         // 描画遅延対策
         private void DummySub() { }
         private void FlushWindowsMessageQueue()
         {
-            Application.Current.Dispatcher.Invoke(new Action(DummySub), DispatcherPriority.Background, new Object[] { });
+            System.Windows.Application.Current.Dispatcher.Invoke(new Action(DummySub), DispatcherPriority.Background, new Object[] { });
         }
         /// <summary>
         /// APIを実行
@@ -33,6 +39,7 @@ namespace OpenAIOnWPF
             Debug.Print("===== Start processing =====");
             resultFlg = true;
             PrepareUI();
+            MessageScrollViewer.ScrollToBottom();
 
             try
             {
@@ -83,7 +90,8 @@ namespace OpenAIOnWPF
             ProgressBar.Visibility = Visibility.Visible;
             ProgressBar.IsIndeterminate = true;
 
-            AssistantMarkdownText.Markdown = "";
+            //AssistantMarkdownText.Markdown = "";
+            responseText = "";
             ExecButton.IsEnabled = false;
         }
         private void ResetUI()
@@ -190,7 +198,10 @@ namespace OpenAIOnWPF
             Debug.Print(userMessage);
 
             List<ChatMessage> messages = new List<ChatMessage>();
-            messages.AddRange(AppSettings.ConversationHistory);
+            if (AppSettings.UseConversationHistoryFlg == true && AppSettings.ConversationHistory != null)
+            {
+                messages.AddRange(AppSettings.ConversationHistory);
+            }
             messages.Add(ChatMessage.FromSystem(selectInstructionContent));
             messages.Add(ChatMessage.FromUser(userMessage));
 
@@ -203,7 +214,8 @@ namespace OpenAIOnWPF
         {
             if (completionResult.Successful)
             {
-                AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
+                //AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
+                responseText = completionResult.Choices.First().Message.Content;
                 CaluculateTokenUsage();
                 if (AppSettings.NoticeFlgSetting)
                 {
@@ -229,9 +241,46 @@ namespace OpenAIOnWPF
             }
             ResetUI();
         }
+        private void ChangeFontSize(TextBlock textBlock, MdXaml.MarkdownScrollViewer markdown, double fontSize)
+        {
+            textBlock.FontSize = fontSize + 2;
+            markdown.FontSize = fontSize;
+        }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.GPT3.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
             string resultText = "";
+
+            var accentColor = ThemeManager.Current.AccentColor;
+            if (accentColor == null)
+            {
+                accentColor = SystemParameters.WindowGlassColor;
+            }
+            var accentColorBrush = new SolidColorBrush((Color)accentColor);
+            //var accentColorBrush =  (Brush)System.Windows.Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
+            accentColorBrush.Opacity = 0.5;
+
+            // User
+            TextBlock usermarkdownScrollViewer = new TextBlock();
+            usermarkdownScrollViewer.Padding = new Thickness(10, 10, 10, 10);
+            usermarkdownScrollViewer.FontSize = 16;
+            usermarkdownScrollViewer.Background = accentColorBrush;
+            MessagesPanel.Children.Add(usermarkdownScrollViewer);
+            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
+            usermarkdownScrollViewer.Text = userMessage;
+
+            // Assistant
+            MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer();
+            markdownScrollViewer.Padding = new Thickness(10, 10, 10, 10);
+            markdownScrollViewer.FontSize = 14;
+            markdownScrollViewer.MarkdownStyleName = "Sasabune";
+            markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
+            MessagesPanel.Children.Add(markdownScrollViewer);
+            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
+
+            ContextMenu contextMenu = CreateFontSizeContextMenu(usermarkdownScrollViewer, markdownScrollViewer);
+            usermarkdownScrollViewer.ContextMenu = contextMenu;
+            markdownScrollViewer.ContextMenu = contextMenu;
+
             await foreach (var completion in completionResult)
             {
                 if (completion.Successful)
@@ -239,7 +288,10 @@ namespace OpenAIOnWPF
                     resultText = completion.Choices.First().Message.Content;
                     await Dispatcher.InvokeAsync(() =>
                     {
-                        AssistantMarkdownText.Markdown += $"{resultText}";
+                        //AssistantMarkdownText.Markdown += $"{resultText}";
+                        responseText += $"{resultText}";
+                        markdownScrollViewer.Markdown += resultText;
+                        MessageScrollViewer.ScrollToBottom();
                         FlushWindowsMessageQueue(); // 描画遅延対策
                     });
                 }
@@ -272,14 +324,17 @@ namespace OpenAIOnWPF
         private void CaluculateTokenUsage()
         {
             string conversationHistoryString = "";
-            foreach (var item in AppSettings.ConversationHistory)
+            if (AppSettings.UseConversationHistoryFlg == true && AppSettings.ConversationHistory != null)
             {
-                conversationHistoryString += item.Content;
+                foreach (var item in AppSettings.ConversationHistory)
+                {
+                    conversationHistoryString += item.Content;
+                }
             }
             var conversationResultTokens = TokenizerGpt3.Encode(conversationHistoryString);
             var instructionTokens = TokenizerGpt3.Encode(selectInstructionContent);
             var userTokens = TokenizerGpt3.Encode(userMessage);
-            var responseTokens = TokenizerGpt3.Encode(AssistantMarkdownText.Markdown);
+            var responseTokens = TokenizerGpt3.Encode(responseText );
             var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
             string tooltip = "";
             tooltip += $"Conversation History Tokens : {conversationResultTokens.Count()}\r\n";
@@ -290,11 +345,14 @@ namespace OpenAIOnWPF
             TokensLabel.Content = totalTokens;
             TokensLabel.ToolTip = tooltip;
 
-            AppSettings.ConversationHistory.Add(ChatMessage.FromUser(userMessage));
-            AppSettings.ConversationHistory.Add(ChatMessage.FromAssistant(AssistantMarkdownText.Markdown));
 
-            // 入力内容を消してプレースホルダーに入力内容を入れる
-            this.DataContext = new DataBind { PlaceHolder = userMessage };
+            if (AppSettings.ConversationHistory == null)
+            {
+                AppSettings.ConversationHistory = new List<ChatMessage>();
+            }
+            AppSettings.ConversationHistory.Add(ChatMessage.FromUser(userMessage));
+            AppSettings.ConversationHistory.Add(ChatMessage.FromAssistant(responseText));
+            // Q:ConversationHistoryがnullの場合に上記がエラーになってしまいます。問題ない書き方にしてください
 
             // 閾値超え会話履歴を削除
             if (AppSettings.ConversationHistory.Count > AppSettings.ConversationHistoryCountSetting)
@@ -307,6 +365,10 @@ namespace OpenAIOnWPF
             {
                 Debug.Print($"{item.Role}: {item.Content}");
             }
+
+            string conversationHistoryJson = JsonConvert.SerializeObject(AppSettings.ConversationHistory);
+            Properties.Settings.Default.ConversationHistory = conversationHistoryJson;
+            Properties.Settings.Default.Save();
 
             // その日のトークン使用量記録に追加
             AddTokenUsage(totalTokens);

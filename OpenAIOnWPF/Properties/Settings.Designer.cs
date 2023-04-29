@@ -190,5 +190,29 @@ namespace OpenAIOnWPF.Properties {
                 this["WindowMaximized"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ConversationHistory {
+            get {
+                return ((string)(this["ConversationHistory"]));
+            }
+            set {
+                this["ConversationHistory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseConversationHistory {
+            get {
+                return ((bool)(this["UseConversationHistory"]));
+            }
+            set {
+                this["UseConversationHistory"] = value;
+            }
+        }
     }
 }
