@@ -1,4 +1,5 @@
 ﻿using ModernWpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +30,7 @@ namespace OpenAIOnWPF
             InitializeComponent();
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            if(ThemeManager.Current.AccentColor !=  null)
+            if (ThemeManager.Current.AccentColor != null)
             {
                 var color = ThemeManager.Current.AccentColor;
                 //OkButton.Background = new SolidColorBrush((Color)color);
@@ -97,6 +98,7 @@ namespace OpenAIOnWPF
                 ThemeManager.Current.ApplicationTheme = null;
                 SourceChord.FluentWPF.ResourceDictionaryEx.GlobalTheme = null;
             }
+            ThemeLoad();
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -112,7 +114,7 @@ namespace OpenAIOnWPF
             }
             else
             {
-                 Properties.Settings.Default.Theme = "Default";
+                Properties.Settings.Default.Theme = "Default";
             }
 
             if (ThemeManager.Current.AccentColor == null)
@@ -138,18 +140,36 @@ namespace OpenAIOnWPF
         {
             ThemeManager.Current.AccentColor = null;
             AccentColorList.IsEnabled = false;
+            ThemeLoad();
         }
 
         private void AccentColorSet_Checked(object sender, RoutedEventArgs e)
         {
             AccentColorList.IsEnabled = true;
+            ThemeLoad();
         }
 
         private void AccentColorList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var color = (Color)ColorConverter.ConvertFromString(AccentColorList.SelectedValue.ToString());
             ThemeManager.Current.AccentColor = color;
-            //OkButton.Background = new SolidColorBrush(color);
+            ThemeLoad();
+        }
+        /// <summary>
+        /// 描画バグ対策
+        /// </summary>
+        private void ThemeLoad()
+        {
+            var theme = new ResourceDictionary();
+            var themeSource = "Dark";
+
+            if (ThemeManager.Current.ApplicationTheme == ApplicationTheme.Light)
+            {
+                themeSource = "Light";
+            }
+
+            theme.Source = new Uri($"pack://application:,,,/ModernWpf;component/ThemeResources/{themeSource}.xaml");
+            Application.Current.Resources.MergedDictionaries.Add(theme);
         }
     }
 }
