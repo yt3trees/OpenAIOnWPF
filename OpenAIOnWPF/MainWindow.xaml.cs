@@ -350,6 +350,10 @@ namespace OpenAIOnWPF
             {
                 return;
             }
+            if (AppSettings.ConversationHistory == null)
+            {
+                return;
+            }
             //AppSettings.ConversationHistoryをすべてクリア
             AppSettings.ConversationHistory.RemoveAll(x => true);
             Properties.Settings.Default.ConversationHistory = "";
