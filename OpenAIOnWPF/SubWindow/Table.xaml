@@ -12,13 +12,12 @@
         WindowStartupLocation="CenterOwner"
         BorderBrush="{DynamicResource SystemAltHighColor}"
         ShowInTaskbar="False"
-        MinWidth="600"
-        MinHeight="250"
         HorizontalContentAlignment="Center"
-        SizeToContent="WidthAndHeight"
         WindowStyle="None"
         Closing="Window_Closing"
-        KeyDown="Window_KeyDown">
+        SizeToContent="Height"
+        KeyDown="Window_KeyDown"
+        Width="1000">
     <Window.Resources>
         <Style TargetType="TextBox"
                x:Key="editingTextBoxStyle">
@@ -45,7 +44,8 @@
         <DataGrid x:Name="DataTable"
                   Grid.Row="1"
                   AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
-                  AutoGenerateColumns="True" />
+                  AutoGenerateColumns="True"
+                  Loaded="DataTable_Loaded" />
         <StackPanel HorizontalAlignment="Center"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center">
@@ -63,4 +63,8 @@
                           VerticalAlignment="Center" />
         </StackPanel>
     </Grid>
+            <fw:AcrylicWindow.Background>
+                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                 Opacity="0.3"></SolidColorBrush>
+            </fw:AcrylicWindow.Background>
 </fw:AcrylicWindow>

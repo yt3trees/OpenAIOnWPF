@@ -23,7 +23,7 @@ namespace OpenAIOnWPF
         {
             InitializeComponent();
             this.MaxWidth = SystemParameters.PrimaryScreenWidth;
-            this.MaxHeight = SystemParameters.PrimaryScreenHeight;
+            this.MaxHeight = SystemParameters.PrimaryScreenHeight * 0.8;
             // レンダリングバグ対応
             SourceInitialized += (s, a) =>
             {
@@ -83,6 +83,22 @@ namespace OpenAIOnWPF
                 tb.Text = tb.Text.Insert(caret, "\r\n");
                 tb.CaretIndex = caret + 1;
                 e.Handled = true;
+            }
+        }
+
+        private void DataTable_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataTable.Columns.Count > 0)
+            {
+                DataTable.Columns[0].Width = 80;
+                DataTable.Columns[1].SetValue(DataGridTextColumn.ElementStyleProperty, new Style(typeof(TextBlock))
+                {
+                    Setters = {
+                        new Setter(TextBlock.TextWrappingProperty, TextWrapping.Wrap)
+                    }
+                });
+                // 2列目をウィンドウ幅に合わせる
+                DataTable.Columns[1].Width = new DataGridLength(1.0, DataGridLengthUnitType.Star);
             }
         }
     }

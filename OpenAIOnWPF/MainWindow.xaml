@@ -187,7 +187,8 @@
                  TextChanged="UserTextBox_TextChanged"
                  VerticalAlignment="Bottom"
                  MaxHeight="180"
-                 Padding="10,10,10,10">
+                 Padding="10,10,10,10"
+                 Margin="5,0,0,0">
             <TextBox.Background>
                 <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
                                  Opacity="0.5"></SolidColorBrush>
@@ -199,7 +200,7 @@
                     Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
                     fw:RevealElement.BorderRadius="4"
                     Click="ExecButton_Click"
-                    Margin="5,0,5,0"
+                    Margin="5,0,0,0"
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch"
                     Grid.Column="1"
