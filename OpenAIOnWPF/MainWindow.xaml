@@ -164,7 +164,7 @@
                 Height="32"
                 Panel.ZIndex="10"
                 Click="BottomScrollButton_Click"
-                Opacity="0.6" />
+                Opacity="0.8" />
      <!--<Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
             ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
         <ScrollViewer x:Name="MessageScrollViewer"
