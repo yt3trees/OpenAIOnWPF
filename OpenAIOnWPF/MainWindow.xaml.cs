@@ -268,7 +268,7 @@ namespace OpenAIOnWPF
                     MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer();
                     if (message.Role == "user")
                     {
-                        usermarkdownScrollViewer.Padding = new Thickness(10, 10, 10, 10);
+                        usermarkdownScrollViewer.Padding = new Thickness(100, 10, 100, 10);
                         usermarkdownScrollViewer.FontSize = 16;
                         usermarkdownScrollViewer.Background = accentColorBrush;
                         MessagesPanel.Children.Add(usermarkdownScrollViewer);
@@ -277,7 +277,7 @@ namespace OpenAIOnWPF
                     }
                     else if (message.Role == "assistant")
                     {
-                        markdownScrollViewer.Padding = new Thickness(10, 10, 10, 10);
+                        markdownScrollViewer.Padding = new Thickness(100, 10, 100, 10);
                         markdownScrollViewer.FontSize = 14;
                         markdownScrollViewer.MarkdownStyleName = "Sasabune";
                         markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
