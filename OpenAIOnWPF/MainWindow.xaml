@@ -120,7 +120,7 @@
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center">
                     <CheckBox x:Name="UseConversationHistoryCheckBox"
-                              Content="UseConversationHistory"
+                              Content="Use Conversation History"
                               Click="UseConversationHistoryCheckBox_Click" />
                 </StackPanel>
                 <StackPanel Grid.Column="5"
@@ -152,11 +152,25 @@
             </Menu>
             </Grid>
         </fw:DropShadowPanel>
+        <Button x:Name="BottomScrollButton"
+                Content="⬇"
+                Grid.Row="1"
+                Style="{StaticResource ButtonRevealStyle}"
+                fw:RevealElement.BorderRadius="100"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                Margin="0,0,20,10"
+                Width="32"
+                Height="32"
+                Panel.ZIndex="10"
+                Click="BottomScrollButton_Click"
+                Opacity="0.6" />
      <!--<Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
             ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
         <ScrollViewer x:Name="MessageScrollViewer"
                       Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto">
+                      VerticalScrollBarVisibility="Auto"
+                      ScrollChanged="MessageScrollViewer_ScrollChanged">
             <StackPanel x:Name="MessagesPanel" />
         </ScrollViewer>
             <mdxam:MarkdownScrollViewer xml:space="preserve"

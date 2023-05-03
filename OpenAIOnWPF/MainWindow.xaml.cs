@@ -362,5 +362,16 @@ namespace OpenAIOnWPF
             //MessagesPanelをすべてクリア
             MessagesPanel.Children.Clear();
         }
+        private void MessageScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            // スクロールが一番下にあるかどうかをチェック
+            bool isAtBottom = MessageScrollViewer.VerticalOffset >= MessageScrollViewer.ScrollableHeight;
+            // ボタンの表示/非表示を切り替え  
+            BottomScrollButton.Visibility = isAtBottom ? Visibility.Collapsed : Visibility.Visible;
+        }
+        private void BottomScrollButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageScrollViewer.ScrollToBottom();
+        }
     }
 }
