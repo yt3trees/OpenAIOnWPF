@@ -294,7 +294,6 @@ namespace OpenAIOnWPF
                         usermarkdownScrollViewer.FontSize = 16;
                         usermarkdownScrollViewer.Background = accentColorBrush;
                         MessagesPanel.Children.Add(usermarkdownScrollViewer);
-                        MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
                         usermarkdownScrollViewer.Text = message.Content;
                     }
                     else if (message.Role == "assistant")
@@ -304,7 +303,6 @@ namespace OpenAIOnWPF
                         markdownScrollViewer.MarkdownStyleName = "Sasabune";
                         markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
                         MessagesPanel.Children.Add(markdownScrollViewer);
-                        MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
                         markdownScrollViewer.Markdown = message.Content.Replace("\r\n","  \r\n");
                     }
                     ContextMenu contextMenu = CreateFontSizeContextMenu(usermarkdownScrollViewer , markdownScrollViewer);

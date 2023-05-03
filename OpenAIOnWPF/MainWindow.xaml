@@ -171,7 +171,8 @@
                       Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       ScrollChanged="MessageScrollViewer_ScrollChanged">
-            <StackPanel x:Name="MessagesPanel" />
+            <StackPanel x:Name="MessagesPanel"
+                        PreviewMouseWheel="PreviewMouseWheel" />
         </ScrollViewer>
             <mdxam:MarkdownScrollViewer xml:space="preserve"
                                         x:Name="AssistantMarkdownText"
