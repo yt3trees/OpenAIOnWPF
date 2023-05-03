@@ -290,8 +290,7 @@ namespace OpenAIOnWPF
                     {
                         //AssistantMarkdownText.Markdown += $"{resultText}";
                         responseText += $"{resultText}";
-                        markdownScrollViewer.Markdown += resultText?.Replace("\n","  \n") ?? string.Empty;
-                        MessageScrollViewer.ScrollToBottom();
+                        markdownScrollViewer.Markdown += resultText?.Replace("\r\n","  \r\n") ?? string.Empty;
                         FlushWindowsMessageQueue(); // 描画遅延対策
                     });
                 }

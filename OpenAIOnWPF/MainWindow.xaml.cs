@@ -283,7 +283,7 @@ namespace OpenAIOnWPF
                         markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
                         MessagesPanel.Children.Add(markdownScrollViewer);
                         MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
-                        markdownScrollViewer.Markdown = message.Content.Replace("\n","  \n");
+                        markdownScrollViewer.Markdown = message.Content.Replace("\r\n","  \r\n");
                     }
                     ContextMenu contextMenu = CreateFontSizeContextMenu(usermarkdownScrollViewer , markdownScrollViewer);
                     markdownScrollViewer.ContextMenu = contextMenu;
