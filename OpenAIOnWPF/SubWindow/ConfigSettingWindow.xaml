@@ -188,7 +188,7 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="SaveButton"
                         Content="Save"
-                        Style="{StaticResource ButtonAccentRevealStyle}"
+                        Style="{StaticResource ButtonRevealStyle}"
                         fw:RevealElement.BorderRadius="2"
                         FontSize="16"
                         Grid.Column="0"

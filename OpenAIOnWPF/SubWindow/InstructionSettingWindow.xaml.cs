@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using ModernWpf;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using static OpenAIOnWPF.MainWindow;
 
 namespace OpenAIOnWPF
@@ -20,6 +22,14 @@ namespace OpenAIOnWPF
         {
             InitializeComponent();
             items = param;
+
+            var accentColor = ThemeManager.Current.AccentColor;
+            if (accentColor == null)
+            {
+                accentColor = SystemParameters.WindowGlassColor;
+            }
+            var accentColorBrush = new SolidColorBrush((Color)accentColor);
+            SaveButton.Background = accentColorBrush;
 
             InstructionListBox.ContextMenu = new ContextMenu();
             MenuItem UpSwap = new MenuItem();

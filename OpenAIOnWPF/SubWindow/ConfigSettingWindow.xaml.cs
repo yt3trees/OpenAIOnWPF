@@ -57,6 +57,14 @@ namespace OpenAIOnWPF
             ConfigListBox.ContextMenu.Items.Add(UpSwap);
             ConfigListBox.ContextMenu.Items.Add(DownSwap);
 
+            var accentColor = ThemeManager.Current.AccentColor;
+            if (accentColor == null)
+            {
+                accentColor = SystemParameters.WindowGlassColor;
+            }
+            var accentColorBrush = new SolidColorBrush((Color)accentColor);
+            SaveButton.Background = accentColorBrush;
+
             ModelComboBox.Items.Add("gpt-3.5-turbo");
             ModelComboBox.Items.Add("gpt-4");
             if (AppSettings.ConfigDataTable == null)
