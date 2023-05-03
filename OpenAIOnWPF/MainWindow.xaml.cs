@@ -33,7 +33,7 @@ namespace OpenAIOnWPF
             InitializeComponent();
             RecoverWindowBounds();
             InitializeSettings();
-            setMessages();
+            SetMessages();
         }
         private void InitializeSettings()
         {
@@ -247,7 +247,29 @@ namespace OpenAIOnWPF
                 Loaded += (o, e) => WindowState = WindowState.Maximized;
             }
         }
-        private void setMessages()
+        public void ShowTable()
+        {
+            if (AppSettings.ConversationHistory == null)
+            {
+                AppSettings.ConversationHistory = new List<ChatMessage>();
+            }
+            int count = AppSettings.ConversationHistory.Count;
+            string[,] table = new string[count, 2];
+            foreach (var item in AppSettings.ConversationHistory)
+            {
+                table[AppSettings.ConversationHistory.IndexOf(item), 0] = item.Role;
+                table[AppSettings.ConversationHistory.IndexOf(item), 1] = item.Content;
+            }
+            var window = new Table(table);
+            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            bool result = (bool)window.ShowDialog();
+            if (result)
+            {
+                MessagesPanel.Children.Clear();
+                SetMessages();
+            }
+        }
+        private void SetMessages()
         {
             var accentColor = ThemeManager.Current.AccentColor;
             if (accentColor == null)

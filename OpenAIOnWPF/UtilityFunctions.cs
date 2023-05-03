@@ -121,23 +121,6 @@ namespace OpenAIOnWPF
             bool result = (bool)window.ShowDialog();
             return result ? window.inputResult : "";
         }
-        public static void ShowTable()
-        {
-            if (AppSettings.ConversationHistory == null)
-            {
-                AppSettings.ConversationHistory = new List<ChatMessage>();
-            }
-            int count = AppSettings.ConversationHistory.Count;
-            string[,] table = new string[count, 2];
-            foreach (var item in AppSettings.ConversationHistory)
-            {
-                table[AppSettings.ConversationHistory.IndexOf(item), 0] = item.Role;
-                table[AppSettings.ConversationHistory.IndexOf(item), 1] = item.Content;
-            }
-            var window = new Table(table);
-            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-            window.ShowDialog();
-        }
         public static string SerializeArray(string[,] array)
         {
             return JsonConvert.SerializeObject(array);
