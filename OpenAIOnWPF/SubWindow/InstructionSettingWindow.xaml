@@ -12,7 +12,7 @@
         BorderBrush="{DynamicResource SystemAltHighColor}"
         ShowInTaskbar="False"
         mc:Ignorable="d"
-        Title="Instruction Setting"
+        Title="System Prompt Setting"
         Height="433"
         Width="700"
         KeyDown="Window_KeyDown">
@@ -73,7 +73,7 @@
             </Grid.RowDefinitions>
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                <Label Content="Instruction" />
+                <Label Content="Title" />
                 <TextBox x:Name="InstructionTextBox"
                          ui:ControlHelper.PlaceholderText="Title"
                          MinWidth="150"
@@ -88,7 +88,7 @@
                      Grid.Row="1"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
-                     ui:ControlHelper.PlaceholderText="Contents of instruction"
+                     ui:ControlHelper.PlaceholderText="System Prompt Content"
                      AcceptsTab="True"
                      KeyDown="TextBox_KeyDown">
             <TextBox.Background>

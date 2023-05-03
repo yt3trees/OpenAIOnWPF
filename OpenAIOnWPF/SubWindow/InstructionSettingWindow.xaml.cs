@@ -284,7 +284,7 @@ namespace OpenAIOnWPF
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
                     string path = dialog.SelectedPath;
-                    File.WriteAllText(path + "\\instruction.json", json);
+                    File.WriteAllText(path + "\\SystemPrompt.json", json);
                     ModernWpf.MessageBox.Show("Exported successfully.");
                 }
             }

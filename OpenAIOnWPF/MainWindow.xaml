@@ -61,7 +61,7 @@
                                   Margin="0,0,5,0"
                                   SelectionChanged="ConfigurationComboBox_SelectionChanged"
                                   HorizontalAlignment="Stretch"
-                                  MinWidth="100">
+                                  MinWidth="120">
                             <ComboBox.Background>
                                 <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
                                                  Opacity="0.5"></SolidColorBrush>
@@ -82,7 +82,7 @@
                         Margin="15,0,0,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center">
-                <Label Content="Instruction"
+                <Label Content="System Prompt"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Top" />
                 <Grid>
@@ -98,7 +98,7 @@
                                   VerticalAlignment="Center"
                                   Margin="0,0,5,0"
                                   MaxWidth="200"
-                                  MinWidth="100">
+                                  MinWidth="120">
                             <ComboBox.Background>
                                 <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
                                                  Opacity="0.5"></SolidColorBrush>
