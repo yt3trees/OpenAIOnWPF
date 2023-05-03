@@ -1,7 +1,13 @@
-﻿using ModernWpf;
+﻿using Microsoft.Extensions.Primitives;
+using ModernWpf;
+using Newtonsoft.Json;
+using OpenAI.GPT3.ObjectModels.RequestModels;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -19,6 +25,15 @@ namespace OpenAIOnWPF
             public string? Role { get; set; }
             public string? Content { get; set; }
         }
+        public class ViewModel
+        {
+            public ObservableCollection<string> ComboBoxItems { get; set; }
+            public ViewModel()
+            {
+                ComboBoxItems = new ObservableCollection<string>();
+            }
+        }
+        ViewModel viewModel;
         public Table(string[,] arg)
         {
             InitializeComponent();
@@ -33,7 +48,12 @@ namespace OpenAIOnWPF
             // 会話履歴の保持件数を設定
             Numberbox.Text = AppSettings.ConversationHistoryCountSetting.ToString();
 
-            List<DataTableItem> list = new List<DataTableItem>();
+            viewModel = new ViewModel();
+            this.DataContext = viewModel;
+            viewModel.ComboBoxItems.Add("user");
+            viewModel.ComboBoxItems.Add("assistant");
+
+            ObservableCollection<DataTableItem> list = new ObservableCollection<DataTableItem>();
             for (int i = 0; i < arg.GetLength(0); i++)
             {
                 list.Add(new DataTableItem()
@@ -54,10 +74,26 @@ namespace OpenAIOnWPF
                 DataTable.AlternatingRowBackground = brush;
             }
         }
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             AppSettings.ConversationHistoryCountSetting = int.Parse(Numberbox.Text);
+
+            // 会話履歴を保存
+            ObservableCollection<DataTableItem> list = (ObservableCollection<DataTableItem>)DataTable.ItemsSource;
+            AppSettings.ConversationHistory.Clear();
+            foreach (DataTableItem item in list)
+            {
+                AppSettings.ConversationHistory.Add(new ChatMessage(item.Role, item.Content));
+            }
+            string conversationHistoryJson = JsonConvert.SerializeObject(AppSettings.ConversationHistory);
+            Properties.Settings.Default.ConversationHistory = conversationHistoryJson;
+            Properties.Settings.Default.Save();
+
             DialogResult = true;
+        }
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -68,7 +104,7 @@ namespace OpenAIOnWPF
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            DialogResult = false;
+            DialogResult = DialogResult == true;
         }
         private void dataGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
@@ -85,20 +121,60 @@ namespace OpenAIOnWPF
                 e.Handled = true;
             }
         }
-
         private void DataTable_Loaded(object sender, RoutedEventArgs e)
         {
             if (DataTable.Columns.Count > 0)
             {
-                DataTable.Columns[0].Width = 80;
+                // 2列目のスタイル設定
                 DataTable.Columns[1].SetValue(DataGridTextColumn.ElementStyleProperty, new Style(typeof(TextBlock))
                 {
                     Setters = {
-                        new Setter(TextBlock.TextWrappingProperty, TextWrapping.Wrap)
+                        new Setter(TextBlock.TextWrappingProperty, TextWrapping.Wrap),
+                        new Setter(TextBlock.PaddingProperty, new Thickness(5,5,5,5))
                     }
                 });
-                // 2列目をウィンドウ幅に合わせる
                 DataTable.Columns[1].Width = new DataGridLength(1.0, DataGridLengthUnitType.Star);
+
+                // ComboBox用の新しいDataGridTemplateColumnを作成
+                DataGridTemplateColumn comboBoxColumn = new DataGridTemplateColumn();
+                comboBoxColumn.Header = DataTable.Columns[0].Header;
+
+                // ComboBoxのFrameworkElementFactoryを作成
+                FrameworkElementFactory comboBoxFactory = new FrameworkElementFactory(typeof(ComboBox));
+
+                // ComboBox ItemsSourceプロパティのバインディングを設定
+                Binding itemsSourceBinding = new Binding
+                {
+                    Path = new PropertyPath("ComboBoxItems"),
+                    Mode = BindingMode.OneWay,
+                    Source = viewModel
+                };
+                comboBoxFactory.SetBinding(ComboBox.ItemsSourceProperty, itemsSourceBinding);
+
+                // ComboBox SelectedItemプロパティのバインディングを設定
+                Binding selectedItemBinding = new Binding
+                {
+                    Path = new PropertyPath("Role"),
+                    Mode = BindingMode.TwoWay,
+                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                };
+                comboBoxFactory.SetValue(ComboBox.SelectedItemProperty, selectedItemBinding);
+
+                // ComboBoxの幅を100で固定
+                comboBoxFactory.SetValue(ComboBox.WidthProperty, 100.0);
+
+                // DataTemplateを作成し、そのビジュアルツリーにComboBoxを設定
+                DataTemplate cellTemplate = new DataTemplate();
+                cellTemplate.VisualTree = comboBoxFactory;
+
+                // DataTemplateをDataGridTemplateColumnに割り当て
+                comboBoxColumn.CellTemplate = cellTemplate;
+
+                // 指定したインデックスの既存の列を削除
+                DataTable.Columns.RemoveAt(0);
+
+                // 指定したインデックスに新しいComboBox列を挿入
+                DataTable.Columns.Insert(0, comboBoxColumn);
             }
         }
     }

@@ -8,7 +8,6 @@
         xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
         AcrylicWindowStyle="NoIcon"
         mc:Ignorable="d"
-        Title="Table"
         WindowStartupLocation="CenterOwner"
         BorderBrush="{DynamicResource SystemAltHighColor}"
         ShowInTaskbar="False"
@@ -32,15 +31,30 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <Button x:Name="OkButton"
-                Content="OK"
-                Grid.Row="2"
-                Style="{StaticResource AccentButtonStyle}"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Right"
-                Margin="0,0,10,0"
-                MinWidth="60"
-                Click="OkButton_Click" />
+        <Grid Grid.Row="2"
+        Width="130"
+                    Margin="0,0,10,0"
+              HorizontalAlignment="Right">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="SaveButton"
+                    Grid.Column="0"
+                    Content="Save"
+                    Style="{StaticResource AccentButtonStyle}"
+                    MinWidth="60"
+                    Click="SaveButton_Click"
+                    Height="32" />
+            <Button x:Name="CancelButton"
+                    Grid.Column="1"
+                    Content="Cancel"
+                    MinWidth="60"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Height="32"
+                    Click="CancelButton_Click" />
+        </Grid>
         <DataGrid x:Name="DataTable"
                   Grid.Row="1"
                   AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
@@ -49,7 +63,7 @@
         <StackPanel HorizontalAlignment="Center"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center">
-            <Label Content="Number of conversation histories to keep"
+            <Label Content="Conversation History Limit"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center" />
             <ui:NumberBox x:Name="Numberbox"
