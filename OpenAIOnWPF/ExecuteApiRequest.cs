@@ -252,7 +252,7 @@ namespace OpenAIOnWPF
             }
             var accentColorBrush = new SolidColorBrush((Color)accentColor);
             //var accentColorBrush =  (Brush)System.Windows.Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
-            accentColorBrush.Opacity = 0.5;
+            accentColorBrush.Opacity = 0.3;
 
             // User
             TextBlock usermarkdownScrollViewer = new TextBlock();
