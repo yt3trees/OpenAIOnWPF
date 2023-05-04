@@ -120,7 +120,11 @@ namespace OpenAIOnWPF
         }
         private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (InstructionComboBox.SelectedItem == null) return;
+            if (InstructionComboBox.SelectedItem == "")
+            {
+                AppSettings.InstructionSetting = "";
+                return;
+            }
             AppSettings.InstructionSetting = InstructionComboBox.SelectedItem.ToString();
             // ツールチップに内容を表示
             string selectInstructionContent = "";

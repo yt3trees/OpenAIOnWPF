@@ -190,6 +190,10 @@ namespace OpenAIOnWPF
                 int index = Array.IndexOf(instructionList, AppSettings.InstructionSetting);
                 selectInstructionContent = AppSettings.InstructionListSetting[index, 1];
             }
+            else
+            {
+                selectInstructionContent = "";
+            }
 
             Debug.Print("----- Parameter -----");
             Debug.Print($"Temperature:{AppSettings.TemperatureSetting}");
@@ -264,7 +268,7 @@ namespace OpenAIOnWPF
                     await Dispatcher.InvokeAsync(() =>
                     {
                         responseText += $"{resultText}";
-                        markdownScrollViewer.Markdown += resultText?.Replace("\n  ", "  \n") ?? string.Empty;
+                        markdownScrollViewer.Markdown += resultText;
                         FlushWindowsMessageQueue(); // 描画遅延対策
                     });
                 }
@@ -279,6 +283,7 @@ namespace OpenAIOnWPF
                     resultFlg = false;
                 }
             }
+            markdownScrollViewer.Markdown = markdownScrollViewer.Markdown.Replace("\n  ", "  \n") ?? string.Empty;
             if (resultFlg)
             {
                 CaluculateTokenUsage();

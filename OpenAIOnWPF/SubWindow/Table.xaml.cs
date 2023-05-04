@@ -181,6 +181,11 @@ namespace OpenAIOnWPF
         }
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
+            if (DataTable.Items.Count <= 1)
+            {
+                ModernWpf.MessageBox.Show("No conversation history.");
+                return;
+            }
             var dialog = new System.Windows.Forms.SaveFileDialog();
             dialog.Title = "Please select an output file.";
             dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
