@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Primitives;
 using ModernWpf;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -175,6 +177,43 @@ namespace OpenAIOnWPF
 
                 // 指定したインデックスに新しいComboBox列を挿入
                 DataTable.Columns.Insert(0, comboBoxColumn);
+            }
+        }
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.SaveFileDialog();
+            dialog.Title = "Please select an output file.";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            dialog.FileName = DateTime.Now.ToString("yyyyMMdd") + "_" + ((DataTableItem)DataTable.Items[0]).Content.Substring(0, 20).Replace("/", "").Replace(":", "") + "~";
+            dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+            dialog.DefaultExt = "json";
+
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string json = JsonConvert.SerializeObject(DataTable.ItemsSource);
+                json = JToken.Parse(json).ToString(Formatting.Indented);
+                string path = dialog.FileName;
+                File.WriteAllText(path, json);
+                ModernWpf.MessageBox.Show("Exported successfully.");
+            }
+        }
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Title = "Please select an import file.";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string path = dialog.FileName;
+                string json = File.ReadAllText(path);
+                ObservableCollection<DataTableItem> list = JsonConvert.DeserializeObject<ObservableCollection<DataTableItem>>(json);
+                DataTable.ItemsSource = list;
+                DataTable.Columns.RemoveAt(1);
+                DataTable_Loaded(null, null);
+                ModernWpf.MessageBox.Show("Imported successfully.");
             }
         }
     }
