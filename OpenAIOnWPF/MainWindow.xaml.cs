@@ -280,7 +280,7 @@ namespace OpenAIOnWPF
                 {
                     if (message.Role == null) { break; }
                     bool isUser = message.Role == "user";
-                    var messageElement = CreateMessageElement(message.Role == "user" ? message.Content : message.Content.Replace("\r\n", "  \r\n"), isUser);
+                    var messageElement = CreateMessageElement(message.Role == "user" ? message.Content : message.Content.Replace("\n  ", "  \n"), isUser);
                     MessagesPanel.Children.Add(messageElement);
                 }
             }

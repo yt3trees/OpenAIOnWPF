@@ -264,7 +264,7 @@ namespace OpenAIOnWPF
                     await Dispatcher.InvokeAsync(() =>
                     {
                         responseText += $"{resultText}";
-                        markdownScrollViewer.Markdown += resultText?.Replace("\r\n","  \r\n") ?? string.Empty;
+                        markdownScrollViewer.Markdown += resultText?.Replace("\n  ", "  \n") ?? string.Empty;
                         FlushWindowsMessageQueue(); // 描画遅延対策
                     });
                 }
