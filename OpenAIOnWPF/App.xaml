@@ -3,6 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:OpenAIOnWPF"
              xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:mdplug="clr-namespace:MdXaml.Plugins;assembly=MdXaml.Plugins"
+             xmlns:mdhtml="clr-namespace:MdXaml.Html;assembly=MdXaml.Html"
+             xmlns:mdsvg="clr-namespace:MdXaml.Svg;assembly=MdXaml.Svg"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          <ResourceDictionary>
@@ -30,6 +33,10 @@
                 </ui:ThemeResources>
                 <ui:XamlControlsResources />
             </ResourceDictionary.MergedDictionaries>
+        <mdplug:MdXamlPlugins x:Key="MdXamlPlugins">
+            <mdhtml:HtmlPluginSetup/>
+            <mdsvg:SvgPluginSetup/>
+        </mdplug:MdXamlPlugins>
         </ResourceDictionary>        
     </Application.Resources>
 </Application>
