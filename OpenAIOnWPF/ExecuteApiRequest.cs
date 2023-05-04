@@ -243,39 +243,19 @@ namespace OpenAIOnWPF
         }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.GPT3.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
-            string resultText = "";
+            // Userメッセージ
+            var messageElement = CreateMessageElement(userMessage, isUser: true);
+            MessagesPanel.Children.Add(messageElement);
 
-            var accentColor = ThemeManager.Current.AccentColor;
-            if (accentColor == null)
+            // Assistantメッセージ
+            MdXaml.MarkdownScrollViewer markdownScrollViewer = null;
+            await Dispatcher.InvokeAsync(() =>
             {
-                accentColor = SystemParameters.WindowGlassColor;
-            }
-            var accentColorBrush = new SolidColorBrush((Color)accentColor);
-            //var accentColorBrush =  (Brush)System.Windows.Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
-            accentColorBrush.Opacity = 0.3;
+                markdownScrollViewer = (MdXaml.MarkdownScrollViewer)CreateMessageElement("", isUser: false); // 要素だけ生成しておく
+                MessagesPanel.Children.Add(markdownScrollViewer);
+            });
 
-            // User
-            TextBlock usermarkdownScrollViewer = new TextBlock();
-            usermarkdownScrollViewer.Padding = new Thickness(100, 10, 100, 10);
-            usermarkdownScrollViewer.FontSize = 16;
-            usermarkdownScrollViewer.Background = accentColorBrush;
-            MessagesPanel.Children.Add(usermarkdownScrollViewer);
-            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
-            usermarkdownScrollViewer.Text = userMessage;
-
-            // Assistant
-            MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer();
-            markdownScrollViewer.Padding = new Thickness(100, 10, 100, 10);
-            markdownScrollViewer.FontSize = 14;
-            markdownScrollViewer.MarkdownStyleName = "Sasabune";
-            markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
-            MessagesPanel.Children.Add(markdownScrollViewer);
-            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
-
-            ContextMenu contextMenu = CreateFontSizeContextMenu();
-            usermarkdownScrollViewer.ContextMenu = contextMenu;
-            markdownScrollViewer.ContextMenu = contextMenu;
-
+            string resultText = "";
             await foreach (var completion in completionResult)
             {
                 if (completion.Successful)
@@ -283,7 +263,6 @@ namespace OpenAIOnWPF
                     resultText = completion.Choices.First().Message.Content;
                     await Dispatcher.InvokeAsync(() =>
                     {
-                        //AssistantMarkdownText.Markdown += $"{resultText}";
                         responseText += $"{resultText}";
                         markdownScrollViewer.Markdown += resultText?.Replace("\r\n","  \r\n") ?? string.Empty;
                         FlushWindowsMessageQueue(); // 描画遅延対策

@@ -247,7 +247,7 @@ namespace OpenAIOnWPF
                 Loaded += (o, e) => WindowState = WindowState.Maximized;
             }
         }
-        public void ShowTable()
+        private void ShowTable()
         {
             if (AppSettings.ConversationHistory == null)
             {
@@ -265,11 +265,31 @@ namespace OpenAIOnWPF
             bool result = (bool)window.ShowDialog();
             if (result)
             {
-                MessagesPanel.Children.Clear();
                 SetMessages();
             }
         }
         private void SetMessages()
+        {
+            MessagesPanel.Children.Clear();
+
+            AppSettings.ConversationHistory = JsonConvert.DeserializeObject<List<ChatMessage>>(Properties.Settings.Default.ConversationHistory);
+
+            if (AppSettings.ConversationHistory != null)
+            {
+                foreach (var message in AppSettings.ConversationHistory)
+                {
+                    if (message.Role == null) { break; }
+                    bool isUser = message.Role == "user";
+                    var messageElement = CreateMessageElement(message.Role == "user" ? message.Content : message.Content.Replace("\r\n", "  \r\n"), isUser);
+                    MessagesPanel.Children.Add(messageElement);
+                }
+            }
+            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
+        }
+        /// <summary>
+        /// メッセージの要素を作成する
+        /// </summary>
+        private FrameworkElement CreateMessageElement(string messageContent, bool isUser)
         {
             var accentColor = ThemeManager.Current.AccentColor;
             if (accentColor == null)
@@ -280,41 +300,40 @@ namespace OpenAIOnWPF
             //var accentColorBrush =  (Brush)Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
             accentColorBrush.Opacity = 0.3;
 
-            AppSettings.ConversationHistory = JsonConvert.DeserializeObject<List<ChatMessage>>(Properties.Settings.Default.ConversationHistory);
-
-            if (AppSettings.ConversationHistory != null)
+            if (isUser)
             {
-                foreach (var message in AppSettings.ConversationHistory)
+                TextBlock userTextBlock = new TextBlock
                 {
-                    TextBlock usermarkdownScrollViewer = new TextBlock();
-                    MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer();
-                    if (message.Role == "user")
-                    {
-                        usermarkdownScrollViewer.Padding = new Thickness(100, 10, 100, 10);
-                        usermarkdownScrollViewer.FontSize = 16;
-                        usermarkdownScrollViewer.Background = accentColorBrush;
-                        MessagesPanel.Children.Add(usermarkdownScrollViewer);
-                        usermarkdownScrollViewer.Text = message.Content;
-                    }
-                    else if (message.Role == "assistant")
-                    {
-                        markdownScrollViewer.Padding = new Thickness(100, 10, 100, 10);
-                        markdownScrollViewer.FontSize = 14;
-                        markdownScrollViewer.MarkdownStyleName = "Sasabune";
-                        markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
-                        MessagesPanel.Children.Add(markdownScrollViewer);
-                        markdownScrollViewer.Markdown = message.Content.Replace("\r\n","  \r\n");
-                    }
-                    ContextMenu contextMenu = CreateFontSizeContextMenu();
-                    markdownScrollViewer.ContextMenu = contextMenu;
-                    usermarkdownScrollViewer.ContextMenu = contextMenu;
-                }
+                    Padding = new Thickness(100, 10, 100, 10),
+                    FontSize = 16,
+                    Background = accentColorBrush,
+                    Text = messageContent
+                };
+
+                ContextMenu contextMenu = CreateFontSizeContextMenu();
+                userTextBlock.ContextMenu = contextMenu;
+                return userTextBlock;
+            }
+            else
+            {
+                MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer
+                {
+                    Padding = new Thickness(100, 10, 100, 10),
+                    FontSize = 14,
+                    MarkdownStyleName = "Sasabune",
+                    Markdown = messageContent
+                };
+                markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
+
+                ContextMenu contextMenu = CreateFontSizeContextMenu();
+                markdownScrollViewer.ContextMenu = contextMenu;
+                return markdownScrollViewer;
             }
         }
         /// <summary>
         /// フォントサイズを変更する右クリックメニュー
         /// </summary>
-        public ContextMenu CreateFontSizeContextMenu()
+        private ContextMenu CreateFontSizeContextMenu()
         {
             ContextMenu contextMenu = new ContextMenu();
 
