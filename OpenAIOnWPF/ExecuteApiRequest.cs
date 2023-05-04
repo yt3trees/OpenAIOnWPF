@@ -241,11 +241,6 @@ namespace OpenAIOnWPF
             }
             ResetUI();
         }
-        private void ChangeFontSize(TextBlock textBlock, MdXaml.MarkdownScrollViewer markdown, double fontSize)
-        {
-            textBlock.FontSize = fontSize + 2;
-            markdown.FontSize = fontSize;
-        }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.GPT3.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
             string resultText = "";
@@ -277,7 +272,7 @@ namespace OpenAIOnWPF
             MessagesPanel.Children.Add(markdownScrollViewer);
             MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
 
-            ContextMenu contextMenu = CreateFontSizeContextMenu(usermarkdownScrollViewer, markdownScrollViewer);
+            ContextMenu contextMenu = CreateFontSizeContextMenu();
             usermarkdownScrollViewer.ContextMenu = contextMenu;
             markdownScrollViewer.ContextMenu = contextMenu;
 

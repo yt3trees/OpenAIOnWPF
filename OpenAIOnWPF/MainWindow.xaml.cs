@@ -305,7 +305,7 @@ namespace OpenAIOnWPF
                         MessagesPanel.Children.Add(markdownScrollViewer);
                         markdownScrollViewer.Markdown = message.Content.Replace("\r\n","  \r\n");
                     }
-                    ContextMenu contextMenu = CreateFontSizeContextMenu(usermarkdownScrollViewer , markdownScrollViewer);
+                    ContextMenu contextMenu = CreateFontSizeContextMenu();
                     markdownScrollViewer.ContextMenu = contextMenu;
                     usermarkdownScrollViewer.ContextMenu = contextMenu;
                 }
@@ -314,21 +314,39 @@ namespace OpenAIOnWPF
         /// <summary>
         /// フォントサイズを変更する右クリックメニュー
         /// </summary>
-        public ContextMenu CreateFontSizeContextMenu(TextBlock textBlock, MdXaml.MarkdownScrollViewer markdownScrollViewer)
+        public ContextMenu CreateFontSizeContextMenu()
         {
             ContextMenu contextMenu = new ContextMenu();
 
             MenuItem fontSizeSmall = new MenuItem { Header = "Small Font" };
-            fontSizeSmall.Click += (s, e) => ChangeFontSize(textBlock, markdownScrollViewer, 12);
+            fontSizeSmall.Click += (s, e) => ChangeFontSize(12);
             contextMenu.Items.Add(fontSizeSmall);
 
             MenuItem fontSizeMedium = new MenuItem { Header = "Medium Font" };
-            fontSizeMedium.Click += (s, e) => ChangeFontSize(textBlock, markdownScrollViewer, 14);
+            fontSizeMedium.Click += (s, e) => ChangeFontSize(14);
             contextMenu.Items.Add(fontSizeMedium);
 
             MenuItem fontSizeLarge = new MenuItem { Header = "Large Font" };
-            fontSizeLarge.Click += (s, e) => ChangeFontSize(textBlock, markdownScrollViewer, 18);
+            fontSizeLarge.Click += (s, e) => ChangeFontSize(18);
             contextMenu.Items.Add(fontSizeLarge);
+
+            // MessagesPanel配下のオブジェクトのフォントサイズを変更する
+            void ChangeFontSize(int fontSize)
+            {
+                foreach (var item in MessagesPanel.Children)
+                {
+                    if (item is TextBlock)
+                    {
+                        TextBlock textBlock = item as TextBlock;
+                        textBlock.FontSize = fontSize + 2;
+                    }
+                    else if (item is MdXaml.MarkdownScrollViewer)
+                    {
+                        MdXaml.MarkdownScrollViewer markdownScrollViewer = item as MdXaml.MarkdownScrollViewer;
+                        markdownScrollViewer.FontSize = fontSize;
+                    }
+                }
+            }
 
             return contextMenu;
         }
