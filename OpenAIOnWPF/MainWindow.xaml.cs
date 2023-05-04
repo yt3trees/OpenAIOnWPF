@@ -278,7 +278,7 @@ namespace OpenAIOnWPF
             }
             var accentColorBrush = new SolidColorBrush((Color)accentColor);
             //var accentColorBrush =  (Brush)Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
-            accentColorBrush.Opacity = 0.5;
+            accentColorBrush.Opacity = 0.3;
 
             AppSettings.ConversationHistory = JsonConvert.DeserializeObject<List<ChatMessage>>(Properties.Settings.Default.ConversationHistory);
 
