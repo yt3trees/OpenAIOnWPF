@@ -41,11 +41,11 @@ namespace OpenAIOnWPF
             InitializeComponent();
             this.MaxWidth = SystemParameters.PrimaryScreenWidth;
             this.MaxHeight = SystemParameters.PrimaryScreenHeight * 0.8;
-            // レンダリングバグ対応
-            SourceInitialized += (s, a) =>
-            {
-                Dispatcher.Invoke(InvalidateVisual, DispatcherPriority.Input);
-            };
+            //// レンダリングバグ対応
+            //SourceInitialized += (s, a) =>
+            //{
+            //    Dispatcher.Invoke(InvalidateVisual, DispatcherPriority.Input);
+            //};
 
             // 会話履歴の保持件数を設定
             Numberbox.Text = AppSettings.ConversationHistoryCountSetting.ToString();
@@ -178,6 +178,22 @@ namespace OpenAIOnWPF
                 // 指定したインデックスに新しいComboBox列を挿入
                 DataTable.Columns.Insert(0, comboBoxColumn);
             }
+
+            // 右クリックメニュー
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem menuItem = new MenuItem();
+            menuItem.Header = "Add new row after selected row";
+            menuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Add);
+            menuItem.Click += AddNewRowBeforeSelected_Click;
+            contextMenu.Items.Add(menuItem);
+
+            MenuItem deleteMenuItem = new MenuItem();
+            deleteMenuItem.Header = "Delete selected row";
+            deleteMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Delete);
+            deleteMenuItem.Click += DeleteSelectedRow_Click;
+            contextMenu.Items.Add(deleteMenuItem);
+
+            DataTable.ContextMenu = contextMenu;
         }
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
@@ -226,6 +242,34 @@ namespace OpenAIOnWPF
                 DataTable.Columns.RemoveAt(1);
                 DataTable_Loaded(null, null);
                 ModernWpf.MessageBox.Show("Imported successfully.");
+            }
+        }
+        private void AddNewRowBeforeSelected_Click(object sender, RoutedEventArgs e)
+        {
+            int selectedIndex = DataTable.SelectedIndex;
+
+            if (selectedIndex >= 0)
+            {
+                DataTableItem item = new DataTableItem();
+                item.Role = "User";
+                item.Content = "";
+                (DataTable.ItemsSource as ObservableCollection<DataTableItem>).Insert(selectedIndex+1, item);
+            }
+            else
+            {
+                DataTableItem item = new DataTableItem();
+                item.Role = "User";
+                item.Content = "";
+                (DataTable.ItemsSource as ObservableCollection<DataTableItem>).Insert(0, item);
+            }
+        }
+        private void DeleteSelectedRow_Click(object sender, RoutedEventArgs e)
+        {
+            int selectedIndex = DataTable.SelectedIndex;
+
+            if (selectedIndex >= 0)
+            {
+                (DataTable.ItemsSource as ObservableCollection<DataTableItem>).RemoveAt(selectedIndex);
             }
         }
     }
