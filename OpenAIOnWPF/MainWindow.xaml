@@ -10,7 +10,7 @@
         fw:PointerTracker.Enabled="True" 
         mc:Ignorable="d"
         Title="OpenAI"
-        Width="700"
+        Width="900"
         Height="433"
         KeyDown="Window_KeyDown"
         Icon="/OpenAI.png"
@@ -33,6 +33,7 @@
         <Grid Height="60"
               Grid.Row="0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -68,15 +69,17 @@
                             </ComboBox.Background>
                         </ComboBox>
                         <Button x:Name="ConfigurationSettingButton"
-                            Grid.Column="1"
-                            Content="..."
-                            Style="{StaticResource ButtonRevealStyle}"
-                            fw:RevealElement.BorderRadius="4"
-                            Click="ConfigurationSettingButton_Click"
-                            VerticalAlignment="Center"
-                            Width="30"
-                            Height="32" />
-                </Grid>
+                                Grid.Column="1"
+                                Style="{StaticResource ButtonRevealStyle}"
+                                fw:RevealElement.BorderRadius="4"
+                                Click="ConfigurationSettingButton_Click"
+                                VerticalAlignment="Center"
+                                Width="32"
+                                Height="32"
+                                Padding="-10,-10,-10,-10">
+                            <ui:SymbolIcon Symbol="Setting" />
+                        </Button>
+                    </Grid>
             </StackPanel>
             <StackPanel Grid.Column="3"
                         Margin="15,0,0,0"
@@ -105,38 +108,58 @@
                             </ComboBox.Background>
                         </ComboBox>
                         <Button x:Name="InstructionSettingButton"
-                              Grid.Column="1"
-                            Style="{StaticResource ButtonRevealStyle}"
-                            fw:RevealElement.BorderRadius="4"
-                            Content="..."
-                            Click="InstructionSettingButton_Click"
-                            VerticalAlignment="Center"
-                            Width="30"
-                            Height="32" />
-                </Grid>
+                                Grid.Column="1"
+                                Style="{StaticResource ButtonRevealStyle}"
+                                fw:RevealElement.BorderRadius="4"
+                                Click="InstructionSettingButton_Click"
+                                VerticalAlignment="Center"
+                                Width="32"
+                                Height="32"
+                                Padding="-10,-10,-10,-10">
+                                <ui:SymbolIcon Symbol="List" />
+                        </Button>
+                    </Grid>
             </StackPanel>
                 <StackPanel Grid.Column="4"
                             Margin="15,0,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center">
-                    <CheckBox x:Name="UseConversationHistoryCheckBox"
-                              Content="Use Conversation History"
-                              Click="UseConversationHistoryCheckBox_Click" />
+                <ui:ToggleSwitch x:Name="UseConversationHistoryToggleSwitch"
+                                 HorizontalAlignment="Left"
+                                 Header="Use Conversation History"
+                                 OffContent="Off"
+                                 OnContent="On"
+                                 Toggled="UseConversationHistoryToggleSwitch_Toggled" />
                 </StackPanel>
                 <StackPanel Grid.Column="5"
+                            Margin="5,0,0,5"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom">
+                    <Button x:Name="ConversationHistoryClearButton"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            fw:RevealElement.BorderRadius="4"
+                            Click="ConversationHistoryClearButton_Click"
+                            VerticalAlignment="Bottom"
+                            ToolTip="Delete conversation history"
+                            Height="32"
+                            Width="32">
+                            <ui:SymbolIcon Symbol="Delete" />
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Column="6"
                             Margin="15,0,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center">
-                        <Button x:Name="ConversationHistoryClearButton"
-                            Style="{StaticResource ButtonRevealStyle}"
-                            fw:RevealElement.BorderRadius="4"
-                            Content="Clear"
-                            Click="ConversationHistoryClearButton_Click"
-                            VerticalAlignment="Center"
-                            Height="30"
-                            Width="40" />
+                <ui:ToggleSwitch x:Name="NoticeToggleSwitch"
+                                 HorizontalAlignment="Left"
+                                 Grid.Column="2"
+                                 Header="Notice"
+                                 OffContent="Off"
+                                 OnContent="On"
+                                 Width="80"
+                                 Toggled="NoticeToggleSwitch_Toggled" />
                 </StackPanel>
-                <Menu Grid.Column="7"
+                <Menu Grid.Column="8"
                   Height="60"
                   VerticalAlignment="Center"
                   HorizontalAlignment="Right"
@@ -144,11 +167,15 @@
                 <MenuItem Header="Settings"
                           Padding="0,0,0,0"
                           Height="60">
-                    <MenuItem x:Name="ColorMenuItem"
-                              Header="Color Theme"
-                              InputGestureText="F2"
-                              Click="ColorMenuItem_Click" />
-                </MenuItem>
+                        <MenuItem x:Name="ColorMenuItem"
+                                  Header="Color Theme"
+                                  InputGestureText="F2"
+                                  Click="ColorMenuItem_Click">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="Highlight" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
             </Menu>
             </Grid>
         </fw:DropShadowPanel>
@@ -159,7 +186,7 @@
                 fw:RevealElement.BorderRadius="100"
                 VerticalAlignment="Bottom"
                 HorizontalAlignment="Right"
-                Margin="0,0,20,10"
+                Margin="0,0,20,20"
                 Width="32"
                 Height="32"
                 Panel.ZIndex="10"
@@ -186,8 +213,8 @@
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="70" />
-                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>                      
         <TextBox x:Name="UserTextBox"
                  TextWrapping="Wrap"
@@ -203,57 +230,53 @@
                  VerticalAlignment="Bottom"
                  MaxHeight="180"
                  Padding="10,10,10,10"
-                 Margin="5,0,0,0">
+                 Margin="50,0,0,0">
             <TextBox.Background>
                 <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
                                  Opacity="0.5"></SolidColorBrush>
             </TextBox.Background>
         </TextBox>
             <Button x:Name="ExecButton"
-                    Content="Send"
                     Style="{StaticResource ButtonRevealStyle}"
                     Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
                     fw:RevealElement.BorderRadius="4"
                     Click="ExecButton_Click"
-                    Margin="5,0,0,0"
+                    Margin="5,0,50,0"
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch"
                     Grid.Column="1"
-                    FontSize="16" />
-            <ProgressBar x:Name="ProgressBar"
-                         Grid.Column="1"
-                         Visibility="Collapsed"
-                         VerticalAlignment="Bottom"
-                         Background="#00000000"
-                         Opacity="0.5" />
-            <CheckBox x:Name="NoticeCheckbox"
-                      Content="Notice"
-                      Grid.Column="2"
-                      HorizontalAlignment="Center"
-                      MinWidth="0"
-                      MinHeight="0"
-                      Margin="10,0,10,0"
-                      Click="NoticeCheckbox_Click"
-                      IsChecked="False" />
+                    Width="43">
+                    <ui:SymbolIcon Symbol="Send" />
+                    </Button>
+                <ui:ProgressRing x:Name="ProgressRing"
+                                 IsActive="False"
+                                 Grid.Column="1"
+                                 Height="30"
+                                 Width="43"
+                                 HorizontalAlignment="Left"
+                                 Opacity="0.9"
+                                 Margin="5,0,0,0" />
         </Grid>
         <StatusBar Grid.Row="3"
                    Background="#00000000">
             <StatusBarItem HorizontalAlignment="Right"
                            DockPanel.Dock="Right">
                 <Label x:Name="TokenUsageButton"
-                       Content="📊"
-                       Padding="10,0,10,0"
+                       Padding="5,0,5,0"
                        MouseLeftButtonDown="TokenUsage_MouseLeftButtonDown"
-                       Foreground="#FF959595" />
+                       Foreground="#FF959595">
+                       <ui:SymbolIcon Symbol="FourBars" />
+                </Label>
             </StatusBarItem>
             <Separator DockPanel.Dock="Right" />
             <StatusBarItem HorizontalAlignment="Right"
                            DockPanel.Dock="Right">
                 <Label x:Name="ConversationHistoryButton"
-                       Content="💬"
-                       Padding="10,0,10,0"
+                       Padding="5,0,5,0"
                        MouseLeftButtonDown="ConversationHistoryButton_MouseLeftButtonDown"
-                       Foreground="#FF959595" />
+                       Foreground="#FF959595">
+                       <ui:SymbolIcon Symbol="Message" />
+                </Label>
             </StatusBarItem>
             <Separator DockPanel.Dock="Right" />
             <StatusBarItem DockPanel.Dock="Right"

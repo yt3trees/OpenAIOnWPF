@@ -39,7 +39,7 @@ namespace OpenAIOnWPF
         {
             InitialColorSet();
             UserTextBox.Focus();
-            NoticeCheckbox.IsChecked = AppSettings.NoticeFlgSetting;
+            NoticeToggleSwitch.IsOn = AppSettings.NoticeFlgSetting;
 
             // Settingsから指示内容リストを取得しセット
             InstructionComboBox.ItemsSource = SetupInstructionComboBox();
@@ -53,7 +53,7 @@ namespace OpenAIOnWPF
             ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
             ConfigurationComboBox.Text = AppSettings.SelectConfigSetting;
 
-            UseConversationHistoryCheckBox.IsChecked = AppSettings.UseConversationHistoryFlg;
+            UseConversationHistoryToggleSwitch.IsOn = AppSettings.UseConversationHistoryFlg;
 
             MessageScrollViewer.ScrollToBottom();
         }
@@ -100,11 +100,10 @@ namespace OpenAIOnWPF
             string tooltip = $"Tokens : {tokens.Count()}";
             UserTextBox.ToolTip = tooltip; 
         }
-        private void NoticeCheckbox_Click(object sender, RoutedEventArgs e)
+        private void NoticeToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            AppSettings.NoticeFlgSetting = (bool)NoticeCheckbox.IsChecked;
+            AppSettings.NoticeFlgSetting = (bool)NoticeToggleSwitch.IsOn;
         }
-
         private void TokensLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ShowMessagebox("Tokens",TokensLabel.ToolTip.ToString());
@@ -342,14 +341,17 @@ namespace OpenAIOnWPF
             ContextMenu contextMenu = new ContextMenu();
 
             MenuItem fontSizeSmall = new MenuItem { Header = "Small Font" };
+            fontSizeSmall.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
             fontSizeSmall.Click += (s, e) => ChangeFontSize(12);
             contextMenu.Items.Add(fontSizeSmall);
 
             MenuItem fontSizeMedium = new MenuItem { Header = "Medium Font" };
+            fontSizeMedium.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontSize);
             fontSizeMedium.Click += (s, e) => ChangeFontSize(14);
             contextMenu.Items.Add(fontSizeMedium);
 
             MenuItem fontSizeLarge = new MenuItem { Header = "Large Font" };
+            fontSizeLarge.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontIncrease);
             fontSizeLarge.Click += (s, e) => ChangeFontSize(18);
             contextMenu.Items.Add(fontSizeLarge);
 
@@ -393,9 +395,9 @@ namespace OpenAIOnWPF
                 }
             }
         }
-        private void UseConversationHistoryCheckBox_Click(object sender, RoutedEventArgs e)
+        private void UseConversationHistoryToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
-            if (UseConversationHistoryCheckBox.IsChecked == false)
+            if (UseConversationHistoryToggleSwitch.IsOn == false)
             {
                 AppSettings.UseConversationHistoryFlg = false;
             }

@@ -33,7 +33,6 @@
                     <ColumnDefinition  />
                 </Grid.ColumnDefinitions>
                 <Button x:Name="AddButton"
-                        Content="➕"
                         Style="{StaticResource ButtonRevealStyle}"
                         fw:RevealElement.BorderRadius="2"
                         FontSize="16"
@@ -43,9 +42,10 @@
                         Width="60"
                         Click="AddButton_Click"
                         Margin="0,0,5,0"
-                        Height="32" />
+                        Height="32">
+                    <ui:SymbolIcon Symbol="Add" />
+                </Button>
                 <Button x:Name="RemoveButton"
-                        Content="➖"
                         Style="{StaticResource ButtonRevealStyle}"
                         fw:RevealElement.BorderRadius="2"
                         FontSize="16"
@@ -55,7 +55,9 @@
                         Width="60"
                         Click="RemoveButton_Click"
                         Margin="5,0,0,0"
-                        Height="32" />
+                        Height="32">
+                    <ui:SymbolIcon Symbol="Remove" />
+                </Button>
             </Grid>
             <ListBox x:Name="InstructionListBox"
                      SelectionChanged="ListView_SelectionChanged"
@@ -139,8 +141,7 @@
                         Margin="5,0,0,0"
                         Click="CloseButton_Click"
                         Height="32" />
-            <Button x:Name="ExportButton"
-                        Content="📤"
+                <Button x:Name="ExportButton"
                         Style="{StaticResource ButtonRevealStyle}"
                         fw:RevealElement.BorderRadius="2"
                         FontSize="16"
@@ -148,15 +149,16 @@
                         Grid.Column="2"
                         VerticalAlignment="Top"
                         Margin="5,0,0,0"
-                        Width="30"
+                        Width="32"
                         Height="32"
                         Padding="0,0,0,0"
                         VerticalContentAlignment="Center"
                         HorizontalAlignment="Center"
                         ToolTip="Outputs instructions as a JSON file."
-                        Click="ExportButton_Click" />
-            <Button x:Name="ImportButton"
-                        Content="📥"
+                        Click="ExportButton_Click">
+                    <ui:SymbolIcon Symbol="Upload" />
+                </Button>
+                <Button x:Name="ImportButton"
                         Style="{StaticResource ButtonRevealStyle}"
                         fw:RevealElement.BorderRadius="2"
                         FontSize="16"
@@ -164,13 +166,15 @@
                         Grid.Column="3"
                         VerticalAlignment="Top"
                         Margin="5,0,0,0"
-                        Width="30"
+                        Width="32"
                         Height="32"
                         Padding="0,0,0,0"
                         VerticalContentAlignment="Center"
                         HorizontalAlignment="Center"
                         ToolTip="Select a JSON file to import."
-                        Click="ImportButton_Click" />
+                        Click="ImportButton_Click">
+                    <ui:SymbolIcon Symbol="Download" />
+                </Button>
             </Grid>
         </Grid>
     </Grid>

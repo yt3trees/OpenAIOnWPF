@@ -87,8 +87,7 @@ namespace OpenAIOnWPF
             stopWatch.Start();
             TimeLabel.Content = "";
             TokensLabel.Content = "";
-            ProgressBar.Visibility = Visibility.Visible;
-            ProgressBar.IsIndeterminate = true;
+            ProgressRing.IsActive = true;
 
             //AssistantMarkdownText.Markdown = "";
             responseText = "";
@@ -100,8 +99,7 @@ namespace OpenAIOnWPF
             TimeLabel.Content = $"{stopWatch.ElapsedMilliseconds} ms";
             stopWatch.Reset();
             ExecButton.IsEnabled = true;
-            ProgressBar.Visibility = Visibility.Collapsed;
-            ProgressBar.IsIndeterminate = false;
+            ProgressRing.IsActive = false;
             UserTextBox.Text = "";
         }
         /// <summary>
