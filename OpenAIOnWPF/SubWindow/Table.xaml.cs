@@ -188,8 +188,16 @@ namespace OpenAIOnWPF
             }
             var dialog = new System.Windows.Forms.SaveFileDialog();
             dialog.Title = "Please select an output file.";
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            dialog.FileName = DateTime.Now.ToString("yyyyMMdd") + "_" + ((DataTableItem)DataTable.Items[0]).Content.Substring(0, 20).Replace("/", "").Replace(":", "") + "~";
+            string fileName = DateTime.Now.ToString("yyyyMMdd") + "_";
+            if (((DataTableItem)DataTable.Items[0]).Content.Length < 20)
+            {
+                fileName += ((DataTableItem)DataTable.Items[0]).Content.Substring(0, ((DataTableItem)DataTable.Items[0]).Content.Length).Replace("/", "").Replace(":", "");
+            }
+            else
+            {
+                fileName += ((DataTableItem)DataTable.Items[0]).Content.Substring(0, 20).Replace("/", "").Replace(":", "") + "~";
+            }
+            dialog.FileName = fileName;
             dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
             dialog.DefaultExt = "json";
 
@@ -207,7 +215,6 @@ namespace OpenAIOnWPF
         {
             var dialog = new System.Windows.Forms.OpenFileDialog();
             dialog.Title = "Please select an import file.";
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
