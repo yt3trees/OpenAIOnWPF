@@ -6,11 +6,14 @@ using OpenAI.GPT3.ObjectModels.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using static OpenAIOnWPF.MainWindow;
@@ -39,8 +42,6 @@ namespace OpenAIOnWPF
         public Table(string[,] arg)
         {
             InitializeComponent();
-            this.MaxWidth = SystemParameters.PrimaryScreenWidth;
-            this.MaxHeight = SystemParameters.PrimaryScreenHeight * 0.8;
             //// レンダリングバグ対応
             //SourceInitialized += (s, a) =>
             //{
@@ -67,12 +68,12 @@ namespace OpenAIOnWPF
             DataTable.ItemsSource = list;
             if (ThemeManager.Current.ApplicationTheme == ApplicationTheme.Light)
             {
-                Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19000000"));
+                System.Windows.Media.Brush brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#19000000"));
                 DataTable.AlternatingRowBackground = brush;
             }
             else
             {
-                Brush brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#19FFFFFF"));
+                System.Windows.Media.Brush brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#19FFFFFF"));
                 DataTable.AlternatingRowBackground = brush;
             }
         }
@@ -253,7 +254,7 @@ namespace OpenAIOnWPF
                 DataTableItem item = new DataTableItem();
                 item.Role = "User";
                 item.Content = "";
-                (DataTable.ItemsSource as ObservableCollection<DataTableItem>).Insert(selectedIndex+1, item);
+                (DataTable.ItemsSource as ObservableCollection<DataTableItem>).Insert(selectedIndex + 1, item);
             }
             else
             {
@@ -270,6 +271,36 @@ namespace OpenAIOnWPF
             if (selectedIndex >= 0)
             {
                 (DataTable.ItemsSource as ObservableCollection<DataTableItem>).RemoveAt(selectedIndex);
+            }
+        }
+        private void AcrylicWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            var window = this;
+            if (window == null) return;
+
+            System.Windows.Forms.Screen currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(window).Handle);
+            Rect workingArea = new Rect(currentScreen.WorkingArea.X, currentScreen.WorkingArea.Y, currentScreen.WorkingArea.Width, currentScreen.WorkingArea.Height);
+
+            // ウィンドウのDPIを取得
+            PresentationSource source = PresentationSource.FromVisual(window);
+            if (source == null) return;
+            Matrix transformToDevice = source.CompositionTarget.TransformToDevice;
+            double dpiX = transformToDevice.M11;
+            double dpiY = transformToDevice.M22;
+
+            // DPIを考慮してウィンドウの高さがウィンドウ内に収まるようにする
+            window.MaxHeight = (workingArea.Height / dpiY) - 40;
+
+            // DPIを考慮してウィンドウの位置を画面の中央にする
+            if (window.IsLoaded)
+            {
+                window.Top = Math.Max(workingArea.Top / dpiY, Math.Min((workingArea.Bottom / dpiY) - window.Height, window.Top));
+                window.Left = Math.Max(workingArea.Left / dpiX, Math.Min((workingArea.Right / dpiX) - window.Width, window.Left));
+            }
+            else
+            {
+                window.Top = ((workingArea.Height / dpiY) - window.Height) / 2;
+                window.Left = ((workingArea.Width / dpiX) - window.Width) / 2;
             }
         }
     }

@@ -16,7 +16,8 @@
         Closing="Window_Closing"
         SizeToContent="Height"
         KeyDown="Window_KeyDown"
-        Width="1000">
+        Width="1200"
+        Loaded="AcrylicWindow_Loaded">
     <Window.Resources>
         <Style TargetType="TextBox"
                x:Key="editingTextBoxStyle">

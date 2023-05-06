@@ -250,13 +250,27 @@ namespace OpenAIOnWPF
             MessagesPanel.Children.Add(messageElement);
 
             // Assistantメッセージ
-            MdXaml.MarkdownScrollViewer markdownScrollViewer = null;
+            FrameworkElement assistantMessageElement  = null;
             await Dispatcher.InvokeAsync(() =>
             {
-                markdownScrollViewer = (MdXaml.MarkdownScrollViewer)CreateMessageElement("", isUser: false); // 要素だけ生成しておく
-                MessagesPanel.Children.Add(markdownScrollViewer);
+                assistantMessageElement = CreateMessageElement("", isUser: false); // 要素だけ生成しておく
+                MessagesPanel.Children.Add(assistantMessageElement );
             });
-
+            // Grid内のMdXaml.MarkdownScrollViewer要素を検索
+            Grid assistantMessageGrid = assistantMessageElement as Grid;
+            MdXaml.MarkdownScrollViewer markdownScrollViewer = null;
+            if (assistantMessageGrid != null)
+            {
+                foreach (var child in assistantMessageGrid.Children)
+                {
+                    if (child is MdXaml.MarkdownScrollViewer)
+                    {
+                        markdownScrollViewer = child as MdXaml.MarkdownScrollViewer;
+                        break;
+                    }
+                }
+            }
+            
             string resultText = "";
             await foreach (var completion in completionResult)
             {

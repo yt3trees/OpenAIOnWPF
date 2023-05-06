@@ -15,6 +15,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Input.Manipulations;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
@@ -165,7 +166,7 @@ namespace OpenAIOnWPF
                 }
             }
         }
-        private void ConversationHistoryButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ConversationHistoryButton_Click(object sender, RoutedEventArgs e)
         {
             ShowTable();
         }
@@ -301,29 +302,51 @@ namespace OpenAIOnWPF
                 accentColor = SystemParameters.WindowGlassColor;
             }
             var accentColorBrush = new SolidColorBrush((Color)accentColor);
-            //var accentColorBrush =  (Brush)Application.Current.Resources["SystemChromeDisabledHighColorBrush"];
             accentColorBrush.Opacity = 0.3;
+
+            Grid messageGrid = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(8, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
+                }
+            };
+            // グリッドのサイズが変更されたときにイベントを追加
+            messageGrid.SizeChanged += MessageGrid_SizeChanged;
 
             if (isUser)
             {
                 TextBlock userTextBlock = new TextBlock
                 {
-                    Padding = new Thickness(100, 10, 100, 10),
+                    Padding = new Thickness(10),
                     FontSize = 16,
-                    Background = accentColorBrush,
+                    //Background = accentColorBrush,
+                    TextAlignment = TextAlignment.Left,
+                    TextWrapping = TextWrapping.Wrap,
                     Text = messageContent
                 };
 
                 ContextMenu contextMenu = CreateFontSizeContextMenu();
                 userTextBlock.ContextMenu = contextMenu;
-                return userTextBlock;
+
+                Grid.SetColumn(userTextBlock, 1);
+                messageGrid.Children.Add(userTextBlock);
+
+                // 行全体の背景色を設定する
+                Rectangle backgroundRect = new Rectangle { Fill = accentColorBrush };
+                Grid.SetColumnSpan(backgroundRect, 3);
+                messageGrid.Children.Add(backgroundRect);
+                Panel.SetZIndex(backgroundRect, -1);
             }
             else
             {
                 MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer
                 {
-                    Padding = new Thickness(100, 10, 100, 10),
+                    Padding = new Thickness(10),
                     FontSize = 14,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
                     MarkdownStyleName = "Sasabune",
                     Markdown = messageContent
                 };
@@ -331,7 +354,25 @@ namespace OpenAIOnWPF
 
                 ContextMenu contextMenu = CreateFontSizeContextMenu();
                 markdownScrollViewer.ContextMenu = contextMenu;
-                return markdownScrollViewer;
+
+                Grid.SetColumn(markdownScrollViewer, 1);
+                messageGrid.Children.Add(markdownScrollViewer);
+            }
+
+            return messageGrid;
+        }
+        private void MessageGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is Grid messageGrid)
+            {
+                if (messageGrid.ActualWidth * 0.8 > 1200)
+                {
+                    messageGrid.ColumnDefinitions[1].Width = new GridLength(1200);
+                }
+                else
+                {
+                    messageGrid.ColumnDefinitions[1].Width = new GridLength(messageGrid.ActualWidth * 0.8);
+                }
             }
         }
         /// <summary>
@@ -361,15 +402,19 @@ namespace OpenAIOnWPF
             {
                 foreach (var item in MessagesPanel.Children)
                 {
-                    if (item is TextBlock)
+                    if (item is Grid grid)
                     {
-                        TextBlock textBlock = item as TextBlock;
-                        textBlock.FontSize = fontSize + 2;
-                    }
-                    else if (item is MdXaml.MarkdownScrollViewer)
-                    {
-                        MdXaml.MarkdownScrollViewer markdownScrollViewer = item as MdXaml.MarkdownScrollViewer;
-                        markdownScrollViewer.FontSize = fontSize;
+                        foreach (var child in grid.Children)
+                        {
+                            if (child is TextBlock textBlock)
+                            {
+                                textBlock.FontSize = fontSize + 2;
+                            }
+                            else if (child is MdXaml.MarkdownScrollViewer markdownScrollViewer)
+                            {
+                                markdownScrollViewer.FontSize = fontSize;
+                            }
+                        }
                     }
                 }
             }
