@@ -204,7 +204,7 @@ namespace OpenAIOnWPF
                 return;
             }
             var dialog = new System.Windows.Forms.SaveFileDialog();
-            dialog.Title = "Please select an output file.";
+            dialog.Title = "Please select an export file.";
             string fileName = DateTime.Now.ToString("yyyyMMdd") + "_";
             if (((DataTableItem)DataTable.Items[0]).Content.Length < 20)
             {

@@ -166,6 +166,7 @@
                                      Grid.Column="2"
                                      OffContent="Not Use"
                                      OnContent="Use"
+                                     ToolTip="Turn on to use conversation history"
                                      Toggled="UseConversationHistoryToggleSwitch_Toggled" />
                     </Grid>
                 </StackPanel>
@@ -177,6 +178,7 @@
                                  HorizontalAlignment="Left"
                                  Grid.Column="2"
                                  Header="Notice"
+                                 ToolTip="If on, sends notification after response is complete"
                                  OffContent="Off"
                                  OnContent="On"
                                  Width="80"
