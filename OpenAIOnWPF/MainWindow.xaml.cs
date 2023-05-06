@@ -27,6 +27,7 @@ namespace OpenAIOnWPF
         string selectInstructionContent = "";
         string userMessage = "";
         Stopwatch stopWatch = new Stopwatch();
+        private bool gKeyPressed;
 
         public MainWindow()
         {
