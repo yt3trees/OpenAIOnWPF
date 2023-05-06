@@ -61,10 +61,6 @@ namespace OpenAIOnWPF
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
-            {
-                this.Close();
-            }
             if (e.Key == Key.F2)
             {
                 var window = new ColorSettings();
