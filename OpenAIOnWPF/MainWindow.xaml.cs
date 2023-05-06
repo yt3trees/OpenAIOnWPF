@@ -436,5 +436,65 @@ namespace OpenAIOnWPF
         {
             MessageScrollViewer.ScrollToBottom();
         }
+        private void MessageScrollViewer_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.G && Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                MessageScrollViewer.ScrollToBottom();
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.G)
+            {
+                if (gKeyPressed)
+                {
+                    MessageScrollViewer.ScrollToTop();
+                    gKeyPressed = false;
+                }
+                else
+                {
+                    gKeyPressed = true;
+                }
+            }
+            else if (e.Key == Key.U && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset - (MessageScrollViewer.ViewportHeight / 2);
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.D && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset + (MessageScrollViewer.ViewportHeight / 2);
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.E && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset + 20;
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.Y && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset - 20;
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.J)
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset + 20;
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.K)
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset - 20;
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+                gKeyPressed = false;
+            }
+            else
+            {
+                gKeyPressed = false;
+            }
+        }
     }
 }
