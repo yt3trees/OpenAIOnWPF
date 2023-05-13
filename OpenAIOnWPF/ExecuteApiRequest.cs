@@ -181,9 +181,14 @@ namespace OpenAIOnWPF
         private List<ChatMessage> PrepareMessages()
         {
             userMessage = UserTextBox.Text;
-            //instructionSettingをキーにAppSettins.InstructionListSettingの2列目を取得
-            if (!String.IsNullOrEmpty(AppSettings.InstructionSetting))
+            // システムプロンプトペインが開かれている場合はペイン内のテキストボックスの値をシステムプロンプトとして使用する
+            if (AppSettings.IsSystemPromptColumnVisible == true)
             {
+                selectInstructionContent = SystemPromptContentsTextBox.Text;
+            }
+            else if (!String.IsNullOrEmpty(AppSettings.InstructionSetting))
+            {
+                //instructionSettingをキーにAppSettins.InstructionListSettingの2列目を取得
                 string[] instructionList = AppSettings.InstructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
                 int index = Array.IndexOf(instructionList, AppSettings.InstructionSetting);
                 selectInstructionContent = AppSettings.InstructionListSetting[index, 1];

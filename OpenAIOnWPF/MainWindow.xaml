@@ -21,7 +21,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="25" />
         </Grid.RowDefinitions>
         <fw:DropShadowPanel ShadowMode="Inner"
@@ -93,6 +92,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                         <ComboBox x:Name="InstructionComboBox"
                                   MaxDropDownHeight="500"
@@ -119,6 +119,19 @@
                                 Height="32"
                                 Padding="-10,-10,-10,-10">
                                 <ui:SymbolIcon Symbol="List" />
+                        </Button>
+                        <Button x:Name="OpenSytemPromptWindowButton"
+                                Grid.Column="2"
+                                Style="{StaticResource ButtonRevealStyle}"
+                                fw:RevealElement.BorderRadius="4"
+                                VerticalAlignment="Center"
+                                Background="Transparent"
+                                Width="32"
+                                Height="32"
+                                Padding="-10,-10,-10,-10"
+                                Margin="5,0,0,0"
+                                Click="OpenSytemPromptWindowButton_Click">
+                                <ui:SymbolIcon x:Name="OpenSytemPromptWindowButtonIcon" Symbol="OpenPane" />
                         </Button>
                     </Grid>
             </StackPanel>
@@ -204,7 +217,7 @@
             </Menu>
             </Grid>
         </fw:DropShadowPanel>
-        <Button x:Name="BottomScrollButton"
+<!--        <Button x:Name="BottomScrollButton"
                 Content="⬇"
                 Grid.Row="1"
                 Style="{StaticResource ButtonRevealStyle}"
@@ -216,17 +229,157 @@
                 Height="32"
                 Panel.ZIndex="10"
                 Click="BottomScrollButton_Click"
-                Opacity="0.8" />
+                Opacity="0.8" />-->
      <!--<Thumb x:Name="ResizeThumb" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" DragDelta="ResizeThumb_DragDelta" Background="gray" 
             ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
-        <ScrollViewer x:Name="MessageScrollViewer"
-                      Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto"
-                      ScrollChanged="MessageScrollViewer_ScrollChanged"
-                      PreviewKeyDown="MessageScrollViewer_PreviewKeyDown">
-            <StackPanel x:Name="MessagesPanel"
-                        PreviewMouseWheel="PreviewMouseWheel" />
-        </ScrollViewer>
+        <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="SystemPromptGridColumn"/>
+            <ColumnDefinition x:Name="GridSplitterGridColumn" Width="Auto"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" x:Name="SystemPromptGrid">
+                <Grid.Background>
+                    <SolidColorBrush Color="{DynamicResource SystemAltMediumHighColor}"
+                         Opacity="0.2"></SolidColorBrush>
+                </Grid.Background>
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Label Content="System Prompt Templete"
+                    Grid.Row="0"
+                           HorizontalAlignment="Center" />
+                    <Grid Grid.Row="1"
+                          HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="SystemPromptComboBox2"
+                              VerticalAlignment="Top"
+                              MaxDropDownHeight="500"
+                              Grid.Column="0"
+                              HorizontalAlignment="Stretch"
+                              MinWidth="120"
+                              SelectionChanged="SystemPromptComboBox2_SelectionChanged">
+                        <ComboBox.Background>
+                            <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                             Opacity="0.5"></SolidColorBrush>
+                        </ComboBox.Background>
+                    </ComboBox>
+                        <Label x:Name="UnsavedLabel"
+                            Content="*"
+                              Grid.Column="1"
+                               Margin="5,0,0,0"
+                               Visibility="Collapsed" />
+                    </Grid>
+            <TextBox x:Name="SystemPromptContentsTextBox"
+                             Margin="10,10,10,10"
+                             TextWrapping="Wrap"
+                     Grid.Row="2"
+                     AcceptsReturn="True"
+                     ui:ControlHelper.PlaceholderText="System Prompt Content"
+                     AcceptsTab="True"
+                             VerticalAlignment="Top"
+                             TextChanged="SystemPromptContentsTextBox_TextChanged">
+            <TextBox.Background>
+                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}" Opacity="0.5" ></SolidColorBrush>
+            </TextBox.Background> 
+            </TextBox>
+                </Grid>
+            </Grid>
+            <GridSplitter Grid.Column="1"
+                          Width="10"
+                          HorizontalAlignment="Stretch"
+                          Background="Transparent"
+                          Margin="-10,0,0,0">
+            </GridSplitter>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ScrollViewer x:Name="MessageScrollViewer"
+                              Grid.Row="0"
+                              VerticalScrollBarVisibility="Auto"
+                              ScrollChanged="MessageScrollViewer_ScrollChanged"
+                              PreviewKeyDown="MessageScrollViewer_PreviewKeyDown">
+                    <StackPanel x:Name="MessagesPanel"
+                                PreviewMouseWheel="PreviewMouseWheel" />
+                </ScrollViewer>
+        <Button x:Name="BottomScrollButton"
+                Content="⬇"
+                Grid.Row="0"
+                Grid.Column="2"
+                Style="{StaticResource ButtonRevealStyle}"
+                fw:RevealElement.BorderRadius="100"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                Margin="0,0,20,20"
+                Width="32"
+                Height="32"
+                Panel.ZIndex="10"
+                Click="BottomScrollButton_Click"
+                Opacity="0.8" />
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="20*"
+                                                  MaxWidth="1300"/>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>                      
+                            <Grid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="UserTextBox"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             MinWidth="0"
+                                             KeyDown="UserTextBox_KeyDown"
+                                             FontSize="16"
+                                             Grid.Column="0"
+                                             VerticalScrollBarVisibility="Auto"
+                                             MouseWheel="UserTextBox_MouseWheel"
+                                             ui:ControlHelper.PlaceholderText="Send a message..."
+                                             TextChanged="UserTextBox_TextChanged"
+                                             VerticalAlignment="Bottom"
+                                             MaxHeight="180"
+                                             Padding="10,10,10,10"
+                                             Margin="0,0,0,0">
+                                        <TextBox.Background>
+                                            <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
+                                                             Opacity="0.5"></SolidColorBrush>
+                                        </TextBox.Background>
+                                        </TextBox>
+                                        <Button x:Name="ExecButton"
+                                                Style="{StaticResource ButtonRevealStyle}"
+                                                Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                                                fw:RevealElement.BorderRadius="4"
+                                                Click="ExecButton_Click"
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Stretch"
+                                                HorizontalAlignment="Stretch"
+                                                Grid.Column="1"
+                                                Width="43">
+                                                <ui:SymbolIcon Symbol="Send" />
+                                                </Button>
+                                            <ui:ProgressRing x:Name="ProgressRing"
+                                                             IsActive="False"
+                                                             Grid.Column="1"
+                                                             Height="30"
+                                                             Width="43"
+                                                             HorizontalAlignment="Left"
+                                                             Opacity="0.9"
+                                                             Margin="5,0,0,0" />
+                                </Grid>
+                            </Grid>
+            </Grid>
+        </Grid>
             <mdxam:MarkdownScrollViewer xml:space="preserve"
                                         x:Name="AssistantMarkdownText"
                                         MinHeight="80"
@@ -236,61 +389,7 @@
                                         Padding="10,10,10,10"
                                         MouseWheel="AssistantMarkdownText_MouseWheel"
                                         FontSize="14" />
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="20*"
-                                  MaxWidth="1300"/>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>                      
-            <Grid Grid.Column="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                    <TextBox x:Name="UserTextBox"
-                             TextWrapping="Wrap"
-                             AcceptsReturn="True"
-                             MinWidth="0"
-                             KeyDown="UserTextBox_KeyDown"
-                             FontSize="16"
-                             Grid.Column="0"
-                             VerticalScrollBarVisibility="Auto"
-                             MouseWheel="UserTextBox_MouseWheel"
-                             ui:ControlHelper.PlaceholderText="Send a message..."
-                             TextChanged="UserTextBox_TextChanged"
-                             VerticalAlignment="Bottom"
-                             MaxHeight="180"
-                             Padding="10,10,10,10"
-                             Margin="0,0,0,0">
-                        <TextBox.Background>
-                            <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
-                                             Opacity="0.5"></SolidColorBrush>
-                        </TextBox.Background>
-                        </TextBox>
-                        <Button x:Name="ExecButton"
-                                Style="{StaticResource ButtonRevealStyle}"
-                                Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
-                                fw:RevealElement.BorderRadius="4"
-                                Click="ExecButton_Click"
-                                Margin="5,0,0,0"
-                                VerticalAlignment="Stretch"
-                                HorizontalAlignment="Stretch"
-                                Grid.Column="1"
-                                Width="43">
-                                <ui:SymbolIcon Symbol="Send" />
-                                </Button>
-                            <ui:ProgressRing x:Name="ProgressRing"
-                                             IsActive="False"
-                                             Grid.Column="1"
-                                             Height="30"
-                                             Width="43"
-                                             HorizontalAlignment="Left"
-                                             Opacity="0.9"
-                                             Margin="5,0,0,0" />
-             </Grid>
-        </Grid>
-        <StatusBar Grid.Row="3"
+        <StatusBar Grid.Row="2"
                    Background="#00000000">
             <StatusBarItem HorizontalAlignment="Right"
                            DockPanel.Dock="Right">

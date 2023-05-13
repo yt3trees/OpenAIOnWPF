@@ -11,6 +11,7 @@ namespace OpenAIOnWPF
         public static string InstructionSetting { get; set; } = Properties.Settings.Default.Instruction;
         public static string[,] InstructionListSetting { get; set; } = UtilityFunctions.DeserializeArray(Properties.Settings.Default.InstructionList);
         public static string[,] TokenUsageSetting { get; set; } = UtilityFunctions.DeserializeArray(Properties.Settings.Default.TokenUsage);
+        public static bool IsSystemPromptColumnVisible { get; set; } = Properties.Settings.Default.IsSystemPromptColumnVisible;
         public static int ConversationHistoryCountSetting { get; set; } = Properties.Settings.Default.ConversationHistoryCount;
         public static bool UseConversationHistoryFlg = Properties.Settings.Default.UseConversationHistory;
         public static List<ChatMessage> _conversationHistory = new List<ChatMessage>();

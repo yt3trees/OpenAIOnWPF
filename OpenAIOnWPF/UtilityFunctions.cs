@@ -32,6 +32,7 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.ConfigDataTable = SerializeDataTable(AppSettings.ConfigDataTable);
             Properties.Settings.Default.SelectConfig = AppSettings.SelectConfigSetting;
             Properties.Settings.Default.UseConversationHistory = AppSettings.UseConversationHistoryFlg;
+            Properties.Settings.Default.IsSystemPromptColumnVisible = AppSettings.IsSystemPromptColumnVisible;
             Properties.Settings.Default.Save();
         }
         /// <summary>

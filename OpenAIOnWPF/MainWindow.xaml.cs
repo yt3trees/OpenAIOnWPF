@@ -23,7 +23,7 @@ namespace OpenAIOnWPF
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow 
+    public partial class MainWindow
     {
         string selectInstructionContent = "";
         string userMessage = "";
@@ -46,6 +46,9 @@ namespace OpenAIOnWPF
             // Settingsから指示内容リストを取得しセット
             InstructionComboBox.ItemsSource = SetupInstructionComboBox();
             InstructionComboBox.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
+            SystemPromptComboBox2.ItemsSource = SetupInstructionComboBox();
+            SystemPromptComboBox2.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
+ 
 
             var appSettings = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.PerUserRoamingAndLocal);
             Debug.Print("Path to save the configuration file:" + appSettings.FilePath);
@@ -58,6 +61,8 @@ namespace OpenAIOnWPF
             UseConversationHistoryToggleSwitch.IsOn = AppSettings.UseConversationHistoryFlg;
 
             MessageScrollViewer.ScrollToBottom();
+
+            InitializeSystemPromptColumn();
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -96,7 +101,7 @@ namespace OpenAIOnWPF
             // トークン量を表示
             var tokens = TokenizerGpt3.Encode(UserTextBox.Text);
             string tooltip = $"Tokens : {tokens.Count()}";
-            UserTextBox.ToolTip = tooltip; 
+            UserTextBox.ToolTip = tooltip;
         }
         private void NoticeToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
@@ -104,7 +109,7 @@ namespace OpenAIOnWPF
         }
         private void TokensLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            ShowMessagebox("Tokens",TokensLabel.ToolTip.ToString());
+            ShowMessagebox("Tokens", TokensLabel.ToolTip.ToString());
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -117,6 +122,8 @@ namespace OpenAIOnWPF
         }
         private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            // SystemPromptComboBox2で選択しているのと同じ内容をInstructionComboBoxにセット
+            SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
             if (InstructionComboBox.SelectedItem == "")
             {
                 AppSettings.InstructionSetting = "";
@@ -133,6 +140,22 @@ namespace OpenAIOnWPF
             }
             InstructionComboBox.ToolTip = "# " + AppSettings.InstructionSetting + "\r\n"
                                             + selectInstructionContent;
+        }
+        private void SystemPromptComboBox2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // SystemPromptComboBox2で選択しているのと同じ内容をInstructionComboBoxにセット
+            InstructionComboBox.SelectedIndex = SystemPromptComboBox2.SelectedIndex;
+
+            // 選択した内容を元にContentsTextBoxに値を格納
+            string selectInstructionContent = "";
+            if (!String.IsNullOrEmpty(SystemPromptComboBox2.SelectedItem.ToString()))
+            {
+                string[] instructionList = AppSettings.InstructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
+                int index = Array.IndexOf(instructionList, SystemPromptComboBox2.SelectedItem.ToString());
+                selectInstructionContent = AppSettings.InstructionListSetting[index, 1];
+            }
+            SystemPromptContentsTextBox.Text = selectInstructionContent;
+            UnsavedLabel.Visibility = Visibility.Collapsed;
         }
         private void AssistantMarkdownText_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -220,6 +243,10 @@ namespace OpenAIOnWPF
             settings.WindowTop = Top;
             settings.WindowWidth = Width;
             settings.WindowHeight = Height;
+            if (SystemPromptGridColumn.Width.Value > 0)
+            {
+                Properties.Settings.Default.SystemPromptColumnWidth = SystemPromptGridColumn.Width.Value;
+            }
             settings.Save();
         }
         void RecoverWindowBounds()
@@ -537,6 +564,59 @@ namespace OpenAIOnWPF
             {
                 gKeyPressed = false;
             }
+        }
+        private void InitializeSystemPromptColumn()
+        {
+            if (AppSettings.IsSystemPromptColumnVisible == true)
+            {
+                SystemPromptGridColumn.Width = new GridLength(Properties.Settings.Default.SystemPromptColumnWidth);
+                GridSplitterGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
+                // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
+                SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
+                //InstructionComboBox.IsEnabled = false;
+            }
+            else
+            {
+                SystemPromptGridColumn.Width = new GridLength(0);
+                GridSplitterGridColumn.Width = new GridLength(0);
+                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.OpenPane;
+                //InstructionComboBox.IsEnabled = true;
+            }
+            //var accentColor = ThemeManager.Current.AccentColor;
+            //if (accentColor == null)
+            //{
+            //    accentColor = SystemParameters.WindowGlassColor;
+            //}
+            //var accentColorBrush = new SolidColorBrush((Color)accentColor);
+            //accentColorBrush.Opacity = 0.08;
+            //SystemPromptGrid.Background = accentColorBrush;
+        }
+        private void OpenSytemPromptWindowButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SystemPromptGridColumn.Width.Value > 0)
+            {
+                Properties.Settings.Default.SystemPromptColumnWidth = SystemPromptGridColumn.Width.Value;
+                Properties.Settings.Default.Save();
+                SystemPromptGridColumn.Width = new GridLength(0);
+                GridSplitterGridColumn.Width = new GridLength(0);
+                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.OpenPane;
+                AppSettings.IsSystemPromptColumnVisible = false;
+            }
+            else
+            {
+                SystemPromptGridColumn.Width = new GridLength(Properties.Settings.Default.SystemPromptColumnWidth);
+                GridSplitterGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
+                AppSettings.IsSystemPromptColumnVisible = true;
+                // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
+                SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
+            }
+        }
+
+        private void SystemPromptContentsTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UnsavedLabel.Visibility = Visibility.Visible;
         }
     }
 }
