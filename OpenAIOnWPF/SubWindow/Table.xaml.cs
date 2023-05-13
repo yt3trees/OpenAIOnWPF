@@ -303,5 +303,25 @@ namespace OpenAIOnWPF
                 window.Left = ((workingArea.Width / dpiX) - window.Width) / 2;
             }
         }
+        /// <summary>
+        /// 親のScrollViewerでスクロールする(Gridをセル単位ではなくピクセル単位でスクロールできるようにする)
+        /// </summary>
+        private void PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            UIElement element = sender as UIElement;
+            // 親要素を辿るループ
+            while (element != null)
+            {
+                // 親要素を取得し、UIElementとしてelementに代入
+                element = VisualTreeHelper.GetParent(element) as UIElement;
+                // elementがScrollViewer型であるかどうかをチェック
+                if (element is ScrollViewer scrollViewer)
+                {
+                    scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - (e.Delta / 3));
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
     }
 }

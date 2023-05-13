@@ -87,11 +87,16 @@
                     Height="32"
                     Click="CancelButton_Click" />
         </Grid>
-        <DataGrid x:Name="DataTable"
-                  Grid.Row="1"
-                  AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
-                  AutoGenerateColumns="True"
-                  Loaded="DataTable_Loaded" />
+
+        <ScrollViewer 
+                      Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto">
+            <DataGrid x:Name="DataTable"
+                      AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
+                      AutoGenerateColumns="True"
+                      Loaded="DataTable_Loaded"
+                      PreviewMouseWheel="PreviewMouseWheel" />
+        </ScrollViewer>
         <StackPanel HorizontalAlignment="Center"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center">
