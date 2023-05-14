@@ -1,4 +1,6 @@
-﻿using ModernWpf;
+﻿using Markdig;
+using Markdig.Wpf;
+using ModernWpf;
 using Newtonsoft.Json;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.Tokenizer.GPT3;
@@ -12,6 +14,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Input.Manipulations;
 using System.Windows.Media;
@@ -157,20 +160,6 @@ namespace OpenAIOnWPF
             SystemPromptContentsTextBox.Text = selectInstructionContent;
             UnsavedLabel.Visibility = Visibility.Collapsed;
         }
-        private void AssistantMarkdownText_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                if (e.Delta > 0)
-                {
-                    AssistantMarkdownText.FontSize += 1;
-                }
-                else
-                {
-                    AssistantMarkdownText.FontSize -= 1;
-                }
-            }
-        }
         private void UserTextBox_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -308,7 +297,7 @@ namespace OpenAIOnWPF
                 {
                     if (message.Role == null) { break; }
                     bool isUser = message.Role == "user";
-                    var messageElement = CreateMessageElement(message.Role == "user" ? message.Content : message.Content.Replace("\n  ", "  \n"), isUser);
+                    var messageElement = CreateMessageElement(message.Content, isUser);
                     MessagesPanel.Children.Add(messageElement);
                 }
             }
@@ -365,21 +354,25 @@ namespace OpenAIOnWPF
             }
             else
             {
-                MdXaml.MarkdownScrollViewer markdownScrollViewer = new MdXaml.MarkdownScrollViewer
+                var pipeline = new MarkdownPipelineBuilder()
+                .UseSoftlineBreakAsHardlineBreak()
+                .UseAdvancedExtensions()
+                .Build();
+
+                var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(messageContent, pipeline);
+                var richTextBox = new RichTextBox
                 {
-                    Padding = new Thickness(10),
-                    FontSize = 14,
+                    Padding = new Thickness(5,10,5,10),
+                    FontSize = 16,
                     HorizontalContentAlignment = HorizontalAlignment.Left,
-                    MarkdownStyleName = "Sasabune",
-                    Markdown = messageContent
+                    Document = flowDocument
                 };
-                markdownScrollViewer.MouseWheel += AssistantMarkdownText_MouseWheel;
 
                 ContextMenu contextMenu = CreateFontSizeContextMenu();
-                markdownScrollViewer.ContextMenu = contextMenu;
+                richTextBox.ContextMenu = contextMenu;
 
-                Grid.SetColumn(markdownScrollViewer, 1);
-                messageGrid.Children.Add(markdownScrollViewer);
+                Grid.SetColumn(richTextBox, 1);
+                messageGrid.Children.Add(richTextBox);
             }
 
             return messageGrid;
@@ -407,12 +400,12 @@ namespace OpenAIOnWPF
 
             MenuItem fontSizeSmall = new MenuItem { Header = "Small Font" };
             fontSizeSmall.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
-            fontSizeSmall.Click += (s, e) => ChangeFontSize(12);
+            fontSizeSmall.Click += (s, e) => ChangeFontSize(14);
             contextMenu.Items.Add(fontSizeSmall);
 
             MenuItem fontSizeMedium = new MenuItem { Header = "Medium Font" };
             fontSizeMedium.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontSize);
-            fontSizeMedium.Click += (s, e) => ChangeFontSize(14);
+            fontSizeMedium.Click += (s, e) => ChangeFontSize(16);
             contextMenu.Items.Add(fontSizeMedium);
 
             MenuItem fontSizeLarge = new MenuItem { Header = "Large Font" };
@@ -431,11 +424,13 @@ namespace OpenAIOnWPF
                         {
                             if (child is TextBlock textBlock)
                             {
-                                textBlock.FontSize = fontSize + 2;
+                                textBlock.FontSize = fontSize;
                             }
-                            else if (child is MdXaml.MarkdownScrollViewer markdownScrollViewer)
+                            //else if (child is MdXaml.MarkdownScrollViewer markdownScrollViewer)
+                            else if (child is RichTextBox richTextBox)
                             {
-                                markdownScrollViewer.FontSize = fontSize;
+                                richTextBox.Document.FontSize = fontSize;
+                                //markdownScrollViewer.FontSize = fontSize;
                             }
                         }
                     }

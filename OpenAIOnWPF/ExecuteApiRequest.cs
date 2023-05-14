@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Markdig;
+using Microsoft.Toolkit.Uwp.Notifications;
 using ModernWpf;
 using Newtonsoft.Json;
 using OpenAI.GPT3;
@@ -261,16 +262,17 @@ namespace OpenAIOnWPF
                 assistantMessageElement = CreateMessageElement("", isUser: false); // 要素だけ生成しておく
                 MessagesPanel.Children.Add(assistantMessageElement );
             });
-            // Grid内のMdXaml.MarkdownScrollViewer要素を検索
+            // Grid内のRichTextBox要素を検索
             Grid assistantMessageGrid = assistantMessageElement as Grid;
-            MdXaml.MarkdownScrollViewer markdownScrollViewer = null;
+            System.Windows.Controls.RichTextBox richTextBox = null;
             if (assistantMessageGrid != null)
             {
                 foreach (var child in assistantMessageGrid.Children)
                 {
-                    if (child is MdXaml.MarkdownScrollViewer)
+                    if (child is System.Windows.Controls.RichTextBox)
                     {
-                        markdownScrollViewer = child as MdXaml.MarkdownScrollViewer;
+                        richTextBox = child as System.Windows.Controls.RichTextBox;
+                        richTextBox.Document.LineHeight = 1.0;
                         break;
                     }
                 }
@@ -285,7 +287,7 @@ namespace OpenAIOnWPF
                     await Dispatcher.InvokeAsync(() =>
                     {
                         responseText += $"{resultText}";
-                        markdownScrollViewer.Markdown += resultText;
+                        richTextBox.AppendText(resultText);
                         FlushWindowsMessageQueue(); // 描画遅延対策
                     });
                 }
@@ -300,7 +302,14 @@ namespace OpenAIOnWPF
                     resultFlg = false;
                 }
             }
-            markdownScrollViewer.Markdown = markdownScrollViewer.Markdown.Replace("\n  ", "  \n") ?? string.Empty;
+            var pipeline = new MarkdownPipelineBuilder()
+            .UseSoftlineBreakAsHardlineBreak()
+            .UseAdvancedExtensions()
+            .Build();
+
+            var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(responseText, pipeline);
+            richTextBox.Document = flowDocument;
+
             if (resultFlg)
             {
                 CaluculateTokenUsage();

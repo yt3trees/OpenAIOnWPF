@@ -380,15 +380,6 @@
                             </Grid>
             </Grid>
         </Grid>
-            <mdxam:MarkdownScrollViewer xml:space="preserve"
-                                        x:Name="AssistantMarkdownText"
-                                        MinHeight="80"
-                                        MinWidth="0"
-                                        Grid.Row="3"
-                                        MarkdownStyleName="Sasabune"
-                                        Padding="10,10,10,10"
-                                        MouseWheel="AssistantMarkdownText_MouseWheel"
-                                        FontSize="14" />
         <StatusBar Grid.Row="2"
                    Background="#00000000">
             <StatusBarItem HorizontalAlignment="Right"
