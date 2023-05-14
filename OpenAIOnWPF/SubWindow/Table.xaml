@@ -1,29 +1,28 @@
-﻿<fw:AcrylicWindow x:Class="OpenAIOnWPF.Table"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OpenAIOnWPF"
-        xmlns:ui="http://schemas.modernwpf.com/2019"
-        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
-        AcrylicWindowStyle="NoIcon"
-        mc:Ignorable="d"
-        WindowStartupLocation="CenterOwner"
-        BorderBrush="{DynamicResource SystemAltHighColor}"
-        ShowInTaskbar="False"
-        HorizontalContentAlignment="Center"
-        WindowStyle="None"
-        Closing="Window_Closing"
-        SizeToContent="Height"
-        KeyDown="Window_KeyDown"
-        Width="1200"
-        Loaded="AcrylicWindow_Loaded">
+﻿<fw:AcrylicWindow
+    x:Class="OpenAIOnWPF.Table"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+    xmlns:local="clr-namespace:OpenAIOnWPF"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    Width="1200"
+    HorizontalContentAlignment="Center"
+    AcrylicWindowStyle="NoIcon"
+    BorderBrush="{DynamicResource SystemAltHighColor}"
+    Closing="Window_Closing"
+    KeyDown="Window_KeyDown"
+    Loaded="AcrylicWindow_Loaded"
+    ShowInTaskbar="False"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="None"
+    mc:Ignorable="d">
     <Window.Resources>
-        <Style TargetType="TextBox"
-               x:Key="editingTextBoxStyle">
-               <Setter Property="TextWrapping" Value="Wrap" />
-            <EventSetter Event="KeyDown"
-                         Handler="editingTextBox_KeyDown" />
+        <Style x:Key="editingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <EventSetter Event="KeyDown" Handler="editingTextBox_KeyDown" />
         </Style>
     </Window.Resources>
     <Grid>
@@ -32,90 +31,96 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="2"
-                    Margin="0,0,10,0"
-              HorizontalAlignment="Right">
+        <Grid
+            Grid.Row="2"
+            Margin="0,0,10,0"
+            HorizontalAlignment="Right">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="40" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="ExportButton"
-                    Style="{StaticResource ButtonRevealStyle}"
-                    fw:RevealElement.BorderRadius="2"
-                    FontSize="16"
-                    Grid.Column="2"
-                    VerticalAlignment="Center"
-                    Width="32"
-                    Height="32"
-                    VerticalContentAlignment="Center"
-                    HorizontalAlignment="Center"
-                    ToolTip="Outputs instructions as a JSON file."
-                    Click="ExportButton_Click">
+            <Button
+                x:Name="ExportButton"
+                Grid.Column="2"
+                Width="32"
+                Height="32"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
+                Click="ExportButton_Click"
+                FontSize="16"
+                Style="{StaticResource ButtonRevealStyle}"
+                ToolTip="Outputs instructions as a JSON file.">
                 <ui:SymbolIcon Symbol="Upload" />
             </Button>
-            <Button x:Name="ImportButton"
-                    Style="{StaticResource ButtonRevealStyle}"
-                    fw:RevealElement.BorderRadius="2"
-                    FontSize="16"
-                    Grid.Row="2"
-                    Grid.Column="3"
-                    VerticalAlignment="Center"
-                    Width="32"
-                    Height="32"
-                    VerticalContentAlignment="Center"
-                    HorizontalAlignment="Center"
-                    ToolTip="Select a JSON file to import."
-                    Click="ImportButton_Click">
+            <Button
+                x:Name="ImportButton"
+                Grid.Row="2"
+                Grid.Column="3"
+                Width="32"
+                Height="32"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
+                Click="ImportButton_Click"
+                FontSize="16"
+                Style="{StaticResource ButtonRevealStyle}"
+                ToolTip="Select a JSON file to import.">
                 <ui:SymbolIcon Symbol="Download" />
             </Button>
-            <Button x:Name="SaveButton"
-                    Grid.Column="0"
-                    Content="Save"
-                    Style="{StaticResource AccentButtonStyle}"
-                    MinWidth="60"
-                    Click="SaveButton_Click"
-                    Height="32"
-                    HorizontalAlignment="Center" />
-            <Button x:Name="CancelButton"
-                    Grid.Column="1"
-                    Content="Cancel"
-                    MinWidth="60"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Height="32"
-                    Click="CancelButton_Click" />
+            <Button
+                x:Name="SaveButton"
+                Grid.Column="0"
+                Height="32"
+                MinWidth="60"
+                HorizontalAlignment="Center"
+                Click="SaveButton_Click"
+                Content="Save"
+                Style="{StaticResource AccentButtonStyle}" />
+            <Button
+                x:Name="CancelButton"
+                Grid.Column="1"
+                Height="32"
+                MinWidth="60"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Click="CancelButton_Click"
+                Content="Cancel" />
         </Grid>
 
-        <ScrollViewer 
-                      Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto">
-            <DataGrid x:Name="DataTable"
-                      AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
-                      AutoGenerateColumns="True"
-                      Loaded="DataTable_Loaded"
-                      PreviewMouseWheel="PreviewMouseWheel" />
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <DataGrid
+                x:Name="DataTable"
+                AutoGenerateColumns="True"
+                AutoGeneratingColumn="dataGrid_AutoGeneratingColumn"
+                Loaded="DataTable_Loaded"
+                PreviewMouseWheel="PreviewMouseWheel" />
         </ScrollViewer>
-        <StackPanel HorizontalAlignment="Center"
-                    Margin="10,0,0,0"
-                    VerticalAlignment="Center">
-            <Label Content="Conversation History Limit"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
-            <ui:NumberBox x:Name="Numberbox"
-                          MinWidth="200"
-                          MinHeight="0"
-                          SpinButtonPlacementMode="Inline"
-                          SmallChange="1"
-                          Padding="10,10,10,10"
-                          Minimum="0"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center" />
+        <StackPanel
+            Margin="10,0,0,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <Label
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Content="Conversation History Limit" />
+            <ui:NumberBox
+                x:Name="Numberbox"
+                MinWidth="200"
+                MinHeight="0"
+                Padding="10,10,10,10"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Minimum="0"
+                SmallChange="1"
+                SpinButtonPlacementMode="Inline" />
         </StackPanel>
     </Grid>
-            <fw:AcrylicWindow.Background>
-                <SolidColorBrush Color="{DynamicResource SystemChromeLowColor}"
-                                 Opacity="0.3"></SolidColorBrush>
-            </fw:AcrylicWindow.Background>
+    <fw:AcrylicWindow.Background>
+        <SolidColorBrush Opacity="0.3" Color="{DynamicResource SystemChromeLowColor}" />
+    </fw:AcrylicWindow.Background>
 </fw:AcrylicWindow>

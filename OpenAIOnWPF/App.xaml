@@ -1,17 +1,18 @@
-﻿<Application x:Class="OpenAIOnWPF.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:OpenAIOnWPF"
-             xmlns:ui="http://schemas.modernwpf.com/2019"
-             xmlns:mdplug="clr-namespace:MdXaml.Plugins;assembly=MdXaml.Plugins"
-             xmlns:mdhtml="clr-namespace:MdXaml.Html;assembly=MdXaml.Html"
-             xmlns:mdsvg="clr-namespace:MdXaml.Svg;assembly=MdXaml.Svg"
-             xmlns:markdig="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
-             StartupUri="MainWindow.xaml">
+﻿<Application
+    x:Class="OpenAIOnWPF.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:OpenAIOnWPF"
+    xmlns:markdig="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+    xmlns:mdhtml="clr-namespace:MdXaml.Html;assembly=MdXaml.Html"
+    xmlns:mdplug="clr-namespace:MdXaml.Plugins;assembly=MdXaml.Plugins"
+    xmlns:mdsvg="clr-namespace:MdXaml.Svg;assembly=MdXaml.Svg"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    StartupUri="MainWindow.xaml">
     <Application.Resources>
-         <ResourceDictionary>
+        <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-            <ResourceDictionary Source="/FluentWPF;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="/FluentWPF;component/Styles/Controls.xaml" />
                 <ui:ThemeResources>
                     <ui:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Dark">
@@ -34,72 +35,73 @@
                 </ui:ThemeResources>
                 <ui:XamlControlsResources />
             </ResourceDictionary.MergedDictionaries>
-        <mdplug:MdXamlPlugins x:Key="MdXamlPlugins">
-            <mdhtml:HtmlPluginSetup/>
-            <mdsvg:SvgPluginSetup/>
-        </mdplug:MdXamlPlugins>
-        <Style TargetType="{x:Type RichTextBox}" BasedOn="{StaticResource DefaultRichTextBoxStyle}">
-                <Setter Property="Background"
-                        Value="Transparent" />
-                    <!--<Setter Property="Padding" Value="5" />-->
+            <mdplug:MdXamlPlugins x:Key="MdXamlPlugins">
+                <mdhtml:HtmlPluginSetup />
+                <mdsvg:SvgPluginSetup />
+            </mdplug:MdXamlPlugins>
+            <Style BasedOn="{StaticResource DefaultRichTextBoxStyle}" TargetType="{x:Type RichTextBox}">
+                <Setter Property="Background" Value="Transparent" />
+                <!--<Setter Property="Padding" Value="5" />-->
                 <Setter Property="IsReadOnly" Value="True" />
                 <Setter Property="IsTabStop" Value="False" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type RichTextBox}">
-                            <Border x:Name="border" Background="{TemplateBinding Background}"
-                                    BorderBrush="Transparent" BorderThickness="0">
+                            <Border
+                                x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent"
+                                BorderThickness="0">
                                 <ScrollViewer x:Name="PART_ContentHost" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsFocused" Value="True">
-                                    <Setter TargetName="border" Property="BorderBrush" Value="Transparent"/>
+                                    <Setter TargetName="border" Property="BorderBrush" Value="Transparent" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-        </Style>
-        <!--Markdig From-->
-        <Style TargetType="{x:Type Paragraph}" x:Key="{x:Static markdig:Styles.Heading1StyleKey}">
-            <Setter Property="FontSize" Value="30" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style TargetType="{x:Type Paragraph}" x:Key="{x:Static markdig:Styles.Heading2StyleKey}">
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style TargetType="{x:Type Paragraph}" x:Key="{x:Static markdig:Styles.Heading3StyleKey}">
-            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style TargetType="{x:Type Paragraph}" x:Key="{x:Static markdig:Styles.CodeBlockStyleKey}">
-            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
-            <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
-            <Setter Property="FontFamily" Value="Consolas, Lucida Sans Typewriter, Courier New" />
-        </Style>
-        <Style TargetType="{x:Type Run}" x:Key="{x:Static markdig:Styles.CodeStyleKey}">
-            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
-            <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
-            <Setter Property="FontFamily" Value="Consolas, Lucida Sans Typewriter, Courier New" />
-        </Style>
-        <Style TargetType="{x:Type Table}" x:Key="{x:Static markdig:Styles.TableStyleKey}">
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColorBrush}" />
-            <Setter Property="BorderThickness"
-                        Value="0,0,1,1" />
-            <Setter Property="CellSpacing" Value="0"/>
-        </Style>
-        <Style TargetType="{x:Type TableRow}" x:Key="{x:Static markdig:Styles.TableHeaderStyleKey}">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
-        </Style>
-        <Style TargetType="{x:Type TableCell}" x:Key="{x:Static markdig:Styles.TableCellStyleKey}">
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColorBrush}" />
-            <Setter Property="BorderThickness" Value="1,1,0,0"/>
-        </Style>
-        <!--Markdig To-->
-        </ResourceDictionary>        
+            </Style>
+            <!--  Markdig From  -->
+            <Style x:Key="{x:Static markdig:Styles.Heading1StyleKey}" TargetType="{x:Type Paragraph}">
+                <Setter Property="FontSize" Value="30" />
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.Heading2StyleKey}" TargetType="{x:Type Paragraph}">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.Heading3StyleKey}" TargetType="{x:Type Paragraph}">
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.CodeBlockStyleKey}" TargetType="{x:Type Paragraph}">
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
+                <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
+                <Setter Property="FontFamily" Value="Consolas, Lucida Sans Typewriter, Courier New" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.CodeStyleKey}" TargetType="{x:Type Run}">
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
+                <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
+                <Setter Property="FontFamily" Value="Consolas, Lucida Sans Typewriter, Courier New" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.TableStyleKey}" TargetType="{x:Type Table}">
+                <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColorBrush}" />
+                <Setter Property="BorderThickness" Value="0,0,1,1" />
+                <Setter Property="CellSpacing" Value="0" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.TableHeaderStyleKey}" TargetType="{x:Type TableRow}">
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.TableCellStyleKey}" TargetType="{x:Type TableCell}">
+                <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColorBrush}" />
+                <Setter Property="BorderThickness" Value="1,1,0,0" />
+            </Style>
+            <!--  Markdig To  -->
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

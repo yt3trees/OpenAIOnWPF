@@ -1,41 +1,43 @@
-﻿<fw:AcrylicWindow x:Class="OpenAIOnWPF.Messagebox"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:OpenAIOnWPF"
-        xmlns:ui="http://schemas.modernwpf.com/2019"
-        xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
-        AcrylicWindowStyle="NoIcon"
-        mc:Ignorable="d"
-        Title="Messagebox"
-        WindowStyle="None"
-        WindowStartupLocation="CenterOwner"
-        VerticalAlignment="Top"
-        BorderBrush="{DynamicResource SystemAltHighColor}"
-        KeyDown="Window_KeyDown"
-        ResizeMode="NoResize"
-        SizeToContent="WidthAndHeight"
-        ShowInTaskbar="False">
+﻿<fw:AcrylicWindow
+    x:Class="OpenAIOnWPF.Messagebox"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fw="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+    xmlns:local="clr-namespace:OpenAIOnWPF"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    Title="Messagebox"
+    VerticalAlignment="Top"
+    AcrylicWindowStyle="NoIcon"
+    BorderBrush="{DynamicResource SystemAltHighColor}"
+    KeyDown="Window_KeyDown"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="None"
+    mc:Ignorable="d">
     <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="5*" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel Margin="15,15,15,15">
-            <TextBox x:Name="ContentLabel"
-                       TextWrapping="Wrap"
-                     BorderBrush="{x:Null}"
-                     IsReadOnly="True"
-                     Padding="10,10,10,10" />
+            <TextBox
+                x:Name="ContentLabel"
+                Padding="10,10,10,10"
+                BorderBrush="{x:Null}"
+                IsReadOnly="True"
+                TextWrapping="Wrap" />
         </StackPanel>
-        <StackPanel Margin="15,0,15,15"
-                    Grid.Row="1">
-            <Button x:Name="OkButton"
-                    Content="OK"
-                    MinWidth="60"
-                    HorizontalAlignment="Right"
-                    Click="Button_Click" />
+        <StackPanel Grid.Row="1" Margin="15,0,15,15">
+            <Button
+                x:Name="OkButton"
+                MinWidth="60"
+                HorizontalAlignment="Right"
+                Click="Button_Click"
+                Content="OK" />
         </StackPanel>
     </Grid>
 </fw:AcrylicWindow>
