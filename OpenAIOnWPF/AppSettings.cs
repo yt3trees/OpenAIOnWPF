@@ -1,4 +1,4 @@
-﻿using OpenAI.GPT3.ObjectModels.RequestModels;
+﻿using OpenAI.ObjectModels.RequestModels;
 using System.Collections.Generic;
 using System.Data;
 

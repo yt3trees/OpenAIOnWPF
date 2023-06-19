@@ -1,6 +1,6 @@
 ﻿using ModernWpf;
 using Newtonsoft.Json;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 using System;
 using System.Collections.Generic;
 using System.Data;

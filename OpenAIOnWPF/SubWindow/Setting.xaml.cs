@@ -1,4 +1,4 @@
-﻿using OpenAI.GPT3.ObjectModels.ResponseModels.ModelResponseModels;
+﻿using OpenAI.ObjectModels.ResponseModels.ModelResponseModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

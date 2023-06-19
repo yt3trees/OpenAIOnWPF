@@ -2,10 +2,10 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using ModernWpf;
 using Newtonsoft.Json;
-using OpenAI.GPT3;
-using OpenAI.GPT3.Managers;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.Tokenizer.GPT3;
+using OpenAI;
+using OpenAI.Managers;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.Tokenizer.GPT3;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -218,7 +218,7 @@ namespace OpenAIOnWPF
         /// <summary>
         /// レスポンスを受け取って処理する
         /// </summary>
-        private void HandleCompletionResult(OpenAI.GPT3.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
+        private void HandleCompletionResult(OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
         {
             if (completionResult.Successful)
             {
@@ -249,7 +249,7 @@ namespace OpenAIOnWPF
             }
             ResetUI();
         }
-        private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.GPT3.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
+        private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
             // Userメッセージ
             var messageElement = CreateMessageElement(userMessage, isUser: true);

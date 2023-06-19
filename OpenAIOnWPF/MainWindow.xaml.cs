@@ -2,8 +2,8 @@
 using Markdig.Wpf;
 using ModernWpf;
 using Newtonsoft.Json;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.Tokenizer.GPT3;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.Tokenizer.GPT3;
 using SourceChord.FluentWPF;
 using System;
 using System.Collections.Generic;
