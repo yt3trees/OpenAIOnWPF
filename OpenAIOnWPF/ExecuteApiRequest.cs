@@ -160,7 +160,7 @@ namespace OpenAIOnWPF
                     targetApiKey = AppSettings.ApiKeySetting;
                     targetBaseDomain = AppSettings.BaseDomainSetting;
                     targetDeploymentId = AppSettings.DeploymentIdSetting;
-                    targetApiVersion = AppSettings.ApiVersionSetting;
+                    targetApiVersion = string.IsNullOrEmpty(AppSettings.ApiVersionSetting) ? null : AppSettings.ApiVersionSetting;
                     break;
             }
 
