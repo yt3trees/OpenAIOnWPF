@@ -1,5 +1,4 @@
-﻿using OpenAI.ObjectModels.RequestModels;
-using System.Collections.Generic;
+﻿using OpenAIOnWPF.Model;
 using System.Data;
 
 namespace OpenAIOnWPF
@@ -12,14 +11,10 @@ namespace OpenAIOnWPF
         public static string[,] InstructionListSetting { get; set; } = UtilityFunctions.DeserializeArray(Properties.Settings.Default.InstructionList);
         public static string[,] TokenUsageSetting { get; set; } = UtilityFunctions.DeserializeArray(Properties.Settings.Default.TokenUsage);
         public static bool IsSystemPromptColumnVisible { get; set; } = Properties.Settings.Default.IsSystemPromptColumnVisible;
+        public static bool IsConversationColumnVisible { get; set; } = Properties.Settings.Default.IsConversationColumnVisible;
         public static int ConversationHistoryCountSetting { get; set; } = Properties.Settings.Default.ConversationHistoryCount;
         public static bool UseConversationHistoryFlg = Properties.Settings.Default.UseConversationHistory;
-        public static List<ChatMessage> _conversationHistory = new List<ChatMessage>();
-        public static List<ChatMessage> ConversationHistory
-        {
-            get => _conversationHistory;
-            set => _conversationHistory = value;
-        }
+        public static ConversationManager ConversationManager { get; set; } 
         public static bool NoticeFlgSetting { get; set; } = Properties.Settings.Default.NoticeFlg;
         public static string? ApiKeySetting { get; set; }
         public static string? ModelSetting { get; set; }

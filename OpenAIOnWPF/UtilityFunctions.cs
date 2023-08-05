@@ -1,20 +1,14 @@
 ﻿using ModernWpf;
 using Newtonsoft.Json;
-using OpenAI.ObjectModels.RequestModels;
+using OpenAIOnWPF.Model;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using static OpenAIOnWPF.MainWindow;
 
 namespace OpenAIOnWPF
 {
@@ -33,7 +27,9 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.SelectConfig = AppSettings.SelectConfigSetting;
             Properties.Settings.Default.UseConversationHistory = AppSettings.UseConversationHistoryFlg;
             Properties.Settings.Default.IsSystemPromptColumnVisible = AppSettings.IsSystemPromptColumnVisible;
+            Properties.Settings.Default.IsConversationColumnVisible = AppSettings.IsConversationColumnVisible;
             Properties.Settings.Default.Save();
+            SaveConversationsAsJson(AppSettings.ConversationManager);
         }
         /// <summary>
         /// 指示内容を生成
@@ -163,6 +159,56 @@ namespace OpenAIOnWPF
                 return (DataTable)formatter.Deserialize(stream);
             }
         }
+        public static void SaveConversationsAsJson(ConversationManager manager)
+        {
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "ConversationHistory");
 
+            Directory.CreateDirectory(dataDirectory);
+
+            foreach (var file in Directory.EnumerateFiles(dataDirectory, "*.json"))
+            {
+                File.Delete(file);
+            }
+
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 非ASCII文字をエスケープしない
+            };
+
+            foreach (var conversation in manager.Histories)
+            {
+                string formattedLastUpdated = conversation.LastUpdated.ToString("yyyyMMddHHmmss");
+                string filePath = Path.Combine(dataDirectory, $"Conversation_{formattedLastUpdated}_{conversation.ID}.json");
+                string jsonString = System.Text.Json.JsonSerializer.Serialize(conversation, options);
+
+                File.WriteAllText(filePath, jsonString);
+            }
+        }
+        public static ConversationManager LoadConversationsFromJson()
+        {
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "ConversationHistory");
+
+            var manager = new ConversationManager();
+            manager.Histories = new ObservableCollection<ConversationHistory>();
+
+            Directory.CreateDirectory(dataDirectory);
+
+            string[] files = Directory.GetFiles(dataDirectory, "Conversation_*.json");
+
+            foreach (var file in files)
+            {
+                string jsonString = File.ReadAllText(file);
+                ConversationHistory conversation = System.Text.Json.JsonSerializer.Deserialize<ConversationHistory>(jsonString);
+
+                if (conversation != null)
+                {
+                    manager.Histories.Add(conversation);
+                }
+            }
+            return manager;
+        }
     }
 }

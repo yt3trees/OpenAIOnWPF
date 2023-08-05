@@ -4,9 +4,11 @@ using ModernWpf;
 using Newtonsoft.Json;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.Tokenizer.GPT3;
+using OpenAIOnWPF.Model;
 using SourceChord.FluentWPF;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -14,6 +16,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Input.Manipulations;
@@ -29,7 +32,6 @@ namespace OpenAIOnWPF
     public partial class MainWindow
     {
         string selectInstructionContent = "";
-        string userMessage = "";
         Stopwatch stopWatch = new Stopwatch();
         private bool gKeyPressed;
 
@@ -38,13 +40,35 @@ namespace OpenAIOnWPF
             InitializeComponent();
             RecoverWindowBounds();
             InitializeSettings();
-            SetMessages();
+        }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            var collectionViewSource = FindResource("SortedConversations") as CollectionViewSource;
+            if (collectionViewSource != null)
+            {
+                collectionViewSource.Source = AppSettings.ConversationManager.Histories;
+                ConversationListBox.ItemsSource = collectionViewSource.View;
+            }
         }
         private void InitializeSettings()
         {
             InitialColorSet();
             UserTextBox.Focus();
             NoticeToggleSwitch.IsOn = AppSettings.NoticeFlgSetting;
+
+            AppSettings.ConversationManager = LoadConversationsFromJson();
+            if (AppSettings.ConversationManager.Histories == null)
+            {
+                AppSettings.ConversationManager.Histories = new ObservableCollection<ConversationHistory>();
+            }
+            else
+            {
+                var selectedConversation = AppSettings.ConversationManager.Histories.FirstOrDefault(ch => ch.IsSelected);
+                if (selectedConversation != null)
+                {
+                    ConversationListBox.SelectedItem = selectedConversation;
+                }
+            }
 
             // Settingsから指示内容リストを取得しセット
             InstructionComboBox.ItemsSource = SetupInstructionComboBox();
@@ -85,6 +109,29 @@ namespace OpenAIOnWPF
             if (e.Key == Key.F5)
             {
                 ShowTable();
+            }
+        }
+        private void AcrylicWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (ConversationListBox.SelectedIndex > 0)
+                {
+                    ConversationListBox.SelectedIndex--;
+                }
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Down && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (ConversationListBox.SelectedIndex < ConversationListBox.Items.Count - 1)
+                {
+                    ConversationListBox.SelectedIndex++;
+                }
+                e.Handled = true;
+            }
+            else if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                NewChatButton_Click(sender, e);
             }
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -236,6 +283,10 @@ namespace OpenAIOnWPF
             {
                 Properties.Settings.Default.SystemPromptColumnWidth = SystemPromptGridColumn.Width.Value;
             }
+            if (ConversationHistorytGridColumn.Width.Value > 0)
+            {
+                Properties.Settings.Default.ConversationColumnWidth = ConversationHistorytGridColumn.Width.Value;
+            }
             settings.Save();
         }
         void RecoverWindowBounds()
@@ -266,22 +317,18 @@ namespace OpenAIOnWPF
         }
         private void ShowTable()
         {
-            if (AppSettings.ConversationHistory == null)
+            ConversationHistory targetConversation = ConversationListBox.SelectedItem as ConversationHistory;
+            if (targetConversation == null)
             {
-                AppSettings.ConversationHistory = new List<ChatMessage>();
+                return;
             }
-            int count = AppSettings.ConversationHistory.Count;
-            string[,] table = new string[count, 2];
-            foreach (var item in AppSettings.ConversationHistory)
-            {
-                table[AppSettings.ConversationHistory.IndexOf(item), 0] = item.Role;
-                table[AppSettings.ConversationHistory.IndexOf(item), 1] = item.Content;
-            }
-            var window = new Table(table);
+
+            var window = new Table(targetConversation);
             window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             bool result = (bool)window.ShowDialog();
             if (result)
             {
+                targetConversation.Messages = window.UpdatedConversationHistory.Messages;
                 SetMessages();
             }
         }
@@ -289,17 +336,18 @@ namespace OpenAIOnWPF
         {
             MessagesPanel.Children.Clear();
 
-            AppSettings.ConversationHistory = JsonConvert.DeserializeObject<List<ChatMessage>>(Properties.Settings.Default.ConversationHistory);
-
-            if (AppSettings.ConversationHistory != null)
+            ConversationHistory selectedConversation = ConversationListBox.SelectedItem as ConversationHistory;
+            if (selectedConversation == null)
             {
-                foreach (var message in AppSettings.ConversationHistory)
-                {
-                    if (message.Role == null) { break; }
-                    bool isUser = message.Role == "user";
-                    var messageElement = CreateMessageElement(message.Content, isUser);
-                    MessagesPanel.Children.Add(messageElement);
-                }
+                return;
+            }
+
+            foreach (var message in selectedConversation.Messages)
+            {
+                if (message.Role == null) { break; }
+                bool isUser = message.Role == "user";
+                var messageElement = CreateMessageElement(message.Content, isUser);
+                MessagesPanel.Children.Add(messageElement);
             }
             MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
         }
@@ -339,6 +387,7 @@ namespace OpenAIOnWPF
                     TextWrapping = TextWrapping.Wrap,
                     Text = messageContent
                 };
+                userTextBlock.MouseDown += UserTextBlock_MouseDown; 
 
                 ContextMenu contextMenu = CreateContextMenu();
                 userTextBlock.ContextMenu = contextMenu;
@@ -377,6 +426,11 @@ namespace OpenAIOnWPF
             }
 
             return messageGrid;
+        }
+        private void UserTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Keyboard.ClearFocus();
+            ConversationListBox.Focus(); // ショートカットキーを有効にするためにListBoxにフォーカスを移す
         }
         private void MessageGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -515,14 +569,13 @@ namespace OpenAIOnWPF
             {
                 return;
             }
-            if (AppSettings.ConversationHistory == null)
+
+            ConversationHistory targetConversation = ConversationListBox.SelectedItem as ConversationHistory;
+            if (targetConversation == null)
             {
                 return;
             }
-            //AppSettings.ConversationHistoryをすべてクリア
-            AppSettings.ConversationHistory.RemoveAll(x => true);
-            Properties.Settings.Default.ConversationHistory = "";
-            Properties.Settings.Default.Save();
+            targetConversation.Messages.Clear();
 
             //MessagesPanelをすべてクリア
             MessagesPanel.Children.Clear();
@@ -604,18 +657,29 @@ namespace OpenAIOnWPF
             {
                 SystemPromptGridColumn.Width = new GridLength(Properties.Settings.Default.SystemPromptColumnWidth);
                 GridSplitterGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                SystemPromptSplitter.Visibility = Visibility.Visible;
                 OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
                 // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
                 SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
-                //InstructionComboBox.IsEnabled = false;
             }
             else
             {
                 SystemPromptGridColumn.Width = new GridLength(0);
                 GridSplitterGridColumn.Width = new GridLength(0);
+                SystemPromptSplitter.Visibility = Visibility.Hidden;
                 OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.OpenPane;
-                //InstructionComboBox.IsEnabled = true;
             }
+            if (AppSettings.IsConversationColumnVisible == true)
+            {
+                ConversationHistorytGridColumn.Width = new GridLength(Properties.Settings.Default.ConversationColumnWidth);
+                GridSplitterGridColumn2.Width = new GridLength(1, GridUnitType.Auto);
+            }
+            else
+            {
+                ConversationHistorytGridColumn.Width = new GridLength(0);
+                GridSplitterGridColumn2.Width = new GridLength(0);
+            }
+
             //var accentColor = ThemeManager.Current.AccentColor;
             //if (accentColor == null)
             //{
@@ -633,6 +697,7 @@ namespace OpenAIOnWPF
                 Properties.Settings.Default.Save();
                 SystemPromptGridColumn.Width = new GridLength(0);
                 GridSplitterGridColumn.Width = new GridLength(0);
+                SystemPromptSplitter.Visibility = Visibility.Hidden;
                 OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.OpenPane;
                 AppSettings.IsSystemPromptColumnVisible = false;
             }
@@ -640,16 +705,115 @@ namespace OpenAIOnWPF
             {
                 SystemPromptGridColumn.Width = new GridLength(Properties.Settings.Default.SystemPromptColumnWidth);
                 GridSplitterGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                SystemPromptSplitter.Visibility = Visibility.Visible;
                 OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
                 AppSettings.IsSystemPromptColumnVisible = true;
                 // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
                 SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
+            }
+            if (AppSettings.IsConversationColumnVisible == true)
+            {
+                ConversationHistorytGridColumn.Width = new GridLength(Properties.Settings.Default.ConversationColumnWidth);
+                GridSplitterGridColumn2.Width = new GridLength(1, GridUnitType.Auto);
+            }
+            else
+            {
+                ConversationHistorytGridColumn.Width = new GridLength(0);
+                GridSplitterGridColumn2.Width = new GridLength(0);
             }
         }
 
         private void SystemPromptContentsTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UnsavedLabel.Visibility = Visibility.Visible;
+        }
+        private void NewChatButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessagesPanel.Children.Clear();
+            
+            if (ConversationListBox.SelectedItem is ConversationHistory selectedItem)
+            {
+                selectedItem.IsSelected = false;
+            }
+            ConversationListBox.SelectedItem = null;
+
+            UserTextBox.Focus();
+            UserTextBox.CaretIndex = UserTextBox.Text.Length;
+        }
+        private void ConversationDeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
+            var result = ModernWpf.MessageBox.Show("Are you sure you want to delete this conversation?",
+                                                   "Confirmation",
+                                                   MessageBoxButton.YesNo,
+                                                   MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                AppSettings.ConversationManager.Histories.Remove(itemToDelete);
+                ConversationListBox.Items.Refresh();
+            }
+        }
+        private void ConversationTitleEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
+            string currentTitle = itemToDelete.Title;
+
+            var editWindow = new TitleEditWindow(currentTitle);
+            editWindow.Owner = this;
+
+            if (editWindow.ShowDialog() == true)
+            {
+                string newTitle = editWindow.NewTitle;
+                itemToDelete.Title = newTitle;
+            }
+        }
+        private void ConversationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ConversationListBox.SelectedItem == null)
+            {
+                MessagesPanel.Children.Clear();
+                return;
+            }
+            var selectedConversation = (ConversationHistory)ConversationListBox.SelectedItem;
+            List<ChatMessage> messages = selectedConversation.Messages.ToList();
+
+            MessagesPanel.Children.Clear();
+
+            foreach (var message in messages)
+            {
+                if (message.Role == null) { break; }
+                bool isUser = message.Role == "user";
+                var messageElement = CreateMessageElement(message.Content, isUser);
+                MessagesPanel.Children.Add(messageElement);
+            }
+
+            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
+
+            // 削除ボタン活性制御用
+            foreach (var item in ConversationListBox.Items.OfType<ConversationHistory>())
+            {
+                item.IsSelected = false;
+            }        
+            if (selectedConversation != null)
+            {
+                selectedConversation.IsSelected = true;
+            }
+            foreach (ConversationHistory item in e.RemovedItems)
+            {
+                item.IsSelected = false;
+            }
+
+            UserTextBox.Focus();
+            UserTextBox.CaretIndex = UserTextBox.Text.Length;
+        }
+        public void RefreshConversationList()
+        {
+            var collectionViewSource = FindResource("SortedConversations") as CollectionViewSource;
+            if (collectionViewSource != null)
+            {
+                collectionViewSource.Source = AppSettings.ConversationManager.Histories;
+                collectionViewSource.View.Refresh();
+            }
         }
     }
 }

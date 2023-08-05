@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:OpenAIOnWPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+    xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="http://schemas.modernwpf.com/2019"
     Title="OpenAI"
     Width="900"
@@ -19,8 +20,17 @@
     Closing="Window_Closing"
     Icon="/OpenAI.png"
     KeyDown="Window_KeyDown"
+    Loaded="MainWindow_Loaded"
+    PreviewKeyDown="AcrylicWindow_PreviewKeyDown"
     TintOpacity="0.7"
     mc:Ignorable="d">
+    <Window.Resources>
+        <CollectionViewSource x:Key="SortedConversations" Source="{Binding ConversationManager.Histories}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription Direction="Descending" PropertyName="LastUpdated" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
@@ -173,7 +183,7 @@
                             Click="ConversationHistoryButton_Click"
                             Style="{StaticResource ButtonRevealStyle}"
                             ToolTip="Open conversation history">
-                            <ui:SymbolIcon Symbol="Message" />
+                            <ui:SymbolIcon Symbol="Edit" />
                         </Button>
                         <Button
                             x:Name="ConversationHistoryClearButton"
@@ -255,13 +265,154 @@
             ToolTip="You can resize the user text box by dragging it with the mouse."/>-->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="SystemPromptGridColumn" />
+                <ColumnDefinition x:Name="ConversationHistorytGridColumn" />
                 <ColumnDefinition x:Name="GridSplitterGridColumn" Width="Auto" />
+                <ColumnDefinition x:Name="SystemPromptGridColumn" />
+                <ColumnDefinition x:Name="GridSplitterGridColumn2" Width="Auto" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Grid x:Name="SystemPromptGrid" Grid.Column="0">
+            <Grid Grid.Column="0">
                 <Grid.Background>
                     <SolidColorBrush Opacity="0.2" Color="{DynamicResource SystemAltMediumHighColor}" />
+                </Grid.Background>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            x:Name="NewChatButton"
+                            Grid.Column="0"
+                            Height="32"
+                            Margin="10,0,10,0"
+                            HorizontalAlignment="Stretch"
+                            fw:RevealElement.BorderRadius="4"
+                            Background="Transparent"
+                            Click="NewChatButton_Click"
+                            Content="+ New chat"
+                            FontSize="14"
+                            Style="{StaticResource ButtonRevealStyle}" />
+                        <!-- <Button
+                            Grid.Column="1"
+                            Width="32"
+                            Height="32"
+                            Margin="0,0,10,0"
+                            Padding="-10,-10,-10,-10"
+                            HorizontalAlignment="Center"
+                            fw:RevealElement.BorderRadius="4"
+                            Background="Transparent"
+                            Style="{StaticResource ButtonRevealStyle}">
+                            <ui:SymbolIcon Symbol="ClosePane" />
+                        </Button>-->
+                    </Grid>
+                    <ListBox
+                        x:Name="ConversationListBox"
+                        Grid.Row="1"
+                        d:ItemsSource="{d:SampleData ItemCount=5}"
+                        ItemsSource="{Binding Source={StaticResource SortedConversations}}"
+                        SelectionChanged="ConversationListBox_SelectionChanged">
+                        <ListBox.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource DefaultListBoxItemStyle}" TargetType="ListBoxItem">
+                                <Setter Property="Height" Value="51" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.Background>
+                            <SolidColorBrush Opacity="0.2" />
+                        </ListBox.Background>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox
+                                        Grid.Column="0"
+                                        VerticalAlignment="Stretch"
+                                        VerticalContentAlignment="Center"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Arrow"
+                                        Focusable="False"
+                                        IsReadOnly="True"
+                                        Text="{Binding Title, Mode=TwoWay}">
+                                        <TextBox.ToolTip>
+                                            <ToolTip>
+                                                <ToolTip.Content>
+                                                    <TextBlock Text="{Binding LastUpdated, StringFormat='LastUpdate: {0:yyyy/MM/dd HH:mm:ss}'}" />
+                                                </ToolTip.Content>
+                                            </ToolTip>
+                                        </TextBox.ToolTip>
+                                    </TextBox>
+                                    <Button
+                                        x:Name="ConversationTitleEditButton"
+                                        Grid.Column="1"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="10,0,0,0"
+                                        Padding="-10,-10,-10,-10"
+                                        VerticalAlignment="Center"
+                                        fw:RevealElement.BorderRadius="4"
+                                        Background="Transparent"
+                                        Click="ConversationTitleEditButton_Click"
+                                        Opacity="0.6">
+                                        <Button.Style>
+                                            <Style BasedOn="{StaticResource ButtonRevealStyle}" TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <ui:SymbolIcon Symbol="Edit" />
+                                    </Button>
+                                    <Button
+                                        x:Name="ConversationDeleteButton"
+                                        Grid.Column="2"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="5,0,0,0"
+                                        Padding="-10,-10,-10,-10"
+                                        VerticalAlignment="Center"
+                                        fw:RevealElement.BorderRadius="4"
+                                        Background="Transparent"
+                                        Click="ConversationDeleteButton_Click"
+                                        Opacity="0.6">
+                                        <Button.Style>
+                                            <Style BasedOn="{StaticResource ButtonRevealStyle}" TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <ui:SymbolIcon Symbol="Delete" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Grid>
+            <GridSplitter
+                Grid.Column="1"
+                Width="10"
+                Margin="-10,0,0,0"
+                HorizontalAlignment="Stretch"
+                Background="Transparent" />
+            <Grid x:Name="SystemPromptGrid" Grid.Column="2">
+                <Grid.Background>
+                    <SolidColorBrush Opacity="0.1" Color="{DynamicResource SystemAltMediumHighColor}" />
                 </Grid.Background>
                 <Grid Margin="0,10,0,0">
                     <Grid.RowDefinitions>
@@ -314,12 +465,13 @@
                 </Grid>
             </Grid>
             <GridSplitter
-                Grid.Column="1"
+                x:Name="SystemPromptSplitter"
+                Grid.Column="3"
                 Width="10"
                 Margin="-10,0,0,0"
                 HorizontalAlignment="Stretch"
                 Background="Transparent" />
-            <Grid Grid.Column="2">
+            <Grid Grid.Column="4">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />

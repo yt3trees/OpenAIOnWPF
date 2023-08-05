@@ -107,7 +107,7 @@
             <Label
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Content="Conversation History Limit" />
+                Content="Number of Past Conversations Included" />
             <ui:NumberBox
                 x:Name="Numberbox"
                 MinWidth="200"

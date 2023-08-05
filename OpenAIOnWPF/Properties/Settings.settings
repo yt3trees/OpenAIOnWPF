@@ -44,9 +44,6 @@
     <Setting Name="WindowMaximized" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ConversationHistory" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="UseConversationHistory" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -55,6 +52,12 @@
     </Setting>
     <Setting Name="SystemPromptColumnWidth" Type="System.Double" Scope="User">
       <Value Profile="(Default)">200</Value>
+    </Setting>
+    <Setting Name="ConversationColumnWidth" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">200</Value>
+    </Setting>
+    <Setting Name="IsConversationColumnVisible" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="FontSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>

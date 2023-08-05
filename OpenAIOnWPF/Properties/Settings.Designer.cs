@@ -193,18 +193,6 @@ namespace OpenAIOnWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ConversationHistory {
-            get {
-                return ((string)(this["ConversationHistory"]));
-            }
-            set {
-                this["ConversationHistory"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool UseConversationHistory {
             get {
@@ -236,6 +224,30 @@ namespace OpenAIOnWPF.Properties {
             }
             set {
                 this["SystemPromptColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public double ConversationColumnWidth {
+            get {
+                return ((double)(this["ConversationColumnWidth"]));
+            }
+            set {
+                this["ConversationColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsConversationColumnVisible {
+            get {
+                return ((bool)(this["IsConversationColumnVisible"]));
+            }
+            set {
+                this["IsConversationColumnVisible"] = value;
             }
         }
         

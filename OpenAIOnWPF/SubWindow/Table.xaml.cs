@@ -3,6 +3,7 @@ using ModernWpf;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenAI.ObjectModels.RequestModels;
+using OpenAIOnWPF.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,6 +26,7 @@ namespace OpenAIOnWPF
     /// </summary>
     public partial class Table
     {
+        public ConversationHistory UpdatedConversationHistory { get; private set; }
         public class DataTableItem
         {
             public string? Role { get; set; }
@@ -39,7 +41,7 @@ namespace OpenAIOnWPF
             }
         }
         ViewModel viewModel;
-        public Table(string[,] arg)
+        public Table(ConversationHistory conversationHistory)
         {
             InitializeComponent();
             //// レンダリングバグ対応
@@ -57,13 +59,9 @@ namespace OpenAIOnWPF
             viewModel.ComboBoxItems.Add("assistant");
 
             ObservableCollection<DataTableItem> list = new ObservableCollection<DataTableItem>();
-            for (int i = 0; i < arg.GetLength(0); i++)
+            foreach (var message in conversationHistory.Messages)
             {
-                list.Add(new DataTableItem()
-                {
-                    Role = arg[i, 0],
-                    Content = arg[i, 1]
-                });
+                list.Add(new DataTableItem() { Role = message.Role, Content = message.Content });
             }
             DataTable.ItemsSource = list;
             if (ThemeManager.Current.ApplicationTheme == ApplicationTheme.Light)
@@ -83,14 +81,11 @@ namespace OpenAIOnWPF
 
             // 会話履歴を保存
             ObservableCollection<DataTableItem> list = (ObservableCollection<DataTableItem>)DataTable.ItemsSource;
-            AppSettings.ConversationHistory.Clear();
+            UpdatedConversationHistory = new ConversationHistory();
             foreach (DataTableItem item in list)
             {
-                AppSettings.ConversationHistory.Add(new ChatMessage(item.Role, item.Content));
+                UpdatedConversationHistory.Messages.Add(new ChatMessage(item.Role, item.Content));
             }
-            string conversationHistoryJson = JsonConvert.SerializeObject(AppSettings.ConversationHistory);
-            Properties.Settings.Default.ConversationHistory = conversationHistoryJson;
-            Properties.Settings.Default.Save();
 
             DialogResult = true;
         }

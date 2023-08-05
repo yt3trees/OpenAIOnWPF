@@ -6,9 +6,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Update="SubWindow\TitleEditWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SubWindow\TitleEditWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
