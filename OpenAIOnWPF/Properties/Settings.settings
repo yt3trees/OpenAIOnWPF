@@ -56,5 +56,8 @@
     <Setting Name="SystemPromptColumnWidth" Type="System.Double" Scope="User">
       <Value Profile="(Default)">200</Value>
     </Setting>
+    <Setting Name="FontSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

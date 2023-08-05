@@ -333,14 +333,14 @@ namespace OpenAIOnWPF
                 TextBlock userTextBlock = new TextBlock
                 {
                     Padding = new Thickness(10),
-                    FontSize = 16,
+                    FontSize = Properties.Settings.Default.FontSize,
                     //Background = accentColorBrush,
                     TextAlignment = TextAlignment.Left,
                     TextWrapping = TextWrapping.Wrap,
                     Text = messageContent
                 };
 
-                ContextMenu contextMenu = CreateFontSizeContextMenu();
+                ContextMenu contextMenu = CreateContextMenu();
                 userTextBlock.ContextMenu = contextMenu;
 
                 Grid.SetColumn(userTextBlock, 1);
@@ -363,12 +363,12 @@ namespace OpenAIOnWPF
                 var richTextBox = new RichTextBox
                 {
                     Padding = new Thickness(5,10,5,10),
-                    FontSize = 16,
                     HorizontalContentAlignment = HorizontalAlignment.Left,
                     Document = flowDocument
                 };
+                richTextBox.Document.FontSize = Properties.Settings.Default.FontSize;
 
-                ContextMenu contextMenu = CreateFontSizeContextMenu();
+                ContextMenu contextMenu = CreateContextMenu();
                 richTextBox.ContextMenu = contextMenu;
 
                 Grid.SetColumn(richTextBox, 1);
@@ -392,30 +392,69 @@ namespace OpenAIOnWPF
             }
         }
         /// <summary>
-        /// フォントサイズを変更する右クリックメニュー
+        /// 右クリックメニュー
         /// </summary>
-        private ContextMenu CreateFontSizeContextMenu()
+        private ContextMenu CreateContextMenu()
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem fontSizeSmall = new MenuItem { Header = "Small Font" };
-            fontSizeSmall.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
-            fontSizeSmall.Click += (s, e) => ChangeFontSize(14);
-            contextMenu.Items.Add(fontSizeSmall);
-
-            MenuItem fontSizeMedium = new MenuItem { Header = "Medium Font" };
-            fontSizeMedium.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontSize);
-            fontSizeMedium.Click += (s, e) => ChangeFontSize(16);
-            contextMenu.Items.Add(fontSizeMedium);
-
-            MenuItem fontSizeLarge = new MenuItem { Header = "Large Font" };
-            fontSizeLarge.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontIncrease);
-            fontSizeLarge.Click += (s, e) => ChangeFontSize(18);
-            contextMenu.Items.Add(fontSizeLarge);
-
-            // MessagesPanel配下のオブジェクトのフォントサイズを変更する
-            void ChangeFontSize(int fontSize)
+            MenuItem copyTextMenuItem = new MenuItem { Header = "Copy Text" };
+            copyTextMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy);
+            Button copyTextButton = new Button { Content = "Copy Text", Background = Brushes.Transparent };
+            Action copyTextAndCloseMenu = () =>
             {
+                CopyTextToClipboard(contextMenu.PlacementTarget);
+                contextMenu.IsOpen = false;
+            };
+            copyTextButton.Click += (s, e) => copyTextAndCloseMenu();
+            copyTextMenuItem.Click += (s, e) => copyTextAndCloseMenu();
+            copyTextMenuItem.Header = copyTextButton;
+            void CopyTextToClipboard(object target)
+            {
+                if (target is TextBlock textBlock)
+                {
+                    Clipboard.SetText(textBlock.Text);
+                }
+                else if (target is RichTextBox richTextBox)
+                {
+                    TextRange textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
+                    Clipboard.SetText(textRange.Text);
+                }
+            }
+            contextMenu.Items.Add(copyTextMenuItem);
+
+            MenuItem increaseFontSizeMenuItem = new MenuItem();
+            increaseFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontIncrease);
+            Button increaseFontSizeButton = new Button { Content = "Increase Font Size", Background = Brushes.Transparent };
+            increaseFontSizeMenuItem.Header = increaseFontSizeButton;
+            increaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1);
+            increaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1);
+            contextMenu.Items.Add(increaseFontSizeMenuItem);
+
+            MenuItem decreaseFontSizeMenuItem = new MenuItem();
+            decreaseFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
+            Button decreaseFontSizeButton = new Button { Content = "Decrease Font Size", Background = Brushes.Transparent };
+            decreaseFontSizeMenuItem.Header = decreaseFontSizeButton;
+            decreaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1);
+            decreaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1);
+            contextMenu.Items.Add(decreaseFontSizeMenuItem);
+
+            MenuItem defaultFontSizeMenuItem = new MenuItem { Header = "Default Font Size" };
+            defaultFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Refresh);
+            Button defaultFontSizeButton = new Button { Content = "Default Font Size", Background = Brushes.Transparent };
+            defaultFontSizeMenuItem.Header = defaultFontSizeButton;
+            defaultFontSizeButton.Click += (s, e) => SetFontSize(16);
+            defaultFontSizeMenuItem.Click += (s, e) => SetFontSize(16);
+            contextMenu.Items.Add(defaultFontSizeMenuItem);
+
+            void SetFontSize(int newSize)
+            {
+                int minSize = 8;
+                int maxSize = 32;
+                newSize = Math.Max(minSize, Math.Min(maxSize, newSize));
+
+                Properties.Settings.Default.FontSize = newSize;
+                Properties.Settings.Default.Save();
                 foreach (var item in MessagesPanel.Children)
                 {
                     if (item is Grid grid)
@@ -424,13 +463,11 @@ namespace OpenAIOnWPF
                         {
                             if (child is TextBlock textBlock)
                             {
-                                textBlock.FontSize = fontSize;
+                                textBlock.FontSize = newSize;
                             }
-                            //else if (child is MdXaml.MarkdownScrollViewer markdownScrollViewer)
                             else if (child is RichTextBox richTextBox)
                             {
-                                richTextBox.Document.FontSize = fontSize;
-                                //markdownScrollViewer.FontSize = fontSize;
+                                richTextBox.Document.FontSize = newSize;
                             }
                         }
                     }
