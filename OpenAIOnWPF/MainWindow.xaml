@@ -11,12 +11,15 @@
     Title="OpenAI"
     Width="900"
     Height="433"
+    fw:AcrylicWindow.AcrylicAccentState="Default"
+    fw:AcrylicWindow.Enabled="True"
     fw:PointerTracker.Enabled="True"
     ui:ThemeManager.IsThemeAware="True"
     BorderBrush="{DynamicResource SystemAltHighColor}"
     Closing="Window_Closing"
     Icon="/OpenAI.png"
     KeyDown="Window_KeyDown"
+    TintOpacity="0.7"
     mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>

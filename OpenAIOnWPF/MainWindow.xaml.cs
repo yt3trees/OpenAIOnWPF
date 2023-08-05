@@ -367,6 +367,7 @@ namespace OpenAIOnWPF
                     Document = flowDocument
                 };
                 richTextBox.Document.FontSize = Properties.Settings.Default.FontSize;
+                richTextBox.Document.FontFamily = new FontFamily("Yu Gothic UI");
 
                 ContextMenu contextMenu = CreateContextMenu();
                 richTextBox.ContextMenu = contextMenu;
