@@ -26,6 +26,7 @@ namespace OpenAIOnWPF
     public partial class MainWindow
     {
         bool resultFlg = true;
+        private bool isProcessing = false;
         // 描画遅延対策
         private void DummySub() { }
         private void FlushWindowsMessageQueue()
@@ -49,6 +50,12 @@ namespace OpenAIOnWPF
         private async Task ProcessOpenAIAsync()
         {
             Debug.Print("===== Start processing =====");
+            if (isProcessing)
+            {
+                ModernWpf.MessageBox.Show("Processing is in progress.");
+                return;
+            }
+            isProcessing = true;
             resultFlg = true;
             Prepare();
             MessageScrollViewer.ScrollToBottom();
@@ -88,6 +95,7 @@ namespace OpenAIOnWPF
             }
             catch (Exception ex)
             {
+                Reset();
                 ModernWpf.MessageBox.Show(ex.ToString());
             }
             finally
@@ -118,6 +126,7 @@ namespace OpenAIOnWPF
             ExecButton.IsEnabled = true;
             ProgressRing.IsActive = false;
             UserTextBox.Text = "";
+            isProcessing = false;
         }
         /// <summary>
         /// 選択している設定の内容を取得
@@ -296,84 +305,94 @@ namespace OpenAIOnWPF
         }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
-            // Userメッセージ
-            var messageElement = CreateMessageElement(userMessage, isUser: true);
-            MessagesPanel.Children.Add(messageElement);
+            try
+            {
+                // Userメッセージ
+                var messageElement = CreateMessageElement(userMessage, isUser: true);
+                MessagesPanel.Children.Add(messageElement);
 
-            // Assistantメッセージ
-            FrameworkElement assistantMessageElement  = null;
-            await Dispatcher.InvokeAsync(() =>
-            {
-                assistantMessageElement = CreateMessageElement("", isUser: false); // 要素だけ生成しておく
-                MessagesPanel.Children.Add(assistantMessageElement );
-            });
-            // Grid内のRichTextBox要素を検索
-            Grid assistantMessageGrid = assistantMessageElement as Grid;
-            System.Windows.Controls.RichTextBox richTextBox = null;
-            if (assistantMessageGrid != null)
-            {
-                foreach (var child in assistantMessageGrid.Children)
+                // Assistantメッセージ
+                FrameworkElement assistantMessageElement = null;
+                await Dispatcher.InvokeAsync(() =>
                 {
-                    if (child is System.Windows.Controls.RichTextBox)
+                    assistantMessageElement = CreateMessageElement("", isUser: false); // 要素だけ生成しておく
+                    MessagesPanel.Children.Add(assistantMessageElement);
+                });
+                // Grid内のRichTextBox要素を検索
+                Grid assistantMessageGrid = assistantMessageElement as Grid;
+                System.Windows.Controls.RichTextBox richTextBox = null;
+                if (assistantMessageGrid != null)
+                {
+                    foreach (var child in assistantMessageGrid.Children)
                     {
-                        richTextBox = child as System.Windows.Controls.RichTextBox;
-                        richTextBox.Document.LineHeight = 1.0;
-                        break;
+                        if (child is System.Windows.Controls.RichTextBox)
+                        {
+                            richTextBox = child as System.Windows.Controls.RichTextBox;
+                            richTextBox.Document.LineHeight = 1.0;
+                            break;
+                        }
                     }
                 }
-            }
-            
-            string resultText = "";
-            await foreach (var completion in completionResult)
-            {
-                if (completion.Successful)
+
+                string resultText = "";
+                await foreach (var completion in completionResult)
                 {
-                    resultText = completion.Choices.First().Message.Content;
-                    await Dispatcher.InvokeAsync(() =>
+                    if (completion.Successful)
                     {
-                        responseText += $"{resultText}";
-                        richTextBox.AppendText(resultText);
-                        FlushWindowsMessageQueue(); // 描画遅延対策
-                    });
-                }
-                else
-                {
-                    if (completion.Error == null)
-                    {
-                        throw new Exception("Unknown Error");
+                        resultText = completion.Choices.First().Message.Content;
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            responseText += $"{resultText}";
+                            richTextBox.AppendText(resultText);
+                            FlushWindowsMessageQueue(); // 描画遅延対策
+                        });
                     }
-                    resultText = $"{completion.Error.Code}: {completion.Error.Message}";
-                    ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
-                    resultFlg = false;
+                    else
+                    {
+                        if (completion.Error == null)
+                        {
+                            throw new Exception("Unknown Error");
+                        }
+                        resultText = $"{completion.Error.Code}: {completion.Error.Message}";
+                        ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
+                        resultFlg = false;
+                    }
+                }
+                var pipeline = new MarkdownPipelineBuilder()
+                .UseSoftlineBreakAsHardlineBreak()
+                .UseAdvancedExtensions()
+                .Build();
+
+                Debug.Print("----- Conversation History -----");
+                tempMessages.Add(ChatMessage.FromAssistant(responseText));
+                foreach (var item in tempMessages)
+                {
+                    Debug.Print($"{item.Role}: {item.Content}");
+                }
+
+                var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(responseText, pipeline);
+                richTextBox.Document = flowDocument;
+                ForTokenCalc.responseToken = responseText;
+
+                if (resultFlg)
+                {
+                    CaluculateTokenUsage();
+                }
+                if (AppSettings.NoticeFlgSetting && resultFlg)
+                {
+                    new ToastContentBuilder()
+                        .AddText("️AI responded back.")
+                        .Show();
                 }
             }
-            var pipeline = new MarkdownPipelineBuilder()
-            .UseSoftlineBreakAsHardlineBreak()
-            .UseAdvancedExtensions()
-            .Build();
-
-            Debug.Print("----- Conversation History -----");
-            tempMessages.Add(ChatMessage.FromAssistant(responseText));
-            foreach (var item in tempMessages)
+            catch (Exception ex)
             {
-                Debug.Print($"{item.Role}: {item.Content}");
+                ModernWpf.MessageBox.Show(ex.Message);
             }
-
-            var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(responseText, pipeline);
-            richTextBox.Document = flowDocument;
-            ForTokenCalc.responseToken = responseText;
-
-            if (resultFlg)
+            finally
             {
-                CaluculateTokenUsage();
+                Reset();
             }
-            if (AppSettings.NoticeFlgSetting && resultFlg)
-            {
-                new ToastContentBuilder()
-                    .AddText("️AI responded back.")
-                    .Show();
-            }
-            Reset();
         }
         /// <summary>
         /// トークン量を計算
