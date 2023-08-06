@@ -21,7 +21,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F7610388B5CC46B290FF9EBA2FDC64A1"
+        "MsmKey" = "8:_FACDD9C9281548889B952533712E8E66"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -122,7 +122,7 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F7610388B5CC46B290FF9EBA2FDC64A1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FACDD9C9281548889B952533712E8E66"
             {
             "SourcePath" = "8:..\\OpenAIOnWPF\\image\\OpenAI.ico"
             "TargetName" = "8:OpenAI.ico"
@@ -209,15 +209,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OpenAIOnWPF"
-        "ProductCode" = "8:{CB79B0A4-4E09-487C-897B-FDBCD7A3CEE7}"
-        "PackageCode" = "8:{83E88E87-E3A6-42BC-8697-9D1EC00F49B9}"
+        "ProductCode" = "8:{03B43B71-5D45-407E-9954-500FE4B271A8}"
+        "PackageCode" = "8:{03F9A379-D56F-4ECE-921A-F0E850D49D24}"
         "UpgradeCode" = "8:{65900B12-E77C-4E62-84FF-64E38C5117FD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.0.1"
+        "ProductVersion" = "8:0.0.6"
         "Manufacturer" = "8:yt3trees"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -227,7 +227,7 @@
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:_F7610388B5CC46B290FF9EBA2FDC64A1"
+        "ARPPRODUCTICON" = "8:_FACDD9C9281548889B952533712E8E66"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -341,7 +341,7 @@
             "Target" = "8:_A96D92455ADC474299DAE9660CB04888"
             "Folder" = "8:_477D48D5309F437CB84B8FE458F1E938"
             "WorkingFolder" = "8:_4788618C5AF64E799B79EBB2DF126759"
-            "Icon" = "8:_F7610388B5CC46B290FF9EBA2FDC64A1"
+            "Icon" = "8:_FACDD9C9281548889B952533712E8E66"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A031C6A1F7CF4A03A622955E0F15E2EF"
@@ -355,7 +355,7 @@
             "Target" = "8:_A96D92455ADC474299DAE9660CB04888"
             "Folder" = "8:_CBB21AA257AD425DA7FF81F95A94B031"
             "WorkingFolder" = "8:_4788618C5AF64E799B79EBB2DF126759"
-            "Icon" = "8:_F7610388B5CC46B290FF9EBA2FDC64A1"
+            "Icon" = "8:_FACDD9C9281548889B952533712E8E66"
             "Feature" = "8:"
             }
         }
