@@ -336,7 +336,12 @@ namespace OpenAIOnWPF
             {
                 if (completion.Successful)
                 {
-                    resultText = completion.Choices.First().Message.Content;
+                    var firstChoice = completion.Choices.FirstOrDefault();
+                    if (firstChoice == null)
+                    {
+                        continue;
+                    }
+                    resultText = firstChoice.Message.Content;
                     await Dispatcher.InvokeAsync(() =>
                     {
                         responseText += $"{resultText}";
