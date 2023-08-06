@@ -64,8 +64,7 @@ namespace OpenAIOnWPF
             {
                 if (!RetrieveConfiguration())
                 {
-                    ModernWpf.MessageBox.Show("ConfigurationName is not set.");
-                    return;
+                    throw new Exception("ConfigurationName is not set.");
                 }
 
                 var openAiService = CreateOpenAiService();
