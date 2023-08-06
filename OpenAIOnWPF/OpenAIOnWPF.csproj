@@ -32,7 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="OpenAI.png" />
+    <Resource Include="image\OpenAI.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,7 +52,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="image\OpenAI.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

@@ -18,7 +18,7 @@
     ui:ThemeManager.IsThemeAware="True"
     BorderBrush="{DynamicResource SystemAltHighColor}"
     Closing="Window_Closing"
-    Icon="/OpenAI.png"
+    Icon="pack://application:,,,/image/OpenAI.png"
     KeyDown="Window_KeyDown"
     Loaded="MainWindow_Loaded"
     PreviewKeyDown="AcrylicWindow_PreviewKeyDown"
