@@ -430,9 +430,11 @@ namespace OpenAIOnWPF
             // 何も選択していない場合
             if (ConversationListBox.SelectedIndex == -1)
             {
+                string cleanedUserMessage = userMessage.Replace("\n", "").Replace("\r", "");
+
                 AppSettings.ConversationManager.Histories.Add(new ConversationHistory()
                 {
-                    Title = userMessage.Length > 20 ? userMessage.Substring(0, 20) + "..." : userMessage,
+                    Title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage,
                     Messages = new ObservableCollection<ChatMessage>()
                     {
                         ChatMessage.FromUser(userMessage),
