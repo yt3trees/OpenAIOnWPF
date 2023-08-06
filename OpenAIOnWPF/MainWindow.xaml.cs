@@ -1,5 +1,6 @@
 ﻿using Markdig;
 using Markdig.Wpf;
+using Microsoft.Toolkit.Uwp.Notifications;
 using ModernWpf;
 using Newtonsoft.Json;
 using OpenAI.ObjectModels.RequestModels;
@@ -53,6 +54,7 @@ namespace OpenAIOnWPF
         private void InitializeSettings()
         {
             InitialColorSet();
+            ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
             UserTextBox.Focus();
             NoticeToggleSwitch.IsOn = AppSettings.NoticeFlgSetting;
 
@@ -814,6 +816,15 @@ namespace OpenAIOnWPF
                 collectionViewSource.Source = AppSettings.ConversationManager.Histories;
                 collectionViewSource.View.Refresh();
             }
+        }
+        private void ToastNotificationManagerCompat_OnActivated(ToastNotificationActivatedEventArgsCompat e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.Activate();
+                this.Topmost = true;
+                this.Topmost = false;
+            });
         }
     }
 }
