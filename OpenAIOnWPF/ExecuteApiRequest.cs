@@ -120,7 +120,7 @@ namespace OpenAIOnWPF
         private void Reset()
         {
             stopWatch.Stop();
-            TimeLabel.Content = $"{stopWatch.ElapsedMilliseconds} ms";
+            TimeLabel.Content = $"{stopWatch.ElapsedMilliseconds.ToString("N0")} ms";
             stopWatch.Reset();
             ExecButton.IsEnabled = true;
             ProgressRing.IsActive = false;
@@ -401,12 +401,12 @@ namespace OpenAIOnWPF
             var responseTokens = TokenizerGpt3.Encode(ForTokenCalc.responseToken);
             var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
             string tooltip = "";
-            tooltip += $"Conversation History Tokens : {conversationResultTokens.Count()}\r\n";
-            tooltip += $"Instruction Tokens : {instructionTokens.Count()}\r\n";
-            tooltip += $"User Message Tokens : {userTokens.Count()}\r\n";
-            tooltip += $"AI Response Tokens : {responseTokens.Count()}\r\n";
-            tooltip += $"Total Tokens : {totalTokens}";
-            TokensLabel.Content = totalTokens;
+            tooltip += $"Conversation History Tokens : {conversationResultTokens.Count().ToString("N0")}\r\n";
+            tooltip += $"Instruction Tokens : {instructionTokens.Count().ToString("N0")}\r\n";
+            tooltip += $"User Message Tokens : {userTokens.Count().ToString("N0")}\r\n";
+            tooltip += $"AI Response Tokens : {responseTokens.Count().ToString("N0")}\r\n";
+            tooltip += $"Total Tokens : {totalTokens.ToString("N0")}";
+            TokensLabel.Content = totalTokens.ToString("N0");
             TokensLabel.ToolTip = tooltip;
 
             // 既存の会話履歴に追加する場合

@@ -42,7 +42,7 @@ namespace OpenAIOnWPF
                 tokenUsageDisplayItem.Date = savedTokenUsage[i, 0];
                 tokenUsageDisplayItem.Provider = savedTokenUsage[i, 1];
                 tokenUsageDisplayItem.GptVersion = savedTokenUsage[i, 2];
-                tokenUsageDisplayItem.TokensUsed = savedTokenUsage[i, 3];
+                tokenUsageDisplayItem.TokensUsed = int.Parse(savedTokenUsage[i, 3]).ToString("N0");
                 TokenUsageDisplayItems.Add(tokenUsageDisplayItem);
             }
             TokenUsageDataGrid.ItemsSource = TokenUsageDisplayItems;
