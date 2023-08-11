@@ -73,8 +73,8 @@ namespace OpenAIOnWPF
             }
 
             // Settingsから指示内容リストを取得しセット
-            InstructionComboBox.ItemsSource = SetupInstructionComboBox();
-            InstructionComboBox.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
+            SystemPromptComboBox.ItemsSource = SetupInstructionComboBox();
+            SystemPromptComboBox.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
             SystemPromptComboBox2.ItemsSource = SetupInstructionComboBox();
             SystemPromptComboBox2.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
  
@@ -172,16 +172,16 @@ namespace OpenAIOnWPF
             if (ConfigurationComboBox.SelectedItem == null) return;
             AppSettings.SelectConfigSetting = ConfigurationComboBox.SelectedItem.ToString();
         }
-        private void InstructionComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void SystemPromptComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             // SystemPromptComboBox2で選択しているのと同じ内容をInstructionComboBoxにセット
-            SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
-            if (InstructionComboBox.SelectedItem == "")
+            SystemPromptComboBox2.SelectedIndex = SystemPromptComboBox.SelectedIndex;
+            if (SystemPromptComboBox.SelectedItem == "")
             {
                 AppSettings.InstructionSetting = "";
                 return;
             }
-            AppSettings.InstructionSetting = InstructionComboBox.SelectedItem.ToString();
+            AppSettings.InstructionSetting = SystemPromptComboBox.SelectedItem.ToString();
             // ツールチップに内容を表示
             string selectInstructionContent = "";
             if (!String.IsNullOrEmpty(AppSettings.InstructionSetting))
@@ -190,13 +190,13 @@ namespace OpenAIOnWPF
                 int index = Array.IndexOf(instructionList, AppSettings.InstructionSetting);
                 selectInstructionContent = AppSettings.InstructionListSetting[index, 1];
             }
-            InstructionComboBox.ToolTip = "# " + AppSettings.InstructionSetting + "\r\n"
-                                            + selectInstructionContent;
+            SystemPromptComboBox.ToolTip = "# " + AppSettings.InstructionSetting + "\r\n"
+                                          + selectInstructionContent;
         }
         private void SystemPromptComboBox2_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // SystemPromptComboBox2で選択しているのと同じ内容をInstructionComboBoxにセット
-            InstructionComboBox.SelectedIndex = SystemPromptComboBox2.SelectedIndex;
+            SystemPromptComboBox.SelectedIndex = SystemPromptComboBox2.SelectedIndex;
 
             // 選択した内容を元にContentsTextBoxに値を格納
             string selectInstructionContent = "";
@@ -252,7 +252,8 @@ namespace OpenAIOnWPF
                 string[] instructionList = AppSettings.InstructionListSetting?.Cast<string>().Where((s, i) => i % 2 == 0).ToArray();
                 Array.Resize(ref instructionList, instructionList.Length + 1);
                 instructionList[instructionList.Length - 1] = "";
-                InstructionComboBox.ItemsSource = instructionList;
+                SystemPromptComboBox.ItemsSource = instructionList;
+                SystemPromptComboBox2.ItemsSource = instructionList;
             }
         }
         private void ColorMenuItem_Click(object sender, RoutedEventArgs e)
@@ -662,7 +663,7 @@ namespace OpenAIOnWPF
                 SystemPromptSplitter.Visibility = Visibility.Visible;
                 OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
                 // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
-                SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
+                SystemPromptComboBox2.SelectedIndex = SystemPromptComboBox.SelectedIndex;
             }
             else
             {
@@ -711,7 +712,7 @@ namespace OpenAIOnWPF
                 OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
                 AppSettings.IsSystemPromptColumnVisible = true;
                 // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
-                SystemPromptComboBox2.SelectedIndex = InstructionComboBox.SelectedIndex;
+                SystemPromptComboBox2.SelectedIndex = SystemPromptComboBox.SelectedIndex;
             }
             if (AppSettings.IsConversationColumnVisible == true)
             {
