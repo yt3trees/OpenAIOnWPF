@@ -15,7 +15,6 @@
     KeyDown="Window_KeyDown"
     Loaded="AcrylicWindow_Loaded"
     ShowInTaskbar="False"
-    SizeToContent="Height"
     WindowStartupLocation="CenterOwner"
     WindowStyle="None"
     mc:Ignorable="d">

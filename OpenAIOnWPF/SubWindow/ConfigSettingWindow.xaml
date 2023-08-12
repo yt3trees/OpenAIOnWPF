@@ -272,4 +272,7 @@
             </Grid>
         </Grid>
     </Grid>
+    <fw:AcrylicWindow.Background>
+        <SolidColorBrush Opacity="0.3" Color="{DynamicResource SystemChromeLowColor}" />
+    </fw:AcrylicWindow.Background>
 </fw:AcrylicWindow>

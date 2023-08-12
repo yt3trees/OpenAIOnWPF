@@ -270,33 +270,8 @@ namespace OpenAIOnWPF
         }
         private void AcrylicWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            var window = this;
-            if (window == null) return;
-
-            System.Windows.Forms.Screen currentScreen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(window).Handle);
-            Rect workingArea = new Rect(currentScreen.WorkingArea.X, currentScreen.WorkingArea.Y, currentScreen.WorkingArea.Width, currentScreen.WorkingArea.Height);
-
-            // ウィンドウのDPIを取得
-            PresentationSource source = PresentationSource.FromVisual(window);
-            if (source == null) return;
-            Matrix transformToDevice = source.CompositionTarget.TransformToDevice;
-            double dpiX = transformToDevice.M11;
-            double dpiY = transformToDevice.M22;
-
-            // 親ウィンドウと同じ高さにする
-            window.MaxHeight = window.Owner.Height;
-
-            // DPIを考慮してウィンドウの位置を画面の中央にする
-            if (window.IsLoaded)
-            {
-                window.Top = Math.Max(workingArea.Top / dpiY, Math.Min((workingArea.Bottom / dpiY) - window.Height, window.Top));
-                window.Left = Math.Max(workingArea.Left / dpiX, Math.Min((workingArea.Right / dpiX) - window.Width, window.Left));
-            }
-            else
-            {
-                window.Top = ((workingArea.Height / dpiY) - window.Height) / 2;
-                window.Left = ((workingArea.Width / dpiX) - window.Width) / 2;
-            }
+            this.Height = this.Owner.Height;
+            this.Top = this.Owner.Top;
         }
         /// <summary>
         /// 親のScrollViewerでスクロールする(Gridをセル単位ではなくピクセル単位でスクロールできるようにする)
