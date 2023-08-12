@@ -262,5 +262,101 @@ namespace OpenAIOnWPF.Properties {
                 this["FontSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://api-free.deepl.com/v2/translate")]
+        public string TranslationAPIUrlDeepL {
+            get {
+                return ((string)(this["TranslationAPIUrlDeepL"]));
+            }
+            set {
+                this["TranslationAPIUrlDeepL"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TranslationAPIKeyDeepL {
+            get {
+                return ((string)(this["TranslationAPIKeyDeepL"]));
+            }
+            set {
+                this["TranslationAPIKeyDeepL"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TranslationAPIUseFlg {
+            get {
+                return ((bool)(this["TranslationAPIUseFlg"]));
+            }
+            set {
+                this["TranslationAPIUseFlg"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("JA")]
+        public string FromTranslationLanguage {
+            get {
+                return ((string)(this["FromTranslationLanguage"]));
+            }
+            set {
+                this["FromTranslationLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("EN")]
+        public string ToTranslationLanguage {
+            get {
+                return ((string)(this["ToTranslationLanguage"]));
+            }
+            set {
+                this["ToTranslationLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("DeepL")]
+        public string TranslationAPIProvider {
+            get {
+                return ((string)(this["TranslationAPIProvider"]));
+            }
+            set {
+                this["TranslationAPIProvider"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://translation.googleapis.com/language/translate/v2")]
+        public string TranslationAPIUrlGoogle {
+            get {
+                return ((string)(this["TranslationAPIUrlGoogle"]));
+            }
+            set {
+                this["TranslationAPIUrlGoogle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TranslationAPIKeyGoogle {
+            get {
+                return ((string)(this["TranslationAPIKeyGoogle"]));
+            }
+            set {
+                this["TranslationAPIKeyGoogle"] = value;
+            }
+        }
     }
 }

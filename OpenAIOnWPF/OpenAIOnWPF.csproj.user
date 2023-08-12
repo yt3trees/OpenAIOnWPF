@@ -10,12 +10,18 @@
     <Compile Update="SubWindow\TitleEditWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="SubWindow\TranslationAPISettingWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="SubWindow\TitleEditWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SubWindow\TranslationAPISettingWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

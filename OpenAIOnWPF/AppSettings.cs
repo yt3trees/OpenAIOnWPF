@@ -16,6 +16,14 @@ namespace OpenAIOnWPF
         public static bool UseConversationHistoryFlg = Properties.Settings.Default.UseConversationHistory;
         public static ConversationManager ConversationManager { get; set; } 
         public static bool NoticeFlgSetting { get; set; } = Properties.Settings.Default.NoticeFlg;
+        public static string TranslationAPIProvider { get; set; } = Properties.Settings.Default.TranslationAPIProvider;
+        public static bool TranslationAPIUseFlg { get; set; } = Properties.Settings.Default.TranslationAPIUseFlg;
+        public static string FromTranslationLanguage { get; set; } = Properties.Settings.Default.FromTranslationLanguage;
+        public static string ToTranslationLanguage { get; set; } = Properties.Settings.Default.ToTranslationLanguage;
+        public static string TranslationAPIUrlDeepL { get; set; } = Properties.Settings.Default.TranslationAPIUrlDeepL;
+        public static string TranslationAPIKeyDeepL { get; set; } = Properties.Settings.Default.TranslationAPIKeyDeepL;
+        public static string TranslationAPIUrlGoogle { get; set; } = Properties.Settings.Default.TranslationAPIUrlGoogle;
+        public static string TranslationAPIKeyGoogle { get; set; } = Properties.Settings.Default.TranslationAPIKeyGoogle;
         public static string? ApiKeySetting { get; set; }
         public static string? ModelSetting { get; set; }
         public static string? ProviderSetting { get; set; }

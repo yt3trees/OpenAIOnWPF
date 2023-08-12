@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -22,6 +23,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Input.Manipulations;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using static OpenAIOnWPF.UtilityFunctions;
 
@@ -77,7 +79,6 @@ namespace OpenAIOnWPF
             SystemPromptComboBox.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
             SystemPromptComboBox2.ItemsSource = SetupInstructionComboBox();
             SystemPromptComboBox2.Text = String.IsNullOrEmpty(AppSettings.InstructionSetting) ? "" : AppSettings.InstructionSetting;
- 
 
             var appSettings = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.PerUserRoamingAndLocal);
             Debug.Print("Path to save the configuration file:" + appSettings.FilePath);
@@ -92,6 +93,15 @@ namespace OpenAIOnWPF
             MessageScrollViewer.ScrollToBottom();
 
             InitializeSystemPromptColumn();
+
+            if (AppSettings.TranslationAPIUseFlg == true)
+            {
+                TranslateAPIGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+            }
+            else
+            {
+                TranslateAPIGridColumn.Width = new GridLength(0);
+            }
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -102,6 +112,12 @@ namespace OpenAIOnWPF
                 window.ShowDialog();
             }
             if (e.Key == Key.F3)
+            {
+                var window = new TranslationAPISettingWindow();
+                window.Owner = this;
+                window.ShowDialog();
+            }
+            if (e.Key == Key.F4)
             {
                 var window = new ConfigSettingWindow();
                 window.Owner = this;
@@ -138,10 +154,16 @@ namespace OpenAIOnWPF
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            //ctrl+enterで送信
             if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 _ = ProcessOpenAIAsync();
+            }
+            else if (e.Key == Key.Enter && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Alt))
+            {
+                if (AppSettings.TranslationAPIUseFlg == true)
+                {
+                    TranslateButton_Click(sender, e);
+                }
             }
         }
         private void ExecButton_Click(object sender, RoutedEventArgs e)
@@ -259,6 +281,12 @@ namespace OpenAIOnWPF
         private void ColorMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var window = new ColorSettings();
+            window.Owner = this;
+            window.ShowDialog();
+        }
+        private void TranslationAPIMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new TranslationAPISettingWindow();
             window.Owner = this;
             window.ShowDialog();
         }
@@ -390,7 +418,7 @@ namespace OpenAIOnWPF
                     TextWrapping = TextWrapping.Wrap,
                     Text = messageContent
                 };
-                userTextBlock.MouseDown += UserTextBlock_MouseDown; 
+                userTextBlock.MouseDown += UserTextBlock_MouseDown;
 
                 ContextMenu contextMenu = CreateContextMenu();
                 userTextBlock.ContextMenu = contextMenu;
@@ -414,7 +442,7 @@ namespace OpenAIOnWPF
                 var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(messageContent, pipeline);
                 var richTextBox = new RichTextBox
                 {
-                    Padding = new Thickness(5,10,5,10),
+                    Padding = new Thickness(5, 10, 5, 10),
                     HorizontalContentAlignment = HorizontalAlignment.Left,
                     Document = flowDocument
                 };
@@ -456,7 +484,7 @@ namespace OpenAIOnWPF
         {
             ContextMenu contextMenu = new ContextMenu();
 
-            MenuItem copyTextMenuItem = new MenuItem { Header = "Copy Text" };
+            MenuItem copyTextMenuItem = new MenuItem();
             copyTextMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy);
             Button copyTextButton = new Button { Content = "Copy Text", Background = Brushes.Transparent };
             Action copyTextAndCloseMenu = () =>
@@ -531,6 +559,129 @@ namespace OpenAIOnWPF
                     }
                 }
             }
+
+            MenuItem translateMenuItem = new MenuItem();
+            translateMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Globe);
+            Button translateButton = new Button { Content = "Translate", Background = Brushes.Transparent };
+            Action translateTextAndCloseMenu = () =>
+            {
+                TranslateText(contextMenu.PlacementTarget);
+                contextMenu.IsOpen = false;
+            };
+            translateButton.Click += (s, e) => translateTextAndCloseMenu();
+            translateMenuItem.Click += (s, e) => translateTextAndCloseMenu();
+            translateMenuItem.Header = translateButton;
+            translateMenuItem.Visibility = AppSettings.TranslationAPIUseFlg ? Visibility.Visible : Visibility.Collapsed;
+
+            async void TranslateText(object target)
+            {
+                Storyboard? animation = null;
+                if (target is TextBlock textBlock)
+                {
+                    try
+                    {
+                        animation = CreateOpacityAnimation(textBlock);
+                        animation.Begin();
+
+                        string text = textBlock.Text;
+                        string text2 = await TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
+
+                        text2 = text2.TrimEnd('\r', '\n');
+                        textBlock.Text = text2;
+                    }
+                    catch (Exception ex)
+                    {
+                        ModernWpf.MessageBox.Show(ex.Message);
+                    }
+                    finally
+                    {
+                        animation?.Stop();
+                        textBlock.Opacity = 1.0;
+                    }
+                }
+                else if (target is RichTextBox richTextBox)
+                {
+                    try
+                    {
+                        animation = CreateOpacityAnimation(richTextBox);
+                        animation.Begin();
+
+                        // 元のRichTextBoxのデータ(ListItem、Paragraph、Text)を保存するリスト
+                        List<(ListItem listItem, Paragraph paragraph, string text)> originalData = new List<(ListItem listItem, Paragraph paragraph, string text)>();
+                        foreach (Block block in richTextBox.Document.Blocks)
+                        {
+                            // 各ブロックを処理して、originalDataリストにデータを追加
+                            ProcessBlocks(new List<Block> { block }, originalData);
+                        }
+
+                        // 元のデータの各アイテムを翻訳
+                        foreach (var (listItem, paragraph, text) in originalData)
+                        {
+                            string translatedText = await TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
+                            translatedText = translatedText.TrimEnd('\r', '\n');
+
+                            // パラグラフが存在する場合、翻訳されたテキストで更新
+                            if (paragraph != null)
+                            {
+                                paragraph.Inlines.Clear();
+                                paragraph.Inlines.Add(new Run(translatedText));
+                            }
+                            // リストアイテムが存在する場合、翻訳されたテキストで更新
+                            else if (listItem != null && listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
+                            {
+                                listItemParagraph.Inlines.Clear();
+                                listItemParagraph.Inlines.Add(new Run(translatedText));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ModernWpf.MessageBox.Show(ex.Message);
+                    }
+                    finally
+                    {
+                        animation?.Stop();
+                        richTextBox.Opacity = 1.0;
+                    }
+                }
+            }
+            void ProcessBlocks(IEnumerable<Block> blocks, List<(ListItem listItem, Paragraph paragraph, string text)> originalData)
+            {
+                foreach (Block block in blocks)
+                {
+                    // ブロックが独立した段落(リストアイテムの一部ではない)であるかを確認
+                    if (block is Paragraph paragraph && !(block.Parent is ListItem))
+                    {
+                        string paragraphText = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.Trim();
+                        originalData.Add((null, paragraph, paragraphText));
+                    }
+                    else if (block is List list)
+                    {
+                        foreach (ListItem listItem in list.ListItems)
+                        {
+                            // リストアイテムの最初のブロックが段落であるかを確認
+                            if (listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
+                            {
+                                string listItemText = new TextRange(listItemParagraph.ContentStart, listItemParagraph.ContentEnd).Text.Trim();
+                                // リストアイテムのテキストから番号または箇条書きを削除
+                                var match = Regex.Match(listItemText, @"^(\d+\.\s+|•\s+)");
+                                if (match.Success)
+                                {
+                                    listItemText = listItemText.Substring(match.Length);
+                                }
+                                originalData.Add((listItem, null, listItemText));
+                            }
+                            // リストアイテム内のブロックを再帰的に処理
+                            ProcessBlocks(listItem.Blocks, originalData);
+                        }
+                    }
+                    else if (block is Section section)
+                    {
+                        ProcessBlocks(section.Blocks, originalData);
+                    }
+                }
+            }
+            contextMenu.Items.Add(translateMenuItem);
 
             return contextMenu;
         }
@@ -826,6 +977,33 @@ namespace OpenAIOnWPF
                 this.Topmost = true;
                 this.Topmost = false;
             });
+        }
+        private async void TranslateButton_Click(object sender, RoutedEventArgs e)
+        {
+            Storyboard? animation = null;
+            Color initialTextColor;
+            try
+            {
+                TranslateButton.IsEnabled = false;
+                TranslationProgressRing.IsActive = true;
+                animation = CreateTextColorAnimation(UserTextBox, out initialTextColor);
+                animation.Begin();
+
+                string resultText = await TranslateAPIRequestAsync(UserTextBox.Text, AppSettings.ToTranslationLanguage);
+                UserTextBox.Text = resultText;
+                UserTextBox.CaretIndex = UserTextBox.Text.Length;
+            }
+            catch (Exception ex)
+            {
+                ModernWpf.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                TranslateButton.IsEnabled = true;
+                TranslationProgressRing.IsActive = false;
+                animation?.Stop();
+                UserTextBox.Foreground = new SolidColorBrush(initialTextColor);  
+            }
         }
     }
 }

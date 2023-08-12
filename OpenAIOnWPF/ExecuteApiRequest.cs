@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using ModernWpf;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenAI;
 using OpenAI.Managers;
 using OpenAI.ObjectModels.RequestModels;
@@ -13,12 +14,14 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Google.Cloud.Translation.V2;
 using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
@@ -111,6 +114,7 @@ namespace OpenAIOnWPF
 
             responseText = "";
             ExecButton.IsEnabled = false;
+            TranslateButton.IsEnabled = false;
 
             ForTokenCalc.oldConversationsToken = "";
             ForTokenCalc.systemPromptToken = "";
@@ -123,6 +127,7 @@ namespace OpenAIOnWPF
             TimeLabel.Content = $"{stopWatch.ElapsedMilliseconds.ToString("N0")} ms";
             stopWatch.Reset();
             ExecButton.IsEnabled = true;
+            TranslateButton.IsEnabled = true;
             ProgressRing.IsActive = false;
             UserTextBox.Text = "";
             isProcessing = false;
@@ -514,6 +519,75 @@ namespace OpenAIOnWPF
             }
 
             return newArray;
+        }
+        private async Task<string> TranslateAPIRequestAsync(string inputText, string targetLang)
+        {
+            if (AppSettings.TranslationAPIProvider == "DeepL")
+            {
+                if (string.IsNullOrWhiteSpace(AppSettings.TranslationAPIKeyDeepL))
+                {
+                    throw new Exception("Translate API Key is not set.");
+                }
+                if (string.IsNullOrWhiteSpace(AppSettings.TranslationAPIUrlDeepL))
+                {
+                    throw new Exception("Translate API URL is not set.");
+                }
+
+                using (var client = new HttpClient())
+                {
+                    try
+                    {
+                        var content = new FormUrlEncodedContent(new[]
+                        {
+                        new KeyValuePair<string, string>("text", inputText),
+                        new KeyValuePair<string, string>("target_lang", targetLang),
+                    });
+
+                        client.DefaultRequestHeaders.Add("Authorization", $"DeepL-Auth-Key {AppSettings.TranslationAPIKeyDeepL}");
+
+                        var response = await client.PostAsync(AppSettings.TranslationAPIUrlDeepL, content);
+                        var responseBody = await response.Content.ReadAsStringAsync();
+
+                        var json = JObject.Parse(responseBody);
+                        return json["translations"][0]["text"].ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"API request failed: {ex.Message}");
+                    }
+                }
+            }
+            else if (AppSettings.TranslationAPIProvider == "Google")
+            {
+                if (string.IsNullOrWhiteSpace(AppSettings.TranslationAPIKeyGoogle))
+                {
+                    throw new Exception("Translate API Key is not set.");
+                }
+                if (string.IsNullOrWhiteSpace(AppSettings.TranslationAPIUrlGoogle))
+                {
+                    throw new Exception("Translate API URL is not set.");
+                }
+
+                using (var client = TranslationClient.CreateFromApiKey(AppSettings.TranslationAPIKeyGoogle))
+                {
+                    try
+                    {
+                        TranslationResult translationResult = await client.TranslateTextAsync(
+                                                        text: inputText,
+                                                        targetLanguage: targetLang,
+                                                        model: TranslationModel.NeuralMachineTranslation);
+                        return translationResult.TranslatedText;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"API request failed: {ex.Message}");
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception("Translation API Provider is not set.");
+            }
         }
     }
 }

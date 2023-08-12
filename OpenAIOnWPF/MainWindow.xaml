@@ -244,6 +244,15 @@
                                 <ui:SymbolIcon Symbol="Highlight" />
                             </MenuItem.Icon>
                         </MenuItem>
+                        <MenuItem
+                            x:Name="TranslationAPIMenuItem"
+                            Click="TranslationAPIMenuItem_Click"
+                            Header="Translation API"
+                            InputGestureText="F3">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="Globe" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </MenuItem>
                 </Menu>
             </Grid>
@@ -508,6 +517,7 @@
                     <Grid Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition x:Name="TranslateAPIGridColumn" Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox
@@ -531,8 +541,30 @@
                             </TextBox.Background>
                         </TextBox>
                         <Button
-                            x:Name="ExecButton"
+                            x:Name="TranslateButton"
                             Grid.Column="1"
+                            Width="43"
+                            Margin="5,0,0,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            fw:RevealElement.BorderRadius="4"
+                            Click="TranslateButton_Click"
+                            Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            ToolTip="Translate (Ctrl+Alt+Enter)">
+                            <ui:SymbolIcon Symbol="Globe" />
+                        </Button>
+                        <ui:ProgressRing
+                            x:Name="TranslationProgressRing"
+                            Grid.Column="1"
+                            Width="43"
+                            Height="30"
+                            Margin="5,0,0,0"
+                            IsActive="False"
+                            Opacity="0.9" />
+                        <Button
+                            x:Name="ExecButton"
+                            Grid.Column="2"
                             Width="43"
                             Margin="5,0,0,0"
                             HorizontalAlignment="Stretch"
@@ -540,16 +572,16 @@
                             fw:RevealElement.BorderRadius="4"
                             Click="ExecButton_Click"
                             Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
-                            Style="{StaticResource ButtonRevealStyle}">
+                            Style="{StaticResource ButtonRevealStyle}"
+                            ToolTip="Send message (Ctrl+Enter)">
                             <ui:SymbolIcon Symbol="Send" />
                         </Button>
                         <ui:ProgressRing
                             x:Name="ProgressRing"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             Width="43"
                             Height="30"
                             Margin="5,0,0,0"
-                            HorizontalAlignment="Left"
                             IsActive="False"
                             Opacity="0.9" />
                     </Grid>

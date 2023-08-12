@@ -62,5 +62,29 @@
     <Setting Name="FontSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>
     </Setting>
+    <Setting Name="TranslationAPIUrlDeepL" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://api-free.deepl.com/v2/translate</Value>
+    </Setting>
+    <Setting Name="TranslationAPIKeyDeepL" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TranslationAPIUseFlg" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="FromTranslationLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">JA</Value>
+    </Setting>
+    <Setting Name="ToTranslationLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">EN</Value>
+    </Setting>
+    <Setting Name="TranslationAPIProvider" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DeepL</Value>
+    </Setting>
+    <Setting Name="TranslationAPIUrlGoogle" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://translation.googleapis.com/language/translate/v2</Value>
+    </Setting>
+    <Setting Name="TranslationAPIKeyGoogle" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

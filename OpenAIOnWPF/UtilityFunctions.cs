@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace OpenAIOnWPF
 {
@@ -28,6 +30,14 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.UseConversationHistory = AppSettings.UseConversationHistoryFlg;
             Properties.Settings.Default.IsSystemPromptColumnVisible = AppSettings.IsSystemPromptColumnVisible;
             Properties.Settings.Default.IsConversationColumnVisible = AppSettings.IsConversationColumnVisible;
+            Properties.Settings.Default.TranslationAPIProvider = AppSettings.TranslationAPIProvider;
+            Properties.Settings.Default.TranslationAPIUseFlg = AppSettings.TranslationAPIUseFlg;
+            Properties.Settings.Default.FromTranslationLanguage = AppSettings.FromTranslationLanguage;
+            Properties.Settings.Default.ToTranslationLanguage = AppSettings.ToTranslationLanguage;
+            Properties.Settings.Default.TranslationAPIUrlDeepL = AppSettings.TranslationAPIUrlDeepL;
+            Properties.Settings.Default.TranslationAPIKeyDeepL = AppSettings.TranslationAPIKeyDeepL;
+            Properties.Settings.Default.TranslationAPIUrlGoogle = AppSettings.TranslationAPIUrlGoogle;
+            Properties.Settings.Default.TranslationAPIKeyGoogle = AppSettings.TranslationAPIKeyGoogle;
             Properties.Settings.Default.Save();
             SaveConversationsAsJson(AppSettings.ConversationManager);
         }
@@ -117,6 +127,51 @@ namespace OpenAIOnWPF
             window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             bool result = (bool)window.ShowDialog();
             return result ? window.inputResult : "";
+        }
+        public static Storyboard CreateOpacityAnimation(DependencyObject target)
+        {
+            var animation = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.5,
+                Duration = TimeSpan.FromSeconds(1), // 1秒で1.0から0.5へ変化
+                AutoReverse = true,  // 0.5に達した後、再び1に戻る
+                RepeatBehavior = RepeatBehavior.Forever // 無限に繰り返す
+            };
+
+            Storyboard.SetTarget(animation, target);
+            Storyboard.SetTargetProperty(animation, new PropertyPath("Opacity"));
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+
+            return storyboard;
+        }
+        public static Storyboard CreateTextColorAnimation(TextBox textBox, out Color initialColor)
+        {
+            // TextBoxの初期のForegroundの色を取得
+            initialColor = (textBox.Foreground as SolidColorBrush).Color;
+
+            // 透明度を50%に設定
+            Color startColor = initialColor;
+            startColor.A = (byte)(255 * 0.5);
+
+            var animation = new ColorAnimation
+            {
+                From = initialColor,
+                To = startColor,
+                Duration = TimeSpan.FromSeconds(1),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            Storyboard.SetTarget(animation, textBox);
+            Storyboard.SetTargetProperty(animation, new PropertyPath("Foreground.Color"));
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+
+            return storyboard;
         }
         public static string SerializeArray(string[,] array)
         {
