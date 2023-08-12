@@ -283,8 +283,8 @@ namespace OpenAIOnWPF
             double dpiX = transformToDevice.M11;
             double dpiY = transformToDevice.M22;
 
-            // DPIを考慮してウィンドウの高さがウィンドウ内に収まるようにする
-            window.MaxHeight = (workingArea.Height / dpiY) - 40;
+            // 親ウィンドウと同じ高さにする
+            window.MaxHeight = window.Owner.Height;
 
             // DPIを考慮してウィンドウの位置を画面の中央にする
             if (window.IsLoaded)
