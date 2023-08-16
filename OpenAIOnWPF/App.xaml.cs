@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace OpenAIOnWPF
@@ -21,11 +23,22 @@ namespace OpenAIOnWPF
                 _mutex = null;
                 Application.Current.Shutdown();
             }
+
+            DispatcherUnhandledException += (s, args) => HandleException(args.Exception);
+            TaskScheduler.UnobservedTaskException += (s, args) => HandleException(args.Exception?.InnerException);
+            AppDomain.CurrentDomain.UnhandledException += (s, args) => HandleException(args.ExceptionObject as Exception);
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             _mutex?.ReleaseMutex();
+        }
+        private void HandleException(Exception e)
+        {
+            if (e == null) return;
+
+            ModernWpf.MessageBox.Show($"An error has occurred.\n{e}", "Abnormal termination", MessageBoxButton.OK, MessageBoxImage.Error);
+            Environment.Exit(1);
         }
     }
 }
