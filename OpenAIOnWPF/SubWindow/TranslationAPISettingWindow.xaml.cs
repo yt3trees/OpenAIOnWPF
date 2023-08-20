@@ -55,12 +55,14 @@ namespace OpenAIOnWPF
             if (AppSettings.TranslationAPIUseFlg == false)
             {
                 UseTranslateAPIToggleSwitch.IsOn = false;
-                mainWindow.TranslateAPIGridColumn.Width = new GridLength(0);
+                mainWindow.TranslateButton.Visibility = Visibility.Collapsed;
+                mainWindow.UserTextBox.Padding = new Thickness(10, 10, 10, 10);
             }
             else
             {
                 UseTranslateAPIToggleSwitch.IsOn = true;
-                mainWindow.TranslateAPIGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                mainWindow.TranslateButton.Visibility = Visibility.Visible;
+                mainWindow.UserTextBox.Padding = new Thickness(10, 10, 30, 10);
             }
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -95,11 +97,13 @@ namespace OpenAIOnWPF
         {
             if (UseTranslateAPIToggleSwitch.IsOn == false)
             {
-                mainWindow.TranslateAPIGridColumn.Width = new GridLength(0);
+                mainWindow.TranslateButton.Visibility = Visibility.Collapsed;
+                mainWindow.UserTextBox.Padding = new Thickness(10, 10, 10, 10);
             }
             else
             {
-                mainWindow.TranslateAPIGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                mainWindow.TranslateButton.Visibility = Visibility.Visible;
+                mainWindow.UserTextBox.Padding = new Thickness(10, 10, 30, 10);
             }
         }
         private void TranslationAPIProviderComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

@@ -517,7 +517,6 @@
                     <Grid Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition x:Name="TranslateAPIGridColumn" Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox
@@ -542,29 +541,31 @@
                         </TextBox>
                         <Button
                             x:Name="TranslateButton"
-                            Grid.Column="1"
-                            Width="43"
-                            Margin="5,0,0,0"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
+                            Grid.Column="0"
+                            Height="30"
+                            MaxHeight="180"
+                            Margin="0,0,5,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
                             fw:RevealElement.BorderRadius="4"
+                            Background="Transparent"
                             Click="TranslateButton_Click"
                             Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                            Opacity="0.7"
                             Style="{StaticResource ButtonRevealStyle}"
                             ToolTip="Translate (Ctrl+Alt+Enter)">
-                            <ui:SymbolIcon Symbol="Globe" />
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Width="22">
+                                    <ui:SymbolIcon
+                                        Margin="5,5,5,5"
+                                        Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                                        Symbol="Globe" />
+                                </Viewbox>
+                            </StackPanel>
                         </Button>
-                        <ui:ProgressRing
-                            x:Name="TranslationProgressRing"
-                            Grid.Column="1"
-                            Width="43"
-                            Height="30"
-                            Margin="5,0,0,0"
-                            IsActive="False"
-                            Opacity="0.9" />
                         <Button
                             x:Name="ExecButton"
-                            Grid.Column="2"
+                            Grid.Column="1"
                             Width="43"
                             Margin="5,0,0,0"
                             HorizontalAlignment="Stretch"
@@ -578,7 +579,7 @@
                         </Button>
                         <ui:ProgressRing
                             x:Name="ProgressRing"
-                            Grid.Column="2"
+                            Grid.Column="1"
                             Width="43"
                             Height="30"
                             Margin="5,0,0,0"

@@ -50,7 +50,7 @@ namespace OpenAIOnWPF
         /// APIを実行
         /// </summary>
         /// <returns></returns>
-        private async Task ProcessOpenAIAsync()
+        private async Task ProcessOpenAIAsync(string prompt)
         {
             Debug.Print("===== Start processing =====");
             if (isProcessing)
@@ -71,7 +71,8 @@ namespace OpenAIOnWPF
                 }
 
                 var openAiService = CreateOpenAiService();
-                var messages = PrepareMessages();
+                userMessage = prompt;
+                var messages = PrepareMessages(prompt);
                 tempMessages = messages;
 
                 if (1 == 2)
@@ -208,9 +209,8 @@ namespace OpenAIOnWPF
             return openAiService;
         }
 
-        private List<ChatMessage> PrepareMessages()
+        private List<ChatMessage> PrepareMessages(string userMessage)
         {
-            userMessage = UserTextBox.Text;
             // システムプロンプトペインが開かれている場合はペイン内のテキストボックスの値をシステムプロンプトとして使用する
             if (AppSettings.IsSystemPromptColumnVisible == true)
             {
@@ -309,15 +309,25 @@ namespace OpenAIOnWPF
         }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
+            // 再生成ボタンを非表示にする
+            List<System.Windows.Controls.Button> foundButtons = new List<System.Windows.Controls.Button>();
+            foreach (var child in GetAllChildren(MessagesPanel))
+            {
+                if (child is System.Windows.Controls.Button button && (string)button.Tag == "RegenerateButton")
+                {
+                    button.Visibility = Visibility.Collapsed;
+                }
+            }
+
             // Userメッセージ
-            var messageElement = CreateMessageElement(userMessage, isUser: true);
+            var messageElement = CreateMessageElement(userMessage, isUser: true, isLastMessage: false);
             MessagesPanel.Children.Add(messageElement);
 
             // Assistantメッセージ
             FrameworkElement assistantMessageElement = null;
             await Dispatcher.InvokeAsync(() =>
             {
-                assistantMessageElement = CreateMessageElement("", isUser: false); // 要素だけ生成しておく
+                assistantMessageElement = CreateMessageElement("", isUser: false, isLastMessage: true); // 要素だけ生成しておく
                 MessagesPanel.Children.Add(assistantMessageElement);
             });
             // Grid内のRichTextBox要素を検索
@@ -520,7 +530,7 @@ namespace OpenAIOnWPF
 
             return newArray;
         }
-        private async Task<string> TranslateAPIRequestAsync(string inputText, string targetLang)
+        public async Task<string> TranslateAPIRequestAsync(string inputText, string targetLang)
         {
             if (AppSettings.TranslationAPIProvider == "DeepL")
             {

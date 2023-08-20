@@ -96,11 +96,13 @@ namespace OpenAIOnWPF
 
             if (AppSettings.TranslationAPIUseFlg == true)
             {
-                TranslateAPIGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                TranslateButton.Visibility = Visibility.Visible;
+                UserTextBox.Padding = new Thickness(10, 10, 30, 10);
             }
             else
             {
-                TranslateAPIGridColumn.Width = new GridLength(0);
+                TranslateButton.Visibility = Visibility.Collapsed;
+                UserTextBox.Padding = new Thickness(10, 10, 10, 10);
             }
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -156,7 +158,7 @@ namespace OpenAIOnWPF
         {
             if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                _ = ProcessOpenAIAsync();
+                _ = ProcessOpenAIAsync(UserTextBox.Text);
             }
             else if (e.Key == Key.Enter && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Alt))
             {
@@ -168,7 +170,7 @@ namespace OpenAIOnWPF
         }
         private void ExecButton_Click(object sender, RoutedEventArgs e)
         {
-            _ = ProcessOpenAIAsync();
+            _ = ProcessOpenAIAsync(UserTextBox.Text);
         }
         private void UserTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
@@ -373,11 +375,17 @@ namespace OpenAIOnWPF
                 return;
             }
 
-            foreach (var message in selectedConversation.Messages)
+            var targetMessages = selectedConversation.Messages;
+            for (int i = 0; i < targetMessages.Count; i++)
             {
+                var message = targetMessages[i];
+
                 if (message.Role == null) { break; }
+
                 bool isUser = message.Role == "user";
-                var messageElement = CreateMessageElement(message.Content, isUser);
+                bool isLastMessage = i == targetMessages.Count - 1;
+
+                var messageElement = CreateMessageElement(message.Content, isUser, isLastMessage);
                 MessagesPanel.Children.Add(messageElement);
             }
             MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
@@ -385,7 +393,7 @@ namespace OpenAIOnWPF
         /// <summary>
         /// メッセージの要素を作成する
         /// </summary>
-        private FrameworkElement CreateMessageElement(string messageContent, bool isUser)
+        private FrameworkElement CreateMessageElement(string messageContent, bool isUser, bool isLastMessage)
         {
             var accentColor = ThemeManager.Current.AccentColor;
             if (accentColor == null)
@@ -406,6 +414,61 @@ namespace OpenAIOnWPF
             };
             // グリッドのサイズが変更されたときにイベントを追加
             messageGrid.SizeChanged += MessageGrid_SizeChanged;
+
+            var copyIcon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy)
+            {
+                Foreground = (Brush)Application.Current.Resources["SystemBaseMediumHighColorBrush"]
+            };
+            Viewbox copyViewBox = new Viewbox
+            {
+                Width = 16,
+                Child = copyIcon
+            };
+            Button copyTextButton = new Button
+            {
+                Width = 30,
+                Opacity = 0.5,
+                Height = 30,
+                Content = copyViewBox,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(0),
+                Margin = new Thickness(0, 5, -30, 0),
+                Background = Brushes.Transparent,
+                Visibility = Visibility.Collapsed
+            };
+            copyTextButton.Click += (s, e) =>
+            {
+                CopyTextFromMessageGrid(messageGrid);
+                AnimateButtonOpacityToOriginal(copyTextButton, 0.5, TimeSpan.FromMilliseconds(500));
+            };
+            var translateIcon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Globe)
+            {
+                Foreground = (Brush)Application.Current.Resources["SystemBaseMediumHighColorBrush"]
+            };
+            Viewbox viewbox = new Viewbox
+            {
+                Width = 16,
+                Child = translateIcon
+            };
+            Button translateButton = new Button
+            {
+                Width = 30,
+                Opacity = 0.5,
+                Height = 30,
+                Content = viewbox,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Top,
+                Padding = new Thickness(0),
+                Margin = new Thickness(0, 5, -60, 0),
+                Background = Brushes.Transparent,
+                Visibility = Visibility.Collapsed
+            };
+            translateButton.Click += (s, e) =>
+            {
+                TranslateTextFromMessageGrid(messageGrid);
+                AnimateButtonOpacityToOriginal(translateButton, 0.5, TimeSpan.FromMilliseconds(500));
+            };
 
             if (isUser)
             {
@@ -431,6 +494,47 @@ namespace OpenAIOnWPF
                 Grid.SetColumnSpan(backgroundRect, 3);
                 messageGrid.Children.Add(backgroundRect);
                 Panel.SetZIndex(backgroundRect, -1);
+
+                Grid.SetColumn(copyTextButton, 1);
+                messageGrid.Children.Add(copyTextButton);
+
+                Grid.SetColumn(translateButton, 1);
+                messageGrid.Children.Add(translateButton);
+
+                userTextBlock.MouseEnter += ShowButtonOnMouseEnter;
+                userTextBlock.MouseLeave += HideButtonOnMouseLeave;
+                backgroundRect.MouseEnter += ShowButtonOnMouseEnter;
+                backgroundRect.MouseLeave += HideButtonOnMouseLeave;
+
+                // マウスが要素に入ったときにボタンを表示する
+                void ShowButtonOnMouseEnter(object s, MouseEventArgs e)
+                {
+                    copyTextButton.Visibility = Visibility.Visible;
+                    translateButton.Visibility = Visibility.Visible;
+                }
+                void HideButtonOnMouseLeave(object s, MouseEventArgs e)
+                {
+                    if (copyTextButton.IsMouseOver)
+                        return;
+                    if (translateButton.IsMouseOver)
+                        return;
+
+                    Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
+
+                    double topBoundary = userTextBlock.PointToScreen(new Point(0, 0)).Y;
+                    double bottomBoundary = userTextBlock.PointToScreen(new Point(0, userTextBlock.ActualHeight)).Y;
+
+                    if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
+                    {
+                        copyTextButton.Visibility = Visibility.Visible;
+                        translateButton.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        copyTextButton.Visibility = Visibility.Collapsed;
+                        translateButton.Visibility = Visibility.Collapsed;
+                    }
+                }
             }
             else
             {
@@ -454,6 +558,103 @@ namespace OpenAIOnWPF
 
                 Grid.SetColumn(richTextBox, 1);
                 messageGrid.Children.Add(richTextBox);
+
+                Rectangle backgroundRect = new Rectangle { Fill = Brushes.Transparent };
+                Grid.SetColumnSpan(backgroundRect, 3);
+                messageGrid.Children.Add(backgroundRect);
+                Panel.SetZIndex(backgroundRect, -1);
+
+                Grid.SetColumn(copyTextButton, 1);
+                messageGrid.Children.Add(copyTextButton);
+
+                Grid.SetColumn(translateButton, 1);
+                messageGrid.Children.Add(translateButton);
+
+                Button regenerateButton = null;
+                if (isLastMessage)
+                {
+                    var icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Sync)
+                    {
+                        Foreground = (Brush)Application.Current.Resources["SystemBaseMediumHighColorBrush"]
+                    };
+                    Viewbox viewBox = new Viewbox
+                    {
+                        Width = 16,
+                        Child = icon
+                    };
+                    regenerateButton = new Button
+                    {
+                        Tag = "RegenerateButton",
+                        Width = 30,
+                        Opacity = 0.5,
+                        Height = 30,
+                        Content = viewBox,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Padding = new Thickness(0),
+                        Margin = new Thickness(0, 5, -90, 0),
+                        Background = Brushes.Transparent,
+                        Visibility = Visibility.Collapsed
+                    };
+                    regenerateButton.Click += (s, e) =>
+                    {
+                        AnimateButtonOpacityToOriginal(regenerateButton, 0.5, TimeSpan.FromMilliseconds(500));
+                        RegenerateLatestResponse();
+                    };
+                    Grid.SetColumn(regenerateButton, 1);
+                    messageGrid.Children.Add(regenerateButton);
+                }
+
+                richTextBox.MouseEnter += ShowButtonOnMouseEnter;
+                richTextBox.MouseLeave += HideButtonOnMouseLeave;
+                backgroundRect.MouseEnter += ShowButtonOnMouseEnter;
+                backgroundRect.MouseLeave += HideButtonOnMouseLeave;
+
+                // マウスが要素に入ったときにボタンを表示する
+                void ShowButtonOnMouseEnter(object s, MouseEventArgs e)
+                {
+                    copyTextButton.Visibility = Visibility.Visible;
+                    translateButton.Visibility = Visibility.Visible;
+                    if (regenerateButton != null)
+                    {
+                        regenerateButton.Visibility = Visibility.Visible;
+                    }
+                }
+                void HideButtonOnMouseLeave(object s, MouseEventArgs e)
+                {
+                    if (copyTextButton.IsMouseOver)
+                        return;
+                    if (translateButton.IsMouseOver)
+                        return;
+                    if (regenerateButton != null && regenerateButton.IsMouseOver)
+                        return;
+
+                    Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
+                    if (PresentationSource.FromVisual(richTextBox) != null) // アプリケーションエラー対策
+                    {
+                        double topBoundary = richTextBox.PointToScreen(new Point(0, 0)).Y;
+                        double bottomBoundary = richTextBox.PointToScreen(new Point(0, richTextBox.ActualHeight)).Y;
+
+                        if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
+                        {
+                            copyTextButton.Visibility = Visibility.Visible;
+                            translateButton.Visibility = Visibility.Visible;
+                            if (regenerateButton != null)
+                            {
+                                regenerateButton.Visibility = Visibility.Visible;
+                            }
+                        }
+                        else
+                        {
+                            copyTextButton.Visibility = Visibility.Collapsed;
+                            translateButton.Visibility = Visibility.Collapsed;
+                            if (regenerateButton != null)
+                            {
+                                regenerateButton.Visibility = Visibility.Collapsed;
+                            }
+                        }
+                    }
+                }
             }
 
             return messageGrid;
@@ -573,114 +774,6 @@ namespace OpenAIOnWPF
             translateMenuItem.Header = translateButton;
             translateMenuItem.Visibility = AppSettings.TranslationAPIUseFlg ? Visibility.Visible : Visibility.Collapsed;
 
-            async void TranslateText(object target)
-            {
-                Storyboard? animation = null;
-                if (target is TextBlock textBlock)
-                {
-                    try
-                    {
-                        animation = CreateOpacityAnimation(textBlock);
-                        animation.Begin();
-
-                        string text = textBlock.Text;
-                        string text2 = await TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
-
-                        text2 = text2.TrimEnd('\r', '\n');
-                        textBlock.Text = text2;
-                    }
-                    catch (Exception ex)
-                    {
-                        ModernWpf.MessageBox.Show(ex.Message);
-                    }
-                    finally
-                    {
-                        animation?.Stop();
-                        textBlock.Opacity = 1.0;
-                    }
-                }
-                else if (target is RichTextBox richTextBox)
-                {
-                    try
-                    {
-                        animation = CreateOpacityAnimation(richTextBox);
-                        animation.Begin();
-
-                        // 元のRichTextBoxのデータ(ListItem、Paragraph、Text)を保存するリスト
-                        List<(ListItem listItem, Paragraph paragraph, string text)> originalData = new List<(ListItem listItem, Paragraph paragraph, string text)>();
-                        foreach (Block block in richTextBox.Document.Blocks)
-                        {
-                            // 各ブロックを処理して、originalDataリストにデータを追加
-                            ProcessBlocks(new List<Block> { block }, originalData);
-                        }
-
-                        // 元のデータの各アイテムを翻訳
-                        foreach (var (listItem, paragraph, text) in originalData)
-                        {
-                            string translatedText = await TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
-                            translatedText = translatedText.TrimEnd('\r', '\n');
-
-                            // パラグラフが存在する場合、翻訳されたテキストで更新
-                            if (paragraph != null)
-                            {
-                                paragraph.Inlines.Clear();
-                                paragraph.Inlines.Add(new Run(translatedText));
-                            }
-                            // リストアイテムが存在する場合、翻訳されたテキストで更新
-                            else if (listItem != null && listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
-                            {
-                                listItemParagraph.Inlines.Clear();
-                                listItemParagraph.Inlines.Add(new Run(translatedText));
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ModernWpf.MessageBox.Show(ex.Message);
-                    }
-                    finally
-                    {
-                        animation?.Stop();
-                        richTextBox.Opacity = 1.0;
-                    }
-                }
-            }
-            void ProcessBlocks(IEnumerable<Block> blocks, List<(ListItem listItem, Paragraph paragraph, string text)> originalData)
-            {
-                foreach (Block block in blocks)
-                {
-                    // ブロックが独立した段落(リストアイテムの一部ではない)であるかを確認
-                    if (block is Paragraph paragraph && !(block.Parent is ListItem))
-                    {
-                        string paragraphText = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.Trim();
-                        originalData.Add((null, paragraph, paragraphText));
-                    }
-                    else if (block is List list)
-                    {
-                        foreach (ListItem listItem in list.ListItems)
-                        {
-                            // リストアイテムの最初のブロックが段落であるかを確認
-                            if (listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
-                            {
-                                string listItemText = new TextRange(listItemParagraph.ContentStart, listItemParagraph.ContentEnd).Text.Trim();
-                                // リストアイテムのテキストから番号または箇条書きを削除
-                                var match = Regex.Match(listItemText, @"^(\d+\.\s+|•\s+)");
-                                if (match.Success)
-                                {
-                                    listItemText = listItemText.Substring(match.Length);
-                                }
-                                originalData.Add((listItem, null, listItemText));
-                            }
-                            // リストアイテム内のブロックを再帰的に処理
-                            ProcessBlocks(listItem.Blocks, originalData);
-                        }
-                    }
-                    else if (block is Section section)
-                    {
-                        ProcessBlocks(section.Blocks, originalData);
-                    }
-                }
-            }
             contextMenu.Items.Add(translateMenuItem);
 
             return contextMenu;
@@ -933,11 +1026,17 @@ namespace OpenAIOnWPF
 
             MessagesPanel.Children.Clear();
 
-            foreach (var message in messages)
+            var targetMessages = selectedConversation.Messages;
+            for (int i = 0; i < targetMessages.Count; i++)
             {
+                var message = targetMessages[i];
+
                 if (message.Role == null) { break; }
+
                 bool isUser = message.Role == "user";
-                var messageElement = CreateMessageElement(message.Content, isUser);
+                bool isLastMessage = i == targetMessages.Count - 1;
+
+                var messageElement = CreateMessageElement(message.Content, isUser, isLastMessage);
                 MessagesPanel.Children.Add(messageElement);
             }
 
@@ -947,7 +1046,7 @@ namespace OpenAIOnWPF
             foreach (var item in ConversationListBox.Items.OfType<ConversationHistory>())
             {
                 item.IsSelected = false;
-            }        
+            }
             if (selectedConversation != null)
             {
                 selectedConversation.IsSelected = true;
@@ -985,7 +1084,6 @@ namespace OpenAIOnWPF
             try
             {
                 TranslateButton.IsEnabled = false;
-                TranslationProgressRing.IsActive = true;
                 animation = CreateTextColorAnimation(UserTextBox, out initialTextColor);
                 animation.Begin();
 
@@ -1000,9 +1098,36 @@ namespace OpenAIOnWPF
             finally
             {
                 TranslateButton.IsEnabled = true;
-                TranslationProgressRing.IsActive = false;
                 animation?.Stop();
-                UserTextBox.Foreground = new SolidColorBrush(initialTextColor);  
+                UserTextBox.Foreground = new SolidColorBrush(initialTextColor);
+            }
+        }
+        private void RegenerateLatestResponse()
+        {
+            var messages = ConversationListBox.SelectedItems
+                .OfType<ConversationHistory>()
+                .SelectMany(item => item.Messages)
+                .ToList();
+
+            //会話履歴の最新2つを削除
+            foreach (ConversationHistory item in ConversationListBox.SelectedItems.OfType<ConversationHistory>())
+            {
+                if (item.Messages.Count > 1)
+                {
+                    item.Messages.RemoveAt(item.Messages.Count - 1);
+                    item.Messages.RemoveAt(item.Messages.Count - 1);
+                }
+                else if (item.Messages.Count == 1)
+                {
+                    item.Messages.RemoveAt(0); // メッセージが1つのみの場合
+                }
+            }
+
+            if (messages.Count > 1)
+            {
+                // MessagePanelの下2つを削除
+                MessagesPanel.Children.RemoveRange(MessagesPanel.Children.Count - 2, 2);
+                _ = ProcessOpenAIAsync(messages[messages.Count - 2].Content);
             }
         }
     }

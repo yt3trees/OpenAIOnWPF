@@ -2,13 +2,16 @@
 using Newtonsoft.Json;
 using OpenAIOnWPF.Model;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -173,6 +176,22 @@ namespace OpenAIOnWPF
 
             return storyboard;
         }
+        public static void AnimateButtonOpacityToOriginal(Button button, double originalOpacity, TimeSpan duration)
+        {
+            button.Opacity = 1.0;
+            var opacityAnimation = new DoubleAnimation
+            {
+                To = originalOpacity,
+                Duration = duration,
+                FillBehavior = FillBehavior.Stop
+            };
+            opacityAnimation.Completed += (s, e) =>
+            {
+                button.Opacity = originalOpacity;  // 透明度を元の値に設定
+            };
+
+            button.BeginAnimation(Button.OpacityProperty, opacityAnimation);
+        }
         public static string SerializeArray(string[,] array)
         {
             return JsonConvert.SerializeObject(array);
@@ -264,6 +283,164 @@ namespace OpenAIOnWPF
                 }
             }
             return manager;
+        }
+        public static void CopyTextFromMessageGrid(Grid grid)
+        {
+            foreach (var child in grid.Children)
+            {
+                if (child is TextBlock textBlock)
+                {
+                    Clipboard.SetText(textBlock.Text);
+                    break;
+                }
+                else if (child is RichTextBox richTextBox)
+                {
+                    TextRange textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
+                    Clipboard.SetText(textRange.Text);
+                    break;
+                }
+            }
+        }
+        public static void TranslateTextFromMessageGrid(Grid grid)
+        {
+            // Grid内のTextBlockやRichTextBoxを検索
+            foreach (var child in grid.Children)
+            {
+                if (child is TextBlock textBlock)
+                {
+                    TranslateText(textBlock);
+                }
+                else if (child is RichTextBox richTextBox)
+                {
+                    TranslateText(richTextBox);
+                }
+                else if (child is Border border && border.Child is RichTextBox borderRichTextBox) // RichTextBoxがBorderでラップされている場合
+                {
+                    TranslateText(borderRichTextBox);
+                }
+            }
+        }
+        public static async void TranslateText(object target)
+        {
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            Storyboard? animation = null;
+            if (target is TextBlock textBlock)
+            {
+                try
+                {
+                    animation = CreateOpacityAnimation(textBlock);
+                    animation.Begin();
+
+                    string text = textBlock.Text;
+                    string text2 = await mainWindow.TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
+
+                    text2 = text2.TrimEnd('\r', '\n');
+                    textBlock.Text = text2;
+                }
+                catch (Exception ex)
+                {
+                    ModernWpf.MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    animation?.Stop();
+                    textBlock.Opacity = 1.0;
+                }
+            }
+            else if (target is RichTextBox richTextBox)
+            {
+                try
+                {
+                    animation = CreateOpacityAnimation(richTextBox);
+                    animation.Begin();
+
+                    // 元のRichTextBoxのデータ(ListItem、Paragraph、Text)を保存するリスト
+                    List<(ListItem listItem, Paragraph paragraph, string text)> originalData = new List<(ListItem listItem, Paragraph paragraph, string text)>();
+                    foreach (Block block in richTextBox.Document.Blocks)
+                    {
+                        // 各ブロックを処理して、originalDataリストにデータを追加
+                        ProcessBlocks(new List<Block> { block }, originalData);
+                    }
+
+                    // 元のデータの各アイテムを翻訳
+                    foreach (var (listItem, paragraph, text) in originalData)
+                    {
+                        string translatedText = await mainWindow.TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
+                        translatedText = translatedText.TrimEnd('\r', '\n');
+
+                        // パラグラフが存在する場合、翻訳されたテキストで更新
+                        if (paragraph != null)
+                        {
+                            paragraph.Inlines.Clear();
+                            paragraph.Inlines.Add(new Run(translatedText));
+                        }
+                        // リストアイテムが存在する場合、翻訳されたテキストで更新
+                        else if (listItem != null && listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
+                        {
+                            listItemParagraph.Inlines.Clear();
+                            listItemParagraph.Inlines.Add(new Run(translatedText));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModernWpf.MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    animation?.Stop();
+                    richTextBox.Opacity = 1.0;
+                }
+            }
+        }
+
+        public static void ProcessBlocks(IEnumerable<Block> blocks, List<(ListItem listItem, Paragraph paragraph, string text)> originalData)
+        {
+            foreach (Block block in blocks)
+            {
+                // ブロックが独立した段落(リストアイテムの一部ではない)であるかを確認
+                if (block is Paragraph paragraph && !(block.Parent is ListItem))
+                {
+                    string paragraphText = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.Trim();
+                    originalData.Add((null, paragraph, paragraphText));
+                }
+                else if (block is List list)
+                {
+                    foreach (ListItem listItem in list.ListItems)
+                    {
+                        // リストアイテムの最初のブロックが段落であるかを確認
+                        if (listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
+                        {
+                            string listItemText = new TextRange(listItemParagraph.ContentStart, listItemParagraph.ContentEnd).Text.Trim();
+                            // リストアイテムのテキストから番号または箇条書きを削除
+                            var match = Regex.Match(listItemText, @"^(\d+\.\s+|•\s+)");
+                            if (match.Success)
+                            {
+                                listItemText = listItemText.Substring(match.Length);
+                            }
+                            originalData.Add((listItem, null, listItemText));
+                        }
+                        // リストアイテム内のブロックを再帰的に処理
+                        ProcessBlocks(listItem.Blocks, originalData);
+                    }
+                }
+                else if (block is Section section)
+                {
+                    ProcessBlocks(section.Blocks, originalData);
+                }
+            }
+        }
+        public static IEnumerable<DependencyObject> GetAllChildren(DependencyObject parent)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                yield return child;
+                foreach (var grandChild in GetAllChildren(child))
+                {
+                    yield return grandChild;
+                }
+            }
         }
     }
 }
