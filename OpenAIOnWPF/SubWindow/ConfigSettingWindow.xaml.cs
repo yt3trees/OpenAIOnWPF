@@ -264,16 +264,15 @@ namespace OpenAIOnWPF
                 string json = JsonConvert.SerializeObject(items);
                 json = JToken.Parse(json).ToString(Formatting.Indented);
 
-                // 出力先フォルダを選択
-                var dialog = new System.Windows.Forms.FolderBrowserDialog();
-                dialog.Description = "Please select an output folder.";
-                dialog.RootFolder = Environment.SpecialFolder.Desktop;
-                dialog.ShowNewFolderButton = true;
+                var dialog = new System.Windows.Forms.SaveFileDialog();
+                dialog.Title = "Please select an export file.";
+                dialog.FileName = DateTime.Now.ToString("yyyyMMdd") + "_config.json";
+                dialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+                dialog.DefaultExt = "json";
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
                 {
-                    string path = dialog.SelectedPath;
-                    File.WriteAllText(path + "\\config.json", json);
+                    File.WriteAllText(dialog.FileName, json);
                     ModernWpf.MessageBox.Show("Exported successfully.");
                 }
             }
