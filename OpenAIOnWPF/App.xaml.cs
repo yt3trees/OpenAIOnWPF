@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace OpenAIOnWPF
 {
@@ -37,7 +38,29 @@ namespace OpenAIOnWPF
         {
             if (e == null) return;
 
-            ModernWpf.MessageBox.Show($"An error has occurred.\n{e}", "Abnormal termination", MessageBoxButton.OK, MessageBoxImage.Error);
+            // ModernWpf.MessageBox.Show($"An error has occurred.\n{e}", "Abnormal termination", MessageBoxButton.OK, MessageBoxImage.Error);
+            ShowCustomErrorDialog("An error has occurred.\n" + e.ToString());
+            Environment.Exit(1);
+        }
+        private void ShowCustomErrorDialog(string message)
+        {
+            Window errorWindow = new Window
+            {
+                Title = "Abnormal termination",
+                Width = 500,
+                Height = 300,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            TextBox textBox = new TextBox
+            {
+                Text = message,
+                IsReadOnly = true,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+
+            errorWindow.Content = textBox;
+            errorWindow.ShowDialog();
             Environment.Exit(1);
         }
     }
