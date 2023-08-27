@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -60,7 +61,38 @@ namespace OpenAIOnWPF
             UserTextBox.Focus();
             NoticeToggleSwitch.IsOn = AppSettings.NoticeFlgSetting;
 
-            AppSettings.ConversationManager = LoadConversationsFromJson();
+            try
+            {
+                AppSettings.ConversationManager = LoadConversationsFromJson();
+            }
+            catch (Exception ex)
+            {
+                string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var message = new StringBuilder()
+                    .AppendLine("Failed to load conversation history.")
+                    .AppendLine(ex.Message)
+                    .AppendLine()
+                    .AppendLine("Do you want to reset the conversation history?")
+                    .AppendLine("If you choose No, the application will exit at this point.")
+                    .AppendLine("Please re-launch the application after the problem with the folder where the conversation history is saved has been resolved.")
+                    .AppendLine()
+                    .AppendLine($"{documentsPath}\\OpenAIOnWPF\\ConversationHistory")
+                    .ToString();
+                var result = ModernWpf.MessageBox.Show(
+                    message, 
+                    "Error", 
+                    MessageBoxButton.YesNo, 
+                    MessageBoxImage.Error
+                );
+                if (result == MessageBoxResult.Yes)
+                {
+                    AppSettings.ConversationManager = new ConversationManager();
+                }
+                else
+                {
+                      Environment.Exit(1);
+                }
+            }
             if (AppSettings.ConversationManager.Histories == null)
             {
                 AppSettings.ConversationManager.Histories = new ObservableCollection<ConversationHistory>();
