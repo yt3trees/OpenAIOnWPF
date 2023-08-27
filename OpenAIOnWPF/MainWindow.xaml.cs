@@ -185,6 +185,20 @@ namespace OpenAIOnWPF
             {
                 NewChatButton_Click(sender, e);
             }
+            else if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                try
+                {
+                    SaveConversationsAsJson(AppSettings.ConversationManager);
+                    string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    ModernWpf.MessageBox.Show("Saved to " + documentsPath + @"\OpenAIOnWPF\ConversationHistory", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch
+                (Exception ex)
+                {
+                    ModernWpf.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
         {
