@@ -42,8 +42,8 @@ namespace OpenAIOnWPF
         public MainWindow()
         {
             InitializeComponent();
-            RecoverWindowBounds();
             InitializeSettings();
+            RecoverWindowBounds();
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -56,6 +56,14 @@ namespace OpenAIOnWPF
         }
         private void InitializeSettings()
         {
+            // 前バージョンの設定を引き継ぐ
+            if (Properties.Settings.Default.UpgradeRequired)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.UpgradeRequired = false;
+                Properties.Settings.Default.Save();
+            }
+
             InitialColorSet();
             ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
             UserTextBox.Focus();
