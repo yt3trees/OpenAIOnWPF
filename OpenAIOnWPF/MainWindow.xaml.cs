@@ -144,6 +144,11 @@ namespace OpenAIOnWPF
                 TranslateButton.Visibility = Visibility.Collapsed;
                 UserTextBox.Padding = new Thickness(10, 10, 10, 10);
             }
+
+            if (ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark)
+            {
+                ConversationListBox.Opacity = 0.9;
+            }
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -530,6 +535,11 @@ namespace OpenAIOnWPF
                 AnimateButtonOpacityToOriginal(translateButton, 0.5, TimeSpan.FromMilliseconds(500));
             };
 
+            double opacity = 1;
+            if (ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark)
+            {
+                opacity = 0.9;
+            }
             if (isUser)
             {
                 TextBlock userTextBlock = new TextBlock
@@ -539,6 +549,7 @@ namespace OpenAIOnWPF
                     //Background = accentColorBrush,
                     TextAlignment = TextAlignment.Left,
                     TextWrapping = TextWrapping.Wrap,
+                    Opacity = opacity,
                     Text = messageContent
                 };
                 userTextBlock.MouseDown += UserTextBlock_MouseDown;
@@ -608,6 +619,7 @@ namespace OpenAIOnWPF
                 {
                     Padding = new Thickness(5, 10, 5, 10),
                     HorizontalContentAlignment = HorizontalAlignment.Left,
+                    Opacity = opacity,
                     Document = flowDocument
                 };
                 richTextBox.Document.FontSize = Properties.Settings.Default.FontSize;

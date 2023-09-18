@@ -630,6 +630,6 @@
         <!--  https://github.com/whistyun/MdXaml/wiki/How-to-customise-style  -->
     </Grid>
     <fw:AcrylicWindow.Background>
-        <SolidColorBrush Opacity="0.3" Color="{DynamicResource SystemChromeLowColor}" />
+        <SolidColorBrush Opacity="0.6" Color="{DynamicResource SystemChromeHighColor}" />
     </fw:AcrylicWindow.Background>
 </fw:AcrylicWindow>
