@@ -338,6 +338,12 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
         }
+        private void VersionInformationMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new VersionWindow();
+            window.Owner = this;
+            window.ShowDialog();
+        }
         private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             //UserTextBox.Width = Math.Max(UserTextBox.ActualWidth + e.HorizontalChange, UserTextBox.MinWidth);

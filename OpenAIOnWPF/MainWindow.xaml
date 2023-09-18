@@ -253,6 +253,14 @@
                                 <ui:SymbolIcon Symbol="Globe" />
                             </MenuItem.Icon>
                         </MenuItem>
+                        <MenuItem
+                            x:Name="VersionInformationMenuItem"
+                            Click="VersionInformationMenuItem_Click"
+                            Header="Version Information">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="Sync" />
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </MenuItem>
                 </Menu>
             </Grid>

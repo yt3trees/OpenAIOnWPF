@@ -18,6 +18,9 @@
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="SubWindow\VersionWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="SubWindow\TitleEditWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
