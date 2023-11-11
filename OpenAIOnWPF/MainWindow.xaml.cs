@@ -601,18 +601,21 @@ namespace OpenAIOnWPF
 
                     Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
 
-                    double topBoundary = userTextBlock.PointToScreen(new Point(0, 0)).Y;
-                    double bottomBoundary = userTextBlock.PointToScreen(new Point(0, userTextBlock.ActualHeight)).Y;
+                    if (PresentationSource.FromVisual(userTextBlock) != null) // アプリケーションエラー対策
+                    {
+                        double topBoundary = userTextBlock.PointToScreen(new Point(0, 0)).Y;
+                        double bottomBoundary = userTextBlock.PointToScreen(new Point(0, userTextBlock.ActualHeight)).Y;
 
-                    if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
-                    {
-                        copyTextButton.Visibility = Visibility.Visible;
-                        translateButton.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        copyTextButton.Visibility = Visibility.Collapsed;
-                        translateButton.Visibility = Visibility.Collapsed;
+                        if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
+                        {
+                            copyTextButton.Visibility = Visibility.Visible;
+                            translateButton.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            copyTextButton.Visibility = Visibility.Collapsed;
+                            translateButton.Visibility = Visibility.Collapsed;
+                        }
                     }
                 }
             }
