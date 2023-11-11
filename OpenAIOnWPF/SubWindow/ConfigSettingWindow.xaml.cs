@@ -66,11 +66,13 @@ namespace OpenAIOnWPF
             SaveButton.Background = accentColorBrush;
 
             ModelComboBox.Items.Add("gpt-3.5-turbo");
-            ModelComboBox.Items.Add("gpt-3.5-turbo-0613");
             ModelComboBox.Items.Add("gpt-3.5-turbo-16k");
-            ModelComboBox.Items.Add("gpt-3.5-turbo-16k-0613");
+            ModelComboBox.Items.Add("gpt-3.5-turbo-16k-instruct");
+            ModelComboBox.Items.Add("gpt-3.5-turbo-1106");
             ModelComboBox.Items.Add("gpt-4");
             ModelComboBox.Items.Add("gpt-4-0613");
+            ModelComboBox.Items.Add("gpt-4-1106-preview");
+            ModelComboBox.Items.Add("gpt-4-vision-preview");
             if (AppSettings.ConfigDataTable == null)
             {
                 DataSet ds = new DataSet();
