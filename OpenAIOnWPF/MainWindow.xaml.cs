@@ -178,23 +178,7 @@ namespace OpenAIOnWPF
         }
         private void AcrylicWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Up && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                if (ConversationListBox.SelectedIndex > 0)
-                {
-                    ConversationListBox.SelectedIndex--;
-                }
-                e.Handled = true;
-            }
-            else if (e.Key == Key.Down && Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                if (ConversationListBox.SelectedIndex < ConversationListBox.Items.Count - 1)
-                {
-                    ConversationListBox.SelectedIndex++;
-                }
-                e.Handled = true;
-            }
-            else if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+            if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 NewChatButton_Click(sender, e);
             }
@@ -211,6 +195,31 @@ namespace OpenAIOnWPF
                 {
                     ModernWpf.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+            // Ctrl+Tab で次のアイテムを選択
+            else if (e.Key == Key.Tab && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (ConversationListBox.SelectedIndex < ConversationListBox.Items.Count - 1)
+                {
+                    ConversationListBox.SelectedIndex++;
+                }
+                else
+                {
+                    ConversationListBox.SelectedIndex = 0;
+                }
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Tab && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                if (ConversationListBox.SelectedIndex > 0)
+                {
+                    ConversationListBox.SelectedIndex--;
+                }
+                else
+                {
+                    ConversationListBox.SelectedIndex = ConversationListBox.Items.Count - 1;
+                }
+                e.Handled = true;
             }
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
