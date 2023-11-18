@@ -101,6 +101,10 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColorBrush}" />
                 <Setter Property="BorderThickness" Value="1,1,0,0" />
             </Style>
+            <Style TargetType="{x:Type List}">
+                <Setter Property="Margin" Value="40,0,0,0" />
+                <Setter Property="Padding" Value="0,0,0,0" />
+            </Style>
             <!--  Markdig To  -->
         </ResourceDictionary>
     </Application.Resources>
