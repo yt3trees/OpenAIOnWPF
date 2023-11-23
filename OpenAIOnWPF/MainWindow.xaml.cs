@@ -207,6 +207,7 @@ namespace OpenAIOnWPF
                 {
                     ConversationListBox.SelectedIndex = 0;
                 }
+                ConversationListBox.ScrollIntoView(ConversationListBox.SelectedItem);
                 e.Handled = true;
             }
             else if (e.Key == Key.Tab && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
@@ -219,6 +220,7 @@ namespace OpenAIOnWPF
                 {
                     ConversationListBox.SelectedIndex = ConversationListBox.Items.Count - 1;
                 }
+                ConversationListBox.ScrollIntoView(ConversationListBox.SelectedItem);
                 e.Handled = true;
             }
         }
