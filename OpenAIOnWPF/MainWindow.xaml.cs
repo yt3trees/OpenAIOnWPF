@@ -38,6 +38,7 @@ namespace OpenAIOnWPF
         string selectInstructionContent = "";
         Stopwatch stopWatch = new Stopwatch();
         private bool gKeyPressed;
+        private bool isFiltering = false;
 
         public MainWindow()
         {
@@ -1142,7 +1143,10 @@ namespace OpenAIOnWPF
                 item.IsSelected = false;
             }
 
-            UserTextBox.Focus();
+            if (!isFiltering)
+            {
+                UserTextBox.Focus();
+            }
             UserTextBox.CaretIndex = UserTextBox.Text.Length;
         }
         public void RefreshConversationList()
@@ -1215,6 +1219,43 @@ namespace OpenAIOnWPF
                 MessagesPanel.Children.RemoveRange(MessagesPanel.Children.Count - 2, 2);
                 _ = ProcessOpenAIAsync(messages[messages.Count - 2].Content);
             }
+        }
+        private void ApplyFilter(string filterText)
+        {
+            var collectionViewSource = FindResource("SortedConversations") as CollectionViewSource;
+            if (collectionViewSource != null)
+            {
+                collectionViewSource.View.Filter = item =>
+                {
+                    var conversationHistory = item as ConversationHistory;
+                    if (conversationHistory != null)
+                    {
+                        return conversationHistory.Messages.Any(message => message.Content.Contains(filterText, StringComparison.OrdinalIgnoreCase));
+                    }
+                    return false;
+                };
+                collectionViewSource.View.Refresh();
+            }
+        }
+        private void FilterTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            isFiltering = true; // フィルター時にUserTextBoxにフォーカスが移動しないようにする
+            ApplyFilter(FilterTextBox.Text);
+            isFiltering = false;
+        }
+        private void ToggleFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            FilterTextBox.Visibility = FilterTextBox.Visibility == Visibility.Visible
+                   ? Visibility.Collapsed
+                   : Visibility.Visible;
+            FilterTextBoxClearButton.Visibility = FilterTextBoxClearButton.Visibility == Visibility.Visible
+                   ? Visibility.Collapsed
+                   : Visibility.Visible;
+            FilterTextBox.Text = string.Empty;
+        }
+        private void ClearTextButton_Click(object sender, RoutedEventArgs e)
+        {
+            FilterTextBox.Text = string.Empty;
         }
     }
 }

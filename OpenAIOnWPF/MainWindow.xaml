@@ -294,16 +294,22 @@
                 </Grid.Background>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
+                    <Grid Grid.Row="0" Margin="0,5,0,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Button
                             x:Name="NewChatButton"
+                            Grid.Row="0"
                             Grid.Column="0"
                             Height="32"
                             Margin="10,0,10,0"
@@ -314,18 +320,56 @@
                             Content="+ New chat"
                             FontSize="14"
                             Style="{StaticResource ButtonRevealStyle}" />
-                        <!-- <Button
-                            Grid.Column="1"
+                        <Button
+                            x:Name="ToggleFilterButton"
+                            Grid.Row="0"
+                            Grid.Column="2"
                             Width="32"
                             Height="32"
                             Margin="0,0,10,0"
                             Padding="-10,-10,-10,-10"
-                            HorizontalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
                             fw:RevealElement.BorderRadius="4"
                             Background="Transparent"
+                            Click="ToggleFilterButton_Click"
+                            Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
                             Style="{StaticResource ButtonRevealStyle}">
-                            <ui:SymbolIcon Symbol="ClosePane" />
-                        </Button>-->
+                            <ui:SymbolIcon Symbol="Filter" />
+                        </Button>
+                        <TextBox
+                            x:Name="FilterTextBox"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Width="180"
+                            Height="30"
+                            Margin="0,5,0,0"
+                            Padding="10,5,20,5"
+                            VerticalAlignment="Center"
+                            ui:ControlHelper.PlaceholderText="Filter"
+                            TextChanged="FilterTextBox_TextChanged"
+                            TextWrapping="Wrap"
+                            Visibility="Collapsed">
+                            <TextBox.Background>
+                                <SolidColorBrush Opacity="0.5" Color="{DynamicResource SystemChromeLowColor}" />
+                            </TextBox.Background>
+                        </TextBox>
+                        <Button
+                            x:Name="FilterTextBoxClearButton"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="3"
+                            Width="20"
+                            Height="20"
+                            Margin="153,3,0,0"
+                            Padding="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Click="ClearTextButton_Click"
+                            Content="✕"
+                            Visibility="Collapsed" />
                     </Grid>
                     <ListBox
                         x:Name="ConversationListBox"
