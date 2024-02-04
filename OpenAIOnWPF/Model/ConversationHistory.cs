@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
+using System.Globalization;
 
 namespace OpenAIOnWPF.Model
 {
@@ -53,7 +54,19 @@ namespace OpenAIOnWPF.Model
             }
         }
 
-        public bool Favorite { get; set; }
+        public bool _favorite;
+        public bool Favorite
+        {
+            get { return _favorite; }
+            set
+            {
+                if (_favorite != value)
+                {
+                    _favorite = value;
+                    OnPropertyChanged("Favorite");
+                }
+            }
+        }
         public DateTime CreationDate { get; set; }
 
         private bool _isSelected;
@@ -94,5 +107,24 @@ namespace OpenAIOnWPF.Model
     public class ConversationManager
     {
         public ObservableCollection<ConversationHistory> Histories { get; set; }
+    }
+
+    /// <summary>
+    /// ListBoxのFavorite表示用コンバータ
+    /// </summary>
+    public class FavoriteToSymbolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool && (bool)value)
+            {
+                return "★";
+            }
+            return "☆";
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is string && (string)value == "★";
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Markdig.Wpf;
 using Microsoft.Toolkit.Uwp.Notifications;
 using ModernWpf;
+using ModernWpf.Controls;
 using Newtonsoft.Json;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.Tokenizer.GPT3;
@@ -1101,6 +1102,11 @@ namespace OpenAIOnWPF
                 itemToDelete.Title = newTitle;
             }
         }
+        private void ConversationFavoriteButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConversationHistory item = (ConversationHistory)((Button)sender).DataContext;
+            item.Favorite = !item.Favorite;
+        }
         private void ConversationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ConversationListBox.SelectedItem == null)
@@ -1220,7 +1226,7 @@ namespace OpenAIOnWPF
                 _ = ProcessOpenAIAsync(messages[messages.Count - 2].Content);
             }
         }
-        private void ApplyFilter(string filterText)
+        private void ApplyFilter(string filterText, bool? isFilteringByFavorite = null)
         {
             var collectionViewSource = FindResource("SortedConversations") as CollectionViewSource;
             if (collectionViewSource != null)
@@ -1230,7 +1236,12 @@ namespace OpenAIOnWPF
                     var conversationHistory = item as ConversationHistory;
                     if (conversationHistory != null)
                     {
-                        return conversationHistory.Messages.Any(message => message.Content.Contains(filterText, StringComparison.OrdinalIgnoreCase));
+                        // テキストフィルターの適用
+                        bool matchesTextFilter = string.IsNullOrEmpty(filterText) || conversationHistory.Messages.Any(message => message.Content.Contains(filterText, StringComparison.OrdinalIgnoreCase));
+                        // お気に入りフィルターの適用(Toggleがfalseの場合はフィルターにFavoriteを使用しない)
+                        bool matchesFavoriteFilter = isFilteringByFavorite == null || isFilteringByFavorite.Value == false || conversationHistory.Favorite == isFilteringByFavorite.Value;
+                        // 両方の条件を満たすかどうか
+                        return matchesTextFilter && matchesFavoriteFilter;
                     }
                     return false;
                 };
@@ -1240,7 +1251,8 @@ namespace OpenAIOnWPF
         private void FilterTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             isFiltering = true; // フィルター時にUserTextBoxにフォーカスが移動しないようにする
-            ApplyFilter(FilterTextBox.Text);
+            bool? isFilteringByFavorite = FavoriteFilterToggleButton.IsChecked;
+            ApplyFilter(FilterTextBox.Text, isFilteringByFavorite);
             isFiltering = false;
         }
         private void ToggleFilterButton_Click(object sender, RoutedEventArgs e)
@@ -1251,11 +1263,23 @@ namespace OpenAIOnWPF
             FilterTextBoxClearButton.Visibility = FilterTextBoxClearButton.Visibility == Visibility.Visible
                    ? Visibility.Collapsed
                    : Visibility.Visible;
+            FavoriteFilterToggleButton.Visibility = FavoriteFilterToggleButton.Visibility == Visibility.Visible
+                   ? Visibility.Collapsed
+                   : Visibility.Visible;
             FilterTextBox.Text = string.Empty;
+            FavoriteFilterToggleButton.IsChecked = false;
+            ApplyFilter("", false);
         }
         private void ClearTextButton_Click(object sender, RoutedEventArgs e)
         {
             FilterTextBox.Text = string.Empty;
+        }
+        private void FavoriteFilterToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            var toggleButton = sender as ToggleButton;
+            bool? isFilteringByFavorite = toggleButton.IsChecked;
+            ApplyFilter(FilterTextBox.Text, isFilteringByFavorite);
+            FavoriteFilterToggleButton.Content = FavoriteFilterToggleButton.IsChecked == true ? "★" : "☆";
         }
     }
 }

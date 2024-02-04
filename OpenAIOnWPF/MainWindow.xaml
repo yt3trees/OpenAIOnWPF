@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:OpenAIOnWPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+    xmlns:model="clr-namespace:OpenAIOnWPF.Model"
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="http://schemas.modernwpf.com/2019"
     Title="OpenAI"
@@ -30,6 +31,7 @@
                 <scm:SortDescription Direction="Descending" PropertyName="LastUpdated" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+        <model:FavoriteToSymbolConverter x:Key="FavoriteToSymbolConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -311,8 +313,9 @@
                             x:Name="NewChatButton"
                             Grid.Row="0"
                             Grid.Column="0"
+                            Grid.ColumnSpan="2"
                             Height="32"
-                            Margin="10,0,10,0"
+                            Margin="10,0,5,0"
                             HorizontalAlignment="Stretch"
                             fw:RevealElement.BorderRadius="4"
                             Background="Transparent"
@@ -341,7 +344,7 @@
                             x:Name="FilterTextBox"
                             Grid.Row="1"
                             Grid.Column="0"
-                            Grid.ColumnSpan="3"
+                            Grid.ColumnSpan="2"
                             Width="180"
                             Height="30"
                             Margin="0,5,0,0"
@@ -359,7 +362,7 @@
                             x:Name="FilterTextBoxClearButton"
                             Grid.Row="1"
                             Grid.Column="0"
-                            Grid.ColumnSpan="3"
+                            Grid.ColumnSpan="2"
                             Width="20"
                             Height="20"
                             Margin="153,3,0,0"
@@ -370,6 +373,33 @@
                             Click="ClearTextButton_Click"
                             Content="✕"
                             Visibility="Collapsed" />
+                        <ToggleButton
+                            x:Name="FavoriteFilterToggleButton"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Width="32"
+                            Height="32"
+                            Margin="0,5,0,0"
+                            Padding="-10,-10,-10,-10"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            fw:RevealElement.BorderRadius="4"
+                            Background="Transparent"
+                            Click="FavoriteFilterToggleButton_Click"
+                            FontSize="20"
+                            Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                            Visibility="Collapsed">
+                            <ToggleButton.ContentTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="FavoriteIconTextBlock" Text="☆" />
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Value="True">
+                                            <Setter TargetName="FavoriteIconTextBlock" Property="Text" Value="★" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ToggleButton.ContentTemplate>
+                        </ToggleButton>
                     </Grid>
                     <ListBox
                         x:Name="ConversationListBox"
@@ -392,6 +422,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox
                                         Grid.Column="0"
@@ -412,11 +443,36 @@
                                         </TextBox.ToolTip>
                                     </TextBox>
                                     <Button
-                                        x:Name="ConversationTitleEditButton"
+                                        x:Name="ConversationFavoriteButton"
                                         Grid.Column="1"
                                         Width="32"
                                         Height="32"
                                         Margin="10,0,0,0"
+                                        Padding="-10,-10,-10,-10"
+                                        VerticalAlignment="Center"
+                                        fw:RevealElement.BorderRadius="4"
+                                        Background="Transparent"
+                                        Click="ConversationFavoriteButton_Click"
+                                        Content="{Binding Favorite, Converter={StaticResource FavoriteToSymbolConverter}, Mode=TwoWay}"
+                                        FontSize="20"
+                                        Opacity="0.6">
+                                        <Button.Style>
+                                            <Style BasedOn="{StaticResource ButtonRevealStyle}" TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button
+                                        x:Name="ConversationTitleEditButton"
+                                        Grid.Column="2"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="5,0,0,0"
                                         Padding="-10,-10,-10,-10"
                                         VerticalAlignment="Center"
                                         fw:RevealElement.BorderRadius="4"
@@ -437,7 +493,7 @@
                                     </Button>
                                     <Button
                                         x:Name="ConversationDeleteButton"
-                                        Grid.Column="2"
+                                        Grid.Column="3"
                                         Width="32"
                                         Height="32"
                                         Margin="5,0,0,0"
