@@ -165,8 +165,8 @@
                 <ui:ToggleSwitch
                     x:Name="VisionToggleSwitch"
                     HorizontalAlignment="Left"
-                    OffContent="False"
-                    OnContent="True" />
+                    OffContent="Disabled"
+                    OnContent="Enabled" />
             </StackPanel>
             <StackPanel
                 Grid.Row="1"
