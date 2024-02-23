@@ -1,5 +1,6 @@
 ﻿using ModernWpf;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenAIOnWPF.Model;
 using System;
 using System.Collections.Generic;
@@ -74,6 +75,7 @@ namespace OpenAIOnWPF
                 AppSettings.ConfigDataTable.Columns.Add("ApiVersion", typeof(string));
                 AppSettings.ConfigDataTable.Columns.Add("Temperature", typeof(string));
                 AppSettings.ConfigDataTable.Columns.Add("MaxTokens", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("Vision", typeof(bool));
                 ds.Tables.Add(AppSettings.ConfigDataTable);
             }
         }
@@ -104,6 +106,33 @@ namespace OpenAIOnWPF
             {
                 var color = (Color)ColorConverter.ConvertFromString(accentColor);
                 ThemeManager.Current.AccentColor = color;
+            }
+        }
+        /// <summary>
+        /// configデータテーブルに存在していない列があったら追加する
+        /// </summary>
+        public static void EnsureColumnsForType(DataTable dataTable, Type type)
+        {
+            foreach (System.Reflection.PropertyInfo propertyInfo in type.GetProperties())
+            {
+                // 列が存在しない場合に追加
+                if (!dataTable.Columns.Contains(propertyInfo.Name))
+                {
+                    Type columnType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+                    DataColumn column = new DataColumn(propertyInfo.Name, columnType);
+
+                    // デフォルト値を設定
+                    if (columnType == typeof(string))
+                    {
+                        column.DefaultValue = "";
+                    }
+                    else if (columnType == typeof(bool))
+                    {
+                        column.DefaultValue = false;
+                    }
+
+                    dataTable.Columns.Add(column);
+                }
             }
         }
         /// <summary>
@@ -441,6 +470,45 @@ namespace OpenAIOnWPF
                     yield return grandChild;
                 }
             }
+        }
+        /// <summary>
+        /// message.Contentの中身を解析してメッセージと画像を抽出する
+        /// </summary>
+        /// <returns></returns>
+        public static (string userMessage, string image) ExtractUserAndImageFromMessage(string message)
+        {
+            JToken token;
+            try
+            {
+                token = JToken.Parse(message);
+            }
+            catch (Exception)
+            {
+                token = null;
+            }
+            string user = "";
+            string image = "";
+            if (token != null) // Vision API
+            {
+                var items = token.ToObject<List<VisionUserContentItem>>();
+                foreach (var item in items)
+                {
+                    if (item.type == "text")
+                    {
+                        user = item.text;
+                    }
+                    if ((item.type == "image_url" || item.type == "image") && item.image_url?.url != null)
+                    {
+                        image = item.image_url.url;
+                    }
+                }
+            }
+            else // not Vision API
+            {
+                user = message;
+            }
+
+            return (user, image);
         }
     }
 }

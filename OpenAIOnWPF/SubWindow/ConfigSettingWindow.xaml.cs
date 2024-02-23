@@ -37,6 +37,7 @@ namespace OpenAIOnWPF
             public string? ApiVersion { get;  set; }
             public string? Temperature { get;  set; }
             public string? MaxTokens { get;  set; }
+            public bool? Vision { get;  set; }
         }
         public ConfigSettingWindow()
         {
@@ -86,6 +87,7 @@ namespace OpenAIOnWPF
                 AppSettings.ConfigDataTable.Columns.Add("ApiVersion", typeof(string));
                 AppSettings.ConfigDataTable.Columns.Add("Temperature", typeof(string));
                 AppSettings.ConfigDataTable.Columns.Add("MaxTokens", typeof(string));
+                AppSettings.ConfigDataTable.Columns.Add("Vision", typeof(bool));
                 ds.Tables.Add(AppSettings.ConfigDataTable);
             }
             //AppSettings.ConfigDataTable.Rows.Add("Default", "OpenAI", "gpt-3.5-turbo", "APIKey", "DeploymentId", "BaseDomain", "ApiVersion", "0.2", "2048");
@@ -143,6 +145,7 @@ namespace OpenAIOnWPF
             AppSettings.ConfigDataTable.Rows[index]["ApiVersion"] = ApiVersionTextbox.Text;
             AppSettings.ConfigDataTable.Rows[index]["Temperature"] = TemperatureNumberbox.Text;
             AppSettings.ConfigDataTable.Rows[index]["MaxTokens"] = MaxTokensNumberbox.Text;
+            AppSettings.ConfigDataTable.Rows[index]["Vision"] = VisionToggleSwitch.IsOn;
 
             DuplicateControl();
             ConfigListBox.SelectedIndex = index;
@@ -164,6 +167,7 @@ namespace OpenAIOnWPF
             ApiVersionTextbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["ApiVersion"].ToString();
             TemperatureNumberbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Temperature"].ToString();
             MaxTokensNumberbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["MaxTokens"].ToString();
+            VisionToggleSwitch.IsOn = Convert.ToBoolean(AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Vision"]);
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -174,6 +178,7 @@ namespace OpenAIOnWPF
             row["Provider"] = "OpenAI";
             row["Temperature"] = "1";
             row["MaxTokens"] = "2048";
+            row["Vision"] = false;
             AppSettings.ConfigDataTable.Rows.Add(row);
             ConfigListBox.Items.Add(row["ConfigurationName"].ToString());
             ConfigListBox.SelectedIndex = ConfigListBox.Items.Count - 1;
@@ -260,6 +265,7 @@ namespace OpenAIOnWPF
                     item.ApiVersion = row["ApiVersion"].ToString();
                     item.Temperature = row["Temperature"].ToString();
                     item.MaxTokens = row["MaxTokens"].ToString();
+                    item.Vision = Convert.ToBoolean(row["Vision"].ToString());
                     items.Add(item);
                 }
                 
@@ -318,6 +324,7 @@ namespace OpenAIOnWPF
                             row["ApiVersion"] = item.ApiVersion;
                             row["Temperature"] = item.Temperature;
                             row["MaxTokens"] = item.MaxTokens;
+                            row["Vision"] = item.Vision;
                             AppSettings.ConfigDataTable.Rows.Add(row);
                         }
                         ConfigListBox.Items.Clear();

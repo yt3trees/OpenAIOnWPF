@@ -110,6 +110,21 @@ namespace OpenAIOnWPF.Model
     }
 
     /// <summary>
+    /// VisionAPIのUserMessage内のContent
+    /// </summary>
+    public class VisionUserContentItem
+    {
+        public string type { get; set; }
+        public string text { get; set; }
+        public Image_Url image_url { get; set; }
+        //public string Url { get; set; }
+    }
+    public class Image_Url
+    {
+        public string url { get; set; }
+        public string detail { get; set; }
+    }
+    /// <summary>
     /// ListBoxのFavorite表示用コンバータ
     /// </summary>
     public class FavoriteToSymbolConverter : IValueConverter
@@ -125,6 +140,18 @@ namespace OpenAIOnWPF.Model
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value is string && (string)value == "★";
+        }
+    }
+    public class ContentToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // ラベルのContentが空でなければVisibility.Visibleを、そうでなければVisibility.Collapsedを返す
+            return string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

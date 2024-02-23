@@ -1,6 +1,7 @@
 ﻿using Markdig;
 using Markdig.Wpf;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Win32;
 using ModernWpf;
 using ModernWpf.Controls;
 using Newtonsoft.Json;
@@ -14,8 +15,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,6 +29,7 @@ using System.Windows.Input;
 using System.Windows.Input.Manipulations;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static OpenAIOnWPF.UtilityFunctions;
 
@@ -40,6 +44,8 @@ namespace OpenAIOnWPF
         Stopwatch stopWatch = new Stopwatch();
         private bool gKeyPressed;
         private bool isFiltering = false;
+        public string? imageFilePath = null;
+        public bool visionEnabled = false;
 
         public MainWindow()
         {
@@ -126,7 +132,7 @@ namespace OpenAIOnWPF
             Debug.Print("Path to save the configuration file:" + appSettings.FilePath);
 
             InitializeConfigDataTable();
-
+            EnsureColumnsForType(AppSettings.ConfigDataTable, typeof(ConfigSettingWindow.ModelList));
             ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
             ConfigurationComboBox.Text = AppSettings.SelectConfigSetting;
 
@@ -136,21 +142,24 @@ namespace OpenAIOnWPF
 
             InitializeSystemPromptColumn();
 
+            var currentPadding = UserTextBox.Padding;
             if (AppSettings.TranslationAPIUseFlg == true)
             {
                 TranslateButton.Visibility = Visibility.Visible;
-                UserTextBox.Padding = new Thickness(10, 10, 30, 10);
+                UserTextBox.Padding = new Thickness(currentPadding.Left, currentPadding.Top, 30, currentPadding.Bottom);
             }
             else
             {
                 TranslateButton.Visibility = Visibility.Collapsed;
-                UserTextBox.Padding = new Thickness(10, 10, 10, 10);
+                UserTextBox.Padding = new Thickness(currentPadding.Left, currentPadding.Top, 10, currentPadding.Bottom);
             }
 
             if (ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark)
             {
                 ConversationListBox.Opacity = 0.9;
             }
+
+            ImageFilePathLabel.Content = string.Empty;
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -267,6 +276,28 @@ namespace OpenAIOnWPF
         {
             if (ConfigurationComboBox.SelectedItem == null) return;
             AppSettings.SelectConfigSetting = ConfigurationComboBox.SelectedItem.ToString();
+            UpdateUIBasedOnVision();
+        }
+        private void UpdateUIBasedOnVision()
+        {
+            if (ConfigurationComboBox.SelectedItem == null)
+            {
+                return;
+            }
+            string selectedConfigName = ConfigurationComboBox.SelectedItem.ToString();
+            // ConfigDataTableから選択された設定名に対応する行を検索
+            var row = AppSettings.ConfigDataTable.AsEnumerable()
+                        .FirstOrDefault(x => x.Field<string>("ConfigurationName") == selectedConfigName);
+            // 対応する行が見つかった場合、その行のVision列の値を取得
+            if (row != null)
+            {
+                visionEnabled = row.Field<bool>("Vision");
+            }
+            // Visionの値に基づいてAttachFileButtonの表示/非表示を設定
+            AttachFileButton.Visibility = visionEnabled ? Visibility.Visible : Visibility.Collapsed;
+            var currentPadding = UserTextBox.Padding;
+            int leftPadding = visionEnabled ? 35 : 10;
+            UserTextBox.Padding = new Thickness(leftPadding, currentPadding.Top, currentPadding.Right, currentPadding.Bottom);
         }
         private void SystemPromptComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -335,6 +366,7 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
             ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
+            UpdateUIBasedOnVision();
         }
         private void InstructionSettingButton_Click(object sender, RoutedEventArgs e)
         {
@@ -463,15 +495,22 @@ namespace OpenAIOnWPF
                 bool isUser = message.Role == "user";
                 bool isLastMessage = i == targetMessages.Count - 1;
 
-                var messageElement = CreateMessageElement(message.Content, isUser, isLastMessage);
+                string messageContent = message.Content ?? System.Text.Json.JsonSerializer.Serialize(message.Contents, new JsonSerializerOptions { WriteIndented = true });
+                var result = UtilityFunctions.ExtractUserAndImageFromMessage(messageContent);
+                var messageElement = CreateMessageElement(result.userMessage, isUser, isLastMessage);
                 MessagesPanel.Children.Add(messageElement);
+                if (result.image != "")
+                {
+                    var messageElementImage = CreateMessageElement("", false, isLastMessage, result.image);
+                    MessagesPanel.Children.Add(messageElementImage);
+                }
             }
             MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
         }
         /// <summary>
         /// メッセージの要素を作成する
         /// </summary>
-        private FrameworkElement CreateMessageElement(string messageContent, bool isUser, bool isLastMessage)
+        private FrameworkElement CreateMessageElement(string messageContent, bool isUser, bool isLastMessage, string visionImage = null)
         {
             var accentColor = ThemeManager.Current.AccentColor;
             if (accentColor == null)
@@ -553,7 +592,7 @@ namespace OpenAIOnWPF
             {
                 opacity = 0.9;
             }
-            if (isUser)
+            if (isUser && visionImage == null)
             {
                 TextBlock userTextBlock = new TextBlock
                 {
@@ -623,7 +662,7 @@ namespace OpenAIOnWPF
                     }
                 }
             }
-            else
+            else if (!(isUser) && visionImage == null)
             {
                 var pipeline = new MarkdownPipelineBuilder()
                 .UseSoftlineBreakAsHardlineBreak()
@@ -744,6 +783,34 @@ namespace OpenAIOnWPF
                     }
                 }
             }
+            if (visionImage != null)
+            {
+                string base64Data = visionImage.Substring(visionImage.IndexOf(",") + 1);
+                byte[] imageBytes =  Convert.FromBase64String(base64Data); 
+                BitmapImage bitmapImage = new BitmapImage();
+                using (var ms = new MemoryStream(imageBytes))
+                {
+                    bitmapImage.BeginInit();
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapImage.StreamSource = ms;
+                    bitmapImage.EndInit();
+                }
+                bitmapImage.Freeze();
+                Image imageControl = new Image
+                {
+                    Source = bitmapImage,
+                    Stretch = Stretch.Uniform,
+                };
+                messageGrid.Children.Add(imageControl);
+                Grid.SetColumn(imageControl, 1);
+
+                // 行全体の背景色を設定する
+                Rectangle backgroundRect = new Rectangle { Fill = accentColorBrush };
+                Grid.SetColumnSpan(backgroundRect, 3);
+                messageGrid.Children.Add(backgroundRect);
+                Panel.SetZIndex(backgroundRect, -1);
+            }
+
 
             return messageGrid;
         }
@@ -1129,8 +1196,17 @@ namespace OpenAIOnWPF
                 bool isUser = message.Role == "user";
                 bool isLastMessage = i == targetMessages.Count - 1;
 
-                var messageElement = CreateMessageElement(message.Content, isUser, isLastMessage);
+                // Documents\OpenAIOnWPF\ConversationHistory以外から取得した場合はContentがnullになるので取得元を変更
+                string messageContent = message.Content ?? System.Text.Json.JsonSerializer.Serialize(message.Contents, new JsonSerializerOptions { WriteIndented = true });
+                var result = UtilityFunctions.ExtractUserAndImageFromMessage(messageContent);
+
+                var messageElement = CreateMessageElement(result.userMessage, isUser, isLastMessage);
                 MessagesPanel.Children.Add(messageElement);
+                if (result.image != "")
+                {
+                    var messageElementImage = CreateMessageElement("", false, isLastMessage, result.image);
+                    MessagesPanel.Children.Add(messageElementImage);
+                }
             }
 
             MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
@@ -1280,6 +1356,28 @@ namespace OpenAIOnWPF
             bool? isFilteringByFavorite = toggleButton.IsChecked;
             ApplyFilter(FilterTextBox.Text, isFilteringByFavorite);
             FavoriteFilterToggleButton.Content = FavoriteFilterToggleButton.IsChecked == true ? "★" : "☆";
+        }
+        private void AttachFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg;*.webp;*.gif)|*.png;*.jpeg;*.jpg;*.webp;*.gif";
+            openFileDialog.Multiselect = false;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                imageFilePath = openFileDialog.FileName;
+                ImageFilePathLabel.Content = imageFilePath;
+            }
+        }
+        private void ClearImageFilePathLabelButton_Click(object sender, RoutedEventArgs e)
+        {
+            imageFilePath = null;
+            ImageFilePathLabel.Content = string.Empty;
+        }
+        private void ImageFilePathLabel_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            string argument = $"/select, \"{imageFilePath}\"";
+            System.Diagnostics.Process.Start("explorer.exe", argument);
         }
     }
 }

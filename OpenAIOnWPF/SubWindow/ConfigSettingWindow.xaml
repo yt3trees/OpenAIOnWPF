@@ -161,6 +161,12 @@
                         <SolidColorBrush Opacity="0.5" Color="{DynamicResource SystemChromeLowColor}" />
                     </TextBox.Background>
                 </TextBox>
+                <Label HorizontalAlignment="Left" Content="Vision" />
+                <ui:ToggleSwitch
+                    x:Name="VisionToggleSwitch"
+                    HorizontalAlignment="Left"
+                    OffContent="False"
+                    OnContent="True" />
             </StackPanel>
             <StackPanel
                 Grid.Row="1"

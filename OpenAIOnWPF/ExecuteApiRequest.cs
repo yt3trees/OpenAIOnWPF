@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Google.Cloud.Translation.V2;
 using static OpenAIOnWPF.UtilityFunctions;
+using System.IO;
 
 namespace OpenAIOnWPF
 {
@@ -38,6 +39,7 @@ namespace OpenAIOnWPF
         }
         string userMessage = "";
         string responseText = "";
+        byte[] binaryImage = null;
         List<ChatMessage> tempMessages = new List<ChatMessage>();
         public static class ForTokenCalc
         {
@@ -70,9 +72,15 @@ namespace OpenAIOnWPF
                     throw new Exception("ConfigurationName is not set.");
                 }
 
+                binaryImage = null;
+                if (imageFilePath != null)
+                {
+                    binaryImage = await File.ReadAllBytesAsync(imageFilePath);
+                }
+
                 var openAiService = CreateOpenAiService();
                 userMessage = prompt;
-                var messages = PrepareMessages(prompt);
+                var messages = PrepareMessages(prompt, binaryImage);
                 tempMessages = messages;
 
                 if (1 == 2)
@@ -132,6 +140,8 @@ namespace OpenAIOnWPF
             ProgressRing.IsActive = false;
             UserTextBox.Text = "";
             isProcessing = false;
+            imageFilePath = null;
+            ImageFilePathLabel.Content = "";
         }
         /// <summary>
         /// 選択している設定の内容を取得
@@ -209,7 +219,7 @@ namespace OpenAIOnWPF
             return openAiService;
         }
 
-        private List<ChatMessage> PrepareMessages(string userMessage)
+        private List<ChatMessage> PrepareMessages(string userMessage, byte[]? image)
         {
             // システムプロンプトペインが開かれている場合はペイン内のテキストボックスの値をシステムプロンプトとして使用する
             if (AppSettings.IsSystemPromptColumnVisible == true)
@@ -267,7 +277,20 @@ namespace OpenAIOnWPF
                 }
             }
             messages.Add(ChatMessage.FromSystem(selectInstructionContent));
-            messages.Add(ChatMessage.FromUser(userMessage));
+            if (image == null)
+            {
+                messages.Add(ChatMessage.FromUser(userMessage));
+            }
+            else
+            {
+                messages.Add(ChatMessage.FromUser(
+                    new List<MessageContent>
+                    {
+                        MessageContent.TextContent(userMessage),
+                        MessageContent.ImageBinaryContent(image, "png")
+                    }
+                ));
+            }
             ForTokenCalc.systemPromptToken = selectInstructionContent;
             ForTokenCalc.userPromptToken = userMessage;
 
@@ -322,6 +345,13 @@ namespace OpenAIOnWPF
             // Userメッセージ
             var messageElement = CreateMessageElement(userMessage, isUser: true, isLastMessage: false);
             MessagesPanel.Children.Add(messageElement);
+
+            if (binaryImage != null)
+            {
+                string imageString =  Convert.ToBase64String(binaryImage);
+                var messageElementImage = CreateMessageElement(userMessage, isUser: false, isLastMessage: false, imageString);
+                MessagesPanel.Children.Add(messageElementImage);
+            }
 
             // Assistantメッセージ
             FrameworkElement assistantMessageElement = null;
@@ -433,7 +463,20 @@ namespace OpenAIOnWPF
                 var conversation = AppSettings.ConversationManager.Histories.FirstOrDefault(c => c.ID == selectedId);
                 if (conversation != null)
                 {
-                    conversation.Messages.Add(ChatMessage.FromUser(userMessage));
+                    if (binaryImage == null)
+                    {
+                        conversation.Messages.Add(ChatMessage.FromUser(userMessage));
+                    }
+                    else
+                    {
+                        conversation.Messages.Add(ChatMessage.FromUser(
+                            new List<MessageContent>
+                            {
+                                MessageContent.TextContent(userMessage),
+                                MessageContent.ImageBinaryContent(binaryImage, "png")
+                            }
+                        ));
+                    }
                     conversation.Messages.Add(ChatMessage.FromAssistant(responseText));
                 }
                 RefreshConversationList(); // Sort
@@ -442,16 +485,36 @@ namespace OpenAIOnWPF
             if (ConversationListBox.SelectedIndex == -1)
             {
                 string cleanedUserMessage = userMessage.Replace("\n", "").Replace("\r", "");
-
-                AppSettings.ConversationManager.Histories.Add(new ConversationHistory()
+                if (binaryImage == null)
                 {
-                    Title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage,
-                    Messages = new ObservableCollection<ChatMessage>()
+                    AppSettings.ConversationManager.Histories.Add(new ConversationHistory()
                     {
-                        ChatMessage.FromUser(userMessage),
-                        ChatMessage.FromAssistant(responseText)
-                    }
-                });
+                        Title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage,
+                        Messages = new ObservableCollection<ChatMessage>()
+                        {
+                            ChatMessage.FromUser(userMessage),
+                            ChatMessage.FromAssistant(responseText)
+                        }
+                    });
+                }
+                else
+                {
+                    AppSettings.ConversationManager.Histories.Add(new ConversationHistory()
+                    {
+                        Title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage,
+                        Messages = new ObservableCollection<ChatMessage>()
+                        {
+                            ChatMessage.FromUser(
+                            new List<MessageContent>
+                                {
+                                    MessageContent.TextContent(userMessage),
+                                    MessageContent.ImageBinaryContent(binaryImage, "png")
+                                }
+                            ),
+                            ChatMessage.FromAssistant(responseText)
+                        }
+                    });
+                }
                 RefreshConversationList(); // Sort
                 ConversationListBox.SelectedIndex = 0;
             }

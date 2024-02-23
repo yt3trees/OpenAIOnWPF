@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using ModernWpf;
+﻿using ModernWpf;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenAI.ObjectModels.RequestModels;
@@ -31,6 +30,7 @@ namespace OpenAIOnWPF
         {
             public string? Role { get; set; }
             public string? Content { get; set; }
+            public string? ImageUrl { get; set; }
         }
         public class ViewModel
         {
@@ -61,7 +61,8 @@ namespace OpenAIOnWPF
             ObservableCollection<DataTableItem> list = new ObservableCollection<DataTableItem>();
             foreach (var message in conversationHistory.Messages)
             {
-                list.Add(new DataTableItem() { Role = message.Role, Content = message.Content });
+                var result = UtilityFunctions.ExtractUserAndImageFromMessage(message.Content);
+                list.Add(new DataTableItem() { Role = message.Role, Content = result.userMessage, ImageUrl = result.image });
             }
             DataTable.ItemsSource = list;
             if (ThemeManager.Current.ApplicationTheme == ApplicationTheme.Light)
@@ -84,7 +85,24 @@ namespace OpenAIOnWPF
             UpdatedConversationHistory = new ConversationHistory();
             foreach (DataTableItem item in list)
             {
-                UpdatedConversationHistory.Messages.Add(new ChatMessage(item.Role, item.Content));
+                if (item.Role == "user") // RoleがUserの場合のみJSON形式で保存
+                {
+                    var options = new System.Text.Json.JsonSerializerOptions
+                    {
+                        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+                    };
+                    string contentJson = System.Text.Json.JsonSerializer.Serialize(new List<VisionUserContentItem>
+                    {
+                        new VisionUserContentItem { type = "text", text = item.Content },
+                        new VisionUserContentItem { type = "image_url", image_url = new Image_Url { url = item.ImageUrl, detail = "auto" } }
+                    }, options);
+
+                    UpdatedConversationHistory.Messages.Add(new ChatMessage(item.Role, contentJson));
+                }
+                else
+                {
+                    UpdatedConversationHistory.Messages.Add(new ChatMessage(item.Role, item.Content));
+                }
             }
 
             DialogResult = true;
@@ -132,6 +150,9 @@ namespace OpenAIOnWPF
                     }
                 });
                 DataTable.Columns[1].Width = new DataGridLength(1.0, DataGridLengthUnitType.Star);
+
+                // 3列目のスタイル設定
+                DataTable.Columns[2].Width = new DataGridLength(1.0, DataGridLengthUnitType.SizeToHeader);
 
                 // ComboBox用の新しいDataGridTemplateColumnを作成
                 DataGridTemplateColumn comboBoxColumn = new DataGridTemplateColumn();

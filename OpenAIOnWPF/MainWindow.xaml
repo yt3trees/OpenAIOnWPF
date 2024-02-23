@@ -32,6 +32,7 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <model:FavoriteToSymbolConverter x:Key="FavoriteToSymbolConverter" />
+        <model:ContentToVisibilityConverter x:Key="ContentToVisibilityConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -627,12 +628,34 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <Label
+                            x:Name="ImageFilePathLabel"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Margin="21,-21,0,45"
+                            HorizontalAlignment="Left"
+                            Content="C:\\work\image.png"
+                            Cursor="Hand"
+                            MouseUp="ImageFilePathLabel_MouseUp"
+                            Opacity="0.9" />
+                        <Button
+                            x:Name="ClearImageFilePathLabelButton"
+                            Grid.Column="0"
+                            Width="22"
+                            Height="22"
+                            Margin="0,-68,0,0"
+                            Padding="-10,-10,-10,-10"
+                            HorizontalAlignment="Left"
+                            Background="Transparent"
+                            Click="ClearImageFilePathLabelButton_Click"
+                            Content="✖"
+                            Opacity="0.5"
+                            Visibility="{Binding Content, ElementName=ImageFilePathLabel, Converter={StaticResource ContentToVisibilityConverter}}" />
                         <TextBox
                             x:Name="UserTextBox"
                             Grid.Column="0"
                             MinWidth="0"
                             MaxHeight="180"
-                            Margin="0,0,0,0"
                             Padding="10,10,10,10"
                             VerticalAlignment="Bottom"
                             ui:ControlHelper.PlaceholderText="Send a message..."
@@ -647,6 +670,30 @@
                                 <SolidColorBrush Opacity="0.5" Color="{DynamicResource SystemChromeLowColor}" />
                             </TextBox.Background>
                         </TextBox>
+                        <Button
+                            x:Name="AttachFileButton"
+                            Grid.Column="0"
+                            Height="30"
+                            MaxHeight="180"
+                            Margin="5,0,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            fw:RevealElement.BorderRadius="4"
+                            Background="Transparent"
+                            Click="AttachFileButton_Click"
+                            Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                            Opacity="0.7"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            ToolTip="Translate (Ctrl+Alt+Enter)">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Width="22">
+                                    <ui:SymbolIcon
+                                        Margin="5,5,5,5"
+                                        Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                                        Symbol="Add" />
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
                         <Button
                             x:Name="TranslateButton"
                             Grid.Column="0"
