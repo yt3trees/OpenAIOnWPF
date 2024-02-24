@@ -1403,6 +1403,11 @@ namespace OpenAIOnWPF
                 ModernWpf.MessageBox.Show("The clipboard does not contain any images.", "error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            bool imageAvailable = Clipboard.ContainsImage();
+            PasteFromClipboardMenuItem.IsEnabled = imageAvailable;
+        }
         private void ClearImageFilePathLabelButton_Click(object sender, RoutedEventArgs e)
         {
             imageFilePath = null;

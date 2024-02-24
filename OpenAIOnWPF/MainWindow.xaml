@@ -686,9 +686,12 @@
                             Style="{StaticResource ButtonRevealStyle}"
                             ToolTip="Translate (Ctrl+Alt+Enter)">
                             <Button.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu Opened="ContextMenu_Opened">
                                     <MenuItem Click="SelectFile_Click" Header="Select File" />
-                                    <MenuItem Click="PasteFromClipboard_Click" Header="Paste from Clipboard" />
+                                    <MenuItem
+                                        x:Name="PasteFromClipboardMenuItem"
+                                        Click="PasteFromClipboard_Click"
+                                        Header="Paste from Clipboard" />
                                 </ContextMenu>
                             </Button.ContextMenu>
                             <StackPanel Orientation="Horizontal">
