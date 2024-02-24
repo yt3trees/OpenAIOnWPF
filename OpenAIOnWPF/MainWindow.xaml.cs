@@ -800,6 +800,8 @@ namespace OpenAIOnWPF
                 {
                     Source = bitmapImage,
                     Stretch = Stretch.Uniform,
+                    MaxWidth = 400,
+                    MaxHeight = 400,
                 };
                 messageGrid.Children.Add(imageControl);
                 Grid.SetColumn(imageControl, 1);

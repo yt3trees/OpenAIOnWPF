@@ -125,6 +125,11 @@ namespace OpenAIOnWPF
             TimeLabel.Content = "";
             TokensLabel.Content = "";
             ProgressRing.IsActive = true;
+            UserTextBox.Text = "";
+            ConversationListBox.IsEnabled = false;
+            NewChatButton.IsEnabled = false;
+            ConversationHistoryButton.IsEnabled = false;
+            ConversationHistoryClearButton.IsEnabled = false;
 
             responseText = "";
             ExecButton.IsEnabled = false;
@@ -143,7 +148,10 @@ namespace OpenAIOnWPF
             ExecButton.IsEnabled = true;
             TranslateButton.IsEnabled = true;
             ProgressRing.IsActive = false;
-            UserTextBox.Text = "";
+            ConversationListBox.IsEnabled = true;
+            NewChatButton.IsEnabled = true;
+            ConversationHistoryButton.IsEnabled = true;
+            ConversationHistoryClearButton.IsEnabled = true;
             isProcessing = false;
             imageFilePath = null;
             clipboardImage = null;
