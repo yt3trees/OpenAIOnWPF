@@ -106,7 +106,7 @@ namespace OpenAIOnWPF
                         Temperature = AppSettings.TemperatureSetting,
                         MaxTokens = AppSettings.MaxTokensSetting
                     });
-                    await HandleCompletionResultStream(completionResult);
+                    Task.Run(async () => { await HandleCompletionResultStream(completionResult); });
                 }
             }
             catch (Exception ex)
@@ -346,49 +346,53 @@ namespace OpenAIOnWPF
         }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
         {
-            // 再生成ボタンを非表示にする
-            List<System.Windows.Controls.Button> foundButtons = new List<System.Windows.Controls.Button>();
-            foreach (var child in GetAllChildren(MessagesPanel))
-            {
-                if (child is System.Windows.Controls.Button button && (string)button.Tag == "RegenerateButton")
-                {
-                    button.Visibility = Visibility.Collapsed;
-                }
-            }
-
-            // Userメッセージ
-            var messageElement = CreateMessageElement(userMessage, isUser: true, isLastMessage: false);
-            MessagesPanel.Children.Add(messageElement);
-
-            if (binaryImage != null)
-            {
-                string imageString =  Convert.ToBase64String(binaryImage);
-                var messageElementImage = CreateMessageElement(userMessage, isUser: false, isLastMessage: false, imageString);
-                MessagesPanel.Children.Add(messageElementImage);
-            }
-
-            // Assistantメッセージ
-            FrameworkElement assistantMessageElement = null;
+            System.Windows.Controls.RichTextBox richTextBox = null;
             await Dispatcher.InvokeAsync(() =>
             {
-                assistantMessageElement = CreateMessageElement("", isUser: false, isLastMessage: true); // 要素だけ生成しておく
-                MessagesPanel.Children.Add(assistantMessageElement);
-            });
-            // Grid内のRichTextBox要素を検索
-            Grid assistantMessageGrid = assistantMessageElement as Grid;
-            System.Windows.Controls.RichTextBox richTextBox = null;
-            if (assistantMessageGrid != null)
-            {
-                foreach (var child in assistantMessageGrid.Children)
+
+                // 再生成ボタンを非表示にする
+                List<System.Windows.Controls.Button> foundButtons = new List<System.Windows.Controls.Button>();
+                foreach (var child in GetAllChildren(MessagesPanel))
                 {
-                    if (child is System.Windows.Controls.RichTextBox)
+                    if (child is System.Windows.Controls.Button button && (string)button.Tag == "RegenerateButton")
                     {
-                        richTextBox = child as System.Windows.Controls.RichTextBox;
-                        richTextBox.Document.LineHeight = 1.0;
-                        break;
+                        button.Visibility = Visibility.Collapsed;
                     }
                 }
-            }
+
+                // Userメッセージ
+                var messageElement = CreateMessageElement(userMessage, isUser: true, isLastMessage: false);
+                MessagesPanel.Children.Add(messageElement);
+
+                if (binaryImage != null)
+                {
+                    string imageString = Convert.ToBase64String(binaryImage);
+                    var messageElementImage = CreateMessageElement(userMessage, isUser: false, isLastMessage: false, imageString);
+                    MessagesPanel.Children.Add(messageElementImage);
+                }
+
+                // Assistantメッセージ
+                FrameworkElement assistantMessageElement = null;
+
+                assistantMessageElement = CreateMessageElement("", isUser: false, isLastMessage: true); // 要素だけ生成しておく
+                MessagesPanel.Children.Add(assistantMessageElement);
+
+                // Grid内のRichTextBox要素を検索
+                Grid assistantMessageGrid = assistantMessageElement as Grid;
+                //System.Windows.Controls.RichTextBox richTextBox = null;
+                if (assistantMessageGrid != null)
+                {
+                    foreach (var child in assistantMessageGrid.Children)
+                    {
+                        if (child is System.Windows.Controls.RichTextBox)
+                        {
+                            richTextBox = child as System.Windows.Controls.RichTextBox;
+                            richTextBox.Document.LineHeight = 1.0;
+                            break;
+                        }
+                    }
+                }
+            });
 
             string resultText = "";
             await foreach (var completion in completionResult)
@@ -432,22 +436,25 @@ namespace OpenAIOnWPF
                 Debug.Print($"{item.Role}: {item.Content}");
             }
 
-            var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(responseText, pipeline);
-            richTextBox.Document = flowDocument;
-            ForTokenCalc.responseToken = responseText;
-
-            if (resultFlg)
+            await Dispatcher.InvokeAsync(() =>
             {
-                CaluculateTokenUsage();
-            }
-            if (AppSettings.NoticeFlgSetting && resultFlg)
-            {
-                new ToastContentBuilder()
-                    .AddText("️AI responded back.")
-                    .Show();
-            }
+                var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(responseText, pipeline);
+                richTextBox.Document = flowDocument;
+                ForTokenCalc.responseToken = responseText;
 
-            Reset();
+                if (resultFlg)
+                {
+                    CaluculateTokenUsage();
+                }
+                if (AppSettings.NoticeFlgSetting && resultFlg)
+                {
+                    new ToastContentBuilder()
+                        .AddText("️AI responded back.")
+                        .Show();
+                }
+
+                Reset();
+            });
         }
         /// <summary>
         /// トークン量を計算
