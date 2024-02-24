@@ -40,6 +40,7 @@ namespace OpenAIOnWPF
         string userMessage = "";
         string responseText = "";
         byte[] binaryImage = null;
+        byte[] clipboardImage = null;
         List<ChatMessage> tempMessages = new List<ChatMessage>();
         public static class ForTokenCalc
         {
@@ -76,6 +77,10 @@ namespace OpenAIOnWPF
                 if (imageFilePath != null)
                 {
                     binaryImage = await File.ReadAllBytesAsync(imageFilePath);
+                }
+                else if (clipboardImage != null)
+                {
+                    binaryImage = clipboardImage;
                 }
 
                 var openAiService = CreateOpenAiService();
@@ -141,6 +146,7 @@ namespace OpenAIOnWPF
             UserTextBox.Text = "";
             isProcessing = false;
             imageFilePath = null;
+            clipboardImage = null;
             ImageFilePathLabel.Content = "";
         }
         /// <summary>

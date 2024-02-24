@@ -685,6 +685,12 @@
                             Opacity="0.7"
                             Style="{StaticResource ButtonRevealStyle}"
                             ToolTip="Translate (Ctrl+Alt+Enter)">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Click="SelectFile_Click" Header="Select File" />
+                                    <MenuItem Click="PasteFromClipboard_Click" Header="Paste from Clipboard" />
+                                </ContextMenu>
+                            </Button.ContextMenu>
                             <StackPanel Orientation="Horizontal">
                                 <Viewbox Width="22">
                                     <ui:SymbolIcon

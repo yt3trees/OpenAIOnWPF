@@ -1359,6 +1359,19 @@ namespace OpenAIOnWPF
         }
         private void AttachFileButton_Click(object sender, RoutedEventArgs e)
         {
+            Button button = sender as Button;
+            if (button.ContextMenu != null)
+            {
+                button.ContextMenu.IsOpen = false;
+
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+
+                button.ContextMenu.IsOpen = true;
+            }
+        }
+        private void SelectFile_Click(object sender, RoutedEventArgs e)
+        {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg;*.webp;*.gif)|*.png;*.jpeg;*.jpg;*.webp;*.gif";
             openFileDialog.Multiselect = false;
@@ -1367,6 +1380,27 @@ namespace OpenAIOnWPF
             {
                 imageFilePath = openFileDialog.FileName;
                 ImageFilePathLabel.Content = imageFilePath;
+                clipboardImage = null;
+            }
+        }
+        private void PasteFromClipboard_Click(object sender, RoutedEventArgs e)
+        {
+            if (Clipboard.ContainsImage())
+            {
+                var image = Clipboard.GetImage();
+                using (var memoryStream = new MemoryStream())
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(memoryStream);
+                    clipboardImage = memoryStream.ToArray();
+                    imageFilePath = null;
+                    ImageFilePathLabel.Content = "clipboard";
+                }
+            }
+            else
+            {
+                ModernWpf.MessageBox.Show("The clipboard does not contain any images.", "error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
         private void ClearImageFilePathLabelButton_Click(object sender, RoutedEventArgs e)
