@@ -200,6 +200,7 @@ namespace OpenAIOnWPF
                     SaveConversationsAsJson(AppSettings.ConversationManager);
                     string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     ModernWpf.MessageBox.Show("Saved to " + documentsPath + @"\OpenAIOnWPF\ConversationHistory", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    e.Handled = true;
                 }
                 catch
                 (Exception ex)
