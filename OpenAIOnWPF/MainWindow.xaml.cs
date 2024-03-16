@@ -165,24 +165,13 @@ namespace OpenAIOnWPF
         {
             if (e.Key == Key.F2)
             {
-                var window = new ColorSettings();
+                string currentText = UserTextBox.Text;
+                var window = new LargeUserTextInput(currentText);
                 window.Owner = this;
                 window.ShowDialog();
+                UserTextBox.Focus();
             }
             if (e.Key == Key.F3)
-            {
-                var window = new TranslationAPISettingWindow();
-                window.Owner = this;
-                window.ShowDialog();
-            }
-            if (e.Key == Key.F4)
-            {
-                var window = new ConfigSettingWindow();
-                window.Owner = this;
-                window.ShowDialog();
-                ConfigurationComboBox.ItemsSource = AppSettings.ConfigDataTable.AsEnumerable().Select(x => x.Field<string>("ConfigurationName")).ToList();
-            }
-            if (e.Key == Key.F5)
             {
                 ShowTable();
             }
@@ -260,6 +249,17 @@ namespace OpenAIOnWPF
             var tokens = TokenizerGpt3.Encode(UserTextBox.Text);
             string tooltip = $"Tokens : {tokens.Count()}";
             UserTextBox.ToolTip = tooltip;
+        }
+        private void UserTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (UserTextBox.ActualHeight >= UserTextBox.MaxHeight)
+            {
+                ShowLargeTextInputWindowButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ShowLargeTextInputWindowButton.Visibility = Visibility.Collapsed;
+            }
         }
         private void NoticeToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
@@ -341,13 +341,13 @@ namespace OpenAIOnWPF
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                if (e.Delta > 0)
+                if (e.Delta > 0 && UserTextBox.FontSize < 40)
                 {
-                    UserTextBox.FontSize += 1;
+                    UserTextBox.FontSize += 2;
                 }
-                else
+                else if (e.Delta < 0 && UserTextBox.FontSize > 10)
                 {
-                    UserTextBox.FontSize -= 1;
+                    UserTextBox.FontSize -= 2;
                 }
             }
         }
@@ -1420,6 +1420,14 @@ namespace OpenAIOnWPF
         {
             string argument = $"/select, \"{imageFilePath}\"";
             System.Diagnostics.Process.Start("explorer.exe", argument);
+        }
+        private void ShowLargeTextInputWindowButton_Click(object sender, RoutedEventArgs e)
+        {
+            string currentText = UserTextBox.Text;
+            var window = new LargeUserTextInput(currentText);
+            window.Owner = this;
+            window.ShowDialog();
+            UserTextBox.Focus();
         }
     }
 }

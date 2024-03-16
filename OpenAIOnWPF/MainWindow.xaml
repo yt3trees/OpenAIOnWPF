@@ -241,8 +241,7 @@
                         <MenuItem
                             x:Name="ColorMenuItem"
                             Click="ColorMenuItem_Click"
-                            Header="Color Theme"
-                            InputGestureText="F2">
+                            Header="Color Theme">
                             <MenuItem.Icon>
                                 <ui:SymbolIcon Symbol="Highlight" />
                             </MenuItem.Icon>
@@ -250,8 +249,7 @@
                         <MenuItem
                             x:Name="TranslationAPIMenuItem"
                             Click="TranslationAPIMenuItem_Click"
-                            Header="Translation API"
-                            InputGestureText="F3">
+                            Header="Translation API">
                             <MenuItem.Icon>
                                 <ui:SymbolIcon Symbol="Globe" />
                             </MenuItem.Icon>
@@ -651,25 +649,36 @@
                             Content="✖"
                             Opacity="0.5"
                             Visibility="{Binding Content, ElementName=ImageFilePathLabel, Converter={StaticResource ContentToVisibilityConverter}}" />
-                        <TextBox
-                            x:Name="UserTextBox"
-                            Grid.Column="0"
-                            MinWidth="0"
-                            MaxHeight="180"
-                            Padding="10,10,10,10"
-                            VerticalAlignment="Bottom"
-                            ui:ControlHelper.PlaceholderText="Send a message..."
-                            AcceptsReturn="True"
-                            FontSize="16"
-                            KeyDown="UserTextBox_KeyDown"
-                            MouseWheel="UserTextBox_MouseWheel"
-                            TextChanged="UserTextBox_TextChanged"
-                            TextWrapping="Wrap"
-                            VerticalScrollBarVisibility="Auto">
-                            <TextBox.Background>
-                                <SolidColorBrush Opacity="0.5" Color="{DynamicResource SystemChromeLowColor}" />
-                            </TextBox.Background>
-                        </TextBox>
+                        <StackPanel Grid.Column="0">
+                            <Button
+                                x:Name="ShowLargeTextInputWindowButton"
+                                HorizontalAlignment="Stretch"
+                                fw:RevealElement.BorderRadius="4"
+                                Click="ShowLargeTextInputWindowButton_Click"
+                                Content="▲"
+                                Style="{StaticResource ButtonRevealStyle}"
+                                ToolTip="Expand text input (F2)"
+                                Visibility="Collapsed" />
+                            <TextBox
+                                x:Name="UserTextBox"
+                                MinWidth="0"
+                                MaxHeight="180"
+                                Padding="10,10,10,10"
+                                VerticalAlignment="Bottom"
+                                ui:ControlHelper.PlaceholderText="Send a message..."
+                                AcceptsReturn="True"
+                                FontSize="16"
+                                KeyDown="UserTextBox_KeyDown"
+                                MouseWheel="UserTextBox_MouseWheel"
+                                TextChanged="UserTextBox_TextChanged"
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Auto"
+                                     SizeChanged="UserTextBox_SizeChanged">
+                                <TextBox.Background>
+                                    <SolidColorBrush Opacity="0.5" Color="{DynamicResource SystemChromeLowColor}" />
+                                </TextBox.Background>
+                            </TextBox>
+                        </StackPanel>
                         <Button
                             x:Name="AttachFileButton"
                             Grid.Column="0"
