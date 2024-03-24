@@ -481,6 +481,11 @@ namespace OpenAIOnWPF
             try
             {
                 token = JToken.Parse(message);
+                if (token.Type != JTokenType.Array)
+                {
+                    // JSONが配列でない場合はnullとするか、適切なデフォルト値に設定
+                    token = null;
+                }
             }
             catch (Exception)
             {
