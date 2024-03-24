@@ -51,6 +51,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="SubWindow\PromptTemplateInput.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="SubWindow\LargeUserTextInput.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="SubWindow\VersionWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

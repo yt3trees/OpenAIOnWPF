@@ -15,6 +15,11 @@ namespace OpenAIOnWPF
         public static int ConversationHistoryCountSetting { get; set; } = Properties.Settings.Default.ConversationHistoryCount;
         public static bool UseConversationHistoryFlg = Properties.Settings.Default.UseConversationHistory;
         public static ConversationManager ConversationManager { get; set; } 
+        public static PromptTemplateManager PromptTemplateManager { get; set; }
+        public static double PromptTemplateGridRowHeighSetting = Properties.Settings.Default.PromptTemplateGridRowHeigh;
+        public static double ChatListGridRowHeightSetting = Properties.Settings.Default.ChatListGridRowHeight;
+        public static double PromptTemplateGridRowHeightSaveSetting = Properties.Settings.Default.PromptTemplateGridRowHeightSave;
+        public static bool IsPromptTemplateListVisible { get; set; } = Properties.Settings.Default.IsPromptTemplateListVisible;
         public static bool NoticeFlgSetting { get; set; } = Properties.Settings.Default.NoticeFlg;
         public static string TranslationAPIProvider { get; set; } = Properties.Settings.Default.TranslationAPIProvider;
         public static bool TranslationAPIUseFlg { get; set; } = Properties.Settings.Default.TranslationAPIUseFlg;

@@ -34,6 +34,7 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.UseConversationHistory = AppSettings.UseConversationHistoryFlg;
             Properties.Settings.Default.IsSystemPromptColumnVisible = AppSettings.IsSystemPromptColumnVisible;
             Properties.Settings.Default.IsConversationColumnVisible = AppSettings.IsConversationColumnVisible;
+            Properties.Settings.Default.IsPromptTemplateListVisible = AppSettings.IsPromptTemplateListVisible;
             Properties.Settings.Default.TranslationAPIProvider = AppSettings.TranslationAPIProvider;
             Properties.Settings.Default.TranslationAPIUseFlg = AppSettings.TranslationAPIUseFlg;
             Properties.Settings.Default.FromTranslationLanguage = AppSettings.FromTranslationLanguage;
@@ -42,8 +43,12 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.TranslationAPIKeyDeepL = AppSettings.TranslationAPIKeyDeepL;
             Properties.Settings.Default.TranslationAPIUrlGoogle = AppSettings.TranslationAPIUrlGoogle;
             Properties.Settings.Default.TranslationAPIKeyGoogle = AppSettings.TranslationAPIKeyGoogle;
+            Properties.Settings.Default.PromptTemplateGridRowHeigh = AppSettings.PromptTemplateGridRowHeighSetting;
+            Properties.Settings.Default.ChatListGridRowHeight = AppSettings.ChatListGridRowHeightSetting;
+            Properties.Settings.Default.PromptTemplateGridRowHeightSave = AppSettings.PromptTemplateGridRowHeightSaveSetting;
             Properties.Settings.Default.Save();
             SaveConversationsAsJson(AppSettings.ConversationManager);
+            SavePromptTemplateAsJson(AppSettings.PromptTemplateManager);
         }
         /// <summary>
         /// 指示内容を生成
@@ -309,6 +314,57 @@ namespace OpenAIOnWPF
                 if (conversation != null)
                 {
                     manager.Histories.Add(conversation);
+                }
+            }
+            return manager;
+        }
+        public static void SavePromptTemplateAsJson(PromptTemplateManager manager)
+        {
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "PromptTemplate");
+
+            Directory.CreateDirectory(dataDirectory);
+
+            foreach (var file in Directory.EnumerateFiles(dataDirectory, "*.json"))
+            {
+                File.Delete(file);
+            }
+
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 非ASCII文字をエスケープしない
+            };
+
+            foreach (var template in manager.Templates)
+            {
+                string formattedLastUpdated = template.LastUpdated.ToString("yyyyMMddHHmmss");
+                string filePath = Path.Combine(dataDirectory, $"PromptTemplate_{formattedLastUpdated}_{template.ID}.json");
+                string jsonString = System.Text.Json.JsonSerializer.Serialize(template, options);
+
+                File.WriteAllText(filePath, jsonString);
+            }
+        }
+        public static PromptTemplateManager LoadPromptTemplateFromJson()
+        {
+            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "PromptTemplate");
+
+            var manager = new PromptTemplateManager();
+            manager.Templates = new ObservableCollection<PromptTemplate>();
+
+            Directory.CreateDirectory(dataDirectory);
+
+            string[] files = Directory.GetFiles(dataDirectory, "PromptTemplate_*.json");
+
+            foreach (var file in files)
+            {
+                string jsonString = File.ReadAllText(file);
+                PromptTemplate templates = System.Text.Json.JsonSerializer.Deserialize<PromptTemplate>(jsonString);
+
+                if (templates != null)
+                {
+                    manager.Templates.Add(templates);
                 }
             }
             return manager;

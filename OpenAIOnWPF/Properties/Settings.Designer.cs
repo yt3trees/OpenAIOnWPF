@@ -370,5 +370,53 @@ namespace OpenAIOnWPF.Properties {
                 this["UpgradeRequired"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IsPromptTemplateListVisible {
+            get {
+                return ((bool)(this["IsPromptTemplateListVisible"]));
+            }
+            set {
+                this["IsPromptTemplateListVisible"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public double PromptTemplateGridRowHeigh {
+            get {
+                return ((double)(this["PromptTemplateGridRowHeigh"]));
+            }
+            set {
+                this["PromptTemplateGridRowHeigh"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public double ChatListGridRowHeight {
+            get {
+                return ((double)(this["ChatListGridRowHeight"]));
+            }
+            set {
+                this["ChatListGridRowHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public double PromptTemplateGridRowHeightSave {
+            get {
+                return ((double)(this["PromptTemplateGridRowHeightSave"]));
+            }
+            set {
+                this["PromptTemplateGridRowHeightSave"] = value;
+            }
+        }
     }
 }

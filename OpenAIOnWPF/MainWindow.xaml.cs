@@ -61,6 +61,23 @@ namespace OpenAIOnWPF
                 collectionViewSource.Source = AppSettings.ConversationManager.Histories;
                 ConversationListBox.ItemsSource = collectionViewSource.View;
             }
+            var promptTemplateSource = FindResource("SortedPromptTemplates") as CollectionViewSource;
+            if (promptTemplateSource != null)
+            {
+                promptTemplateSource.Source = AppSettings.PromptTemplateManager.Templates;
+                PromptTemplateListBox.ItemsSource = promptTemplateSource.View;
+            }
+            PromptTemplateListBox.SelectedItem = null;
+
+            if (AppSettings.PromptTemplateGridRowHeighSetting > 0)
+            {
+                ChatListGridRow.Height = new GridLength(AppSettings.ChatListGridRowHeightSetting, GridUnitType.Star);
+                PromptTemplateGridRow.Height = new GridLength(AppSettings.PromptTemplateGridRowHeighSetting, GridUnitType.Star);
+            }
+            else
+            {
+                PromptTemplateGridRow.Height = new GridLength(0);
+            }
         }
         private void InitializeSettings()
         {
@@ -80,6 +97,7 @@ namespace OpenAIOnWPF
             try
             {
                 AppSettings.ConversationManager = LoadConversationsFromJson();
+                AppSettings.PromptTemplateManager = LoadPromptTemplateFromJson();
             }
             catch (Exception ex)
             {
@@ -121,6 +139,10 @@ namespace OpenAIOnWPF
                     ConversationListBox.SelectedItem = selectedConversation;
                 }
             }
+            if (AppSettings.PromptTemplateManager.Templates == null)
+            {
+                AppSettings.PromptTemplateManager.Templates = new ObservableCollection<PromptTemplate>();
+            }
 
             // Settingsから指示内容リストを取得しセット
             SystemPromptComboBox.ItemsSource = SetupInstructionComboBox();
@@ -142,6 +164,11 @@ namespace OpenAIOnWPF
 
             InitializeSystemPromptColumn();
 
+            bool isCollapsed = !(AppSettings.IsPromptTemplateListVisible);
+            PromptTemplateListBox.Visibility = isCollapsed ? Visibility.Collapsed : Visibility.Visible;
+            NewTemplateButton.Visibility = isCollapsed ? Visibility.Collapsed : Visibility.Visible;
+            ToggleVisibilityPromptTemplateButton.Content = isCollapsed ? "▲" : "▼";
+
             var currentPadding = UserTextBox.Padding;
             if (AppSettings.TranslationAPIUseFlg == true)
             {
@@ -157,6 +184,7 @@ namespace OpenAIOnWPF
             if (ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark)
             {
                 ConversationListBox.Opacity = 0.9;
+                PromptTemplateListBox.Opacity = 0.9;
             }
 
             ImageFilePathLabel.Content = string.Empty;
@@ -271,6 +299,8 @@ namespace OpenAIOnWPF
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            AppSettings.PromptTemplateGridRowHeighSetting = PromptTemplateGridRow.ActualHeight;
+            AppSettings.ChatListGridRowHeightSetting = ChatListGridRow.ActualHeight;
             SaveSettings();
         }
         private void ConfigurationComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -1145,6 +1175,31 @@ namespace OpenAIOnWPF
             UserTextBox.Focus();
             UserTextBox.CaretIndex = UserTextBox.Text.Length;
         }
+        private PromptTemplateManager templateManager = new PromptTemplateManager();
+        private void NewTemplateButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new PromptTemplateInput();
+            dialog.Owner = this;
+            if (dialog.ShowDialog() == true)
+            {
+                PromptTemplate newTemplate = dialog.Result;
+
+                if (AppSettings.PromptTemplateManager.Templates.Count > 0)
+                {
+                    int maxSortOrder = AppSettings.PromptTemplateManager.Templates.Max(t => t.SortOrder);
+                    newTemplate.SortOrder = maxSortOrder + 1;
+                }
+                else
+                {
+                    newTemplate.SortOrder = 1;
+                }
+
+                AppSettings.PromptTemplateManager.Templates.Add(newTemplate);
+                PromptTemplateListBox.SelectedItem = newTemplate;
+                PromptTemplateListBox.ScrollIntoView(newTemplate);
+                PromptTemplateListBox.Focus();
+            }
+        }
         private void ConversationDeleteButton_Click(object sender, RoutedEventArgs e)
         {
             ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
@@ -1170,6 +1225,33 @@ namespace OpenAIOnWPF
             {
                 string newTitle = editWindow.NewTitle;
                 itemToDelete.Title = newTitle;
+            }
+        }
+        private void PromptTemplateEditButton_Click(object sender, RoutedEventArgs e)
+        {
+            PromptTemplate item = (PromptTemplate)((Button)sender).DataContext;
+
+            var dialog = new PromptTemplateInput(item);
+            dialog.Owner = this;
+            if (dialog.ShowDialog() == true)
+            {
+                PromptTemplate newTemplate = dialog.Result;
+                item.Title = newTemplate.Title;
+                item.Description = newTemplate.Description;
+                item.Prompt = newTemplate.Prompt;
+                item.LastUpdated = DateTime.Now; // 最終更新日時も更新
+
+                var index = AppSettings.PromptTemplateManager.Templates.IndexOf(item);
+                AppSettings.PromptTemplateManager.Templates[index] = item;
+
+                // 変更されたアイテムを再選択
+                PromptTemplateListBox.SelectedItem = item;
+                PromptTemplateListBox.ScrollIntoView(item);
+                PromptTemplateListBox.Items.Refresh();
+            }
+            else
+            {
+                PromptTemplateListBox.Items.Refresh();
             }
         }
         private void ConversationFavoriteButton_Click(object sender, RoutedEventArgs e)
@@ -1233,6 +1315,107 @@ namespace OpenAIOnWPF
                 UserTextBox.Focus();
             }
             UserTextBox.CaretIndex = UserTextBox.Text.Length;
+        }
+        private void PromptTemplateListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedTemplate = (PromptTemplate)PromptTemplateListBox.SelectedItem;
+
+            // 削除ボタン活性制御用
+            foreach (var item in PromptTemplateListBox.Items.OfType<PromptTemplate>())
+            {
+                item.IsSelected = false;
+            }
+            if (selectedTemplate != null)
+            {
+                selectedTemplate.IsSelected = true;
+            }
+            foreach (PromptTemplate item in e.RemovedItems)
+            {
+                item.IsSelected = false;
+            }
+        }
+        private void PromptTemplateSortUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            PromptTemplate selectedItem = (PromptTemplate)((Button)sender).DataContext;
+            int currentIndex = AppSettings.PromptTemplateManager.Templates.IndexOf(selectedItem);
+            if (currentIndex > 0)
+            {
+                PromptTemplate itemAbove = AppSettings.PromptTemplateManager.Templates[currentIndex - 1];
+
+                selectedItem.SortOrder -= 1;
+                itemAbove.SortOrder += 1;
+
+                SortTemplatesBySortOrder();
+                PromptTemplateListBox.Items.Refresh();
+                PromptTemplateListBox.SelectedItem = selectedItem;
+                PromptTemplateListBox.ScrollIntoView(selectedItem);
+            }
+        }
+        private void PromptTemplateSortDownButton_Click(object sender, RoutedEventArgs e)
+        {
+            PromptTemplate selectedItem = (PromptTemplate)((Button)sender).DataContext;
+            var templates = AppSettings.PromptTemplateManager.Templates;
+            int currentIndex = templates.IndexOf(selectedItem);
+
+            if (currentIndex < templates.Count - 1)
+            {
+                PromptTemplate itemBelow = templates[currentIndex + 1];
+
+                selectedItem.SortOrder += 1;
+                itemBelow.SortOrder -= 1;
+
+                SortTemplatesBySortOrder();
+                PromptTemplateListBox.Items.Refresh();
+                PromptTemplateListBox.SelectedItem = selectedItem;
+                PromptTemplateListBox.ScrollIntoView(selectedItem);
+            }
+        }
+        private void SortTemplatesBySortOrder()
+        {
+            var sortedTemplates = AppSettings.PromptTemplateManager.Templates
+                                   .OrderBy(t => t.SortOrder)
+                                   .ToList();
+
+            AppSettings.PromptTemplateManager.Templates.Clear();
+            foreach (var template in sortedTemplates)
+            {
+                AppSettings.PromptTemplateManager.Templates.Add(template);
+            }
+        }
+        private void PromptTemplateInsertButton_Click(object sender, RoutedEventArgs e)
+        {
+            PromptTemplate selectedItem = (PromptTemplate)((Button)sender).DataContext;
+            string prompt = selectedItem.Prompt;
+            if (!string.IsNullOrEmpty(UserTextBox.Text))
+            {
+                // ユーザーに確認するメッセージボックスを表示
+                var result = ModernWpf.MessageBox.Show(
+                    "The text box already contains text. Do you want to replace it?",
+                    "Confirm Replace",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    UserTextBox.Text = prompt;
+                }
+            }
+            else
+            {
+                UserTextBox.Text = prompt;
+            }
+        }
+        private void PromptTemplateListBox_MouseLeave(object sender, MouseEventArgs e)
+        {
+            PromptTemplateListBox.SelectedItem = null;
+        }
+        private void PromptTemplateListBoxItem_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var item = sender as ListBoxItem;
+            if (item != null && !item.IsSelected)
+            {
+                item.IsSelected = true;
+            }
         }
         public void RefreshConversationList()
         {
@@ -1428,6 +1611,29 @@ namespace OpenAIOnWPF
             window.Owner = this;
             window.ShowDialog();
             UserTextBox.Focus();
+        }
+        private void ToggleVisibilityPromptTemplateButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool isCollapsed = PromptTemplateListBox.Visibility == Visibility.Collapsed;
+            PromptTemplateListBox.Visibility = isCollapsed ? Visibility.Visible : Visibility.Collapsed;
+            NewTemplateButton.Visibility = isCollapsed ? Visibility.Visible : Visibility.Collapsed;
+
+            // 折りたたみボタンのアイコンを更新
+            ToggleVisibilityPromptTemplateButton.Content = isCollapsed ? "▼" : "▲";
+
+            if (isCollapsed) // 表示
+            {
+                ChatListGridRow.Height = new GridLength(AppSettings.ChatListGridRowHeightSetting, GridUnitType.Star);
+                PromptTemplateGridRow.Height = new GridLength(AppSettings.PromptTemplateGridRowHeightSaveSetting, GridUnitType.Star);
+            }
+            else // 非表示
+            {
+                AppSettings.ChatListGridRowHeightSetting = ChatListGridRow.ActualHeight;
+                AppSettings.PromptTemplateGridRowHeightSaveSetting = PromptTemplateGridRow.ActualHeight;
+                PromptTemplateGridRow.Height = new GridLength(0);
+            }
+
+            AppSettings.IsPromptTemplateListVisible = isCollapsed;
         }
     }
 }
