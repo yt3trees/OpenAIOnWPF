@@ -10,7 +10,7 @@
     xmlns:model="clr-namespace:OpenAIOnWPF.Model"
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="http://schemas.modernwpf.com/2019"
-    Title="OpenAI"
+    Title="OpenAIOnWPF"
     Width="900"
     Height="433"
     fw:AcrylicWindow.AcrylicAccentState="Default"
