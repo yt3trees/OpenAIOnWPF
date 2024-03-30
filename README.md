@@ -19,7 +19,7 @@ OpenAIOnWPF is a WPF application for interacting with desktop applications using
 ## Feature
 ### Configuration
 OpenAI or AzureOpenAI APIs are available.
-<img src="https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/fc457b14-f563-4551-aadb-dffa1c89c316" width="80%" />
+<img src="https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/fc457b14-f563-4551-aadb-dffa1c89c316" width="100%" />
 
 ### Edit Conversation History
 https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/d7bcb773-9832-44cc-8a97-a3a13e6f8c18
@@ -35,6 +35,9 @@ English is said to be the most accurate. Use this if you want to interact with t
 Requires DeepL or Google's translation API.
 
 https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/18462921-7c50-45d3-87cd-be751a5a3197
+
+### Change Color Theme
+![color_theme](https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/8ab7f837-e7c6-4038-b98b-20b52146c399)
 
 ## Author
 
