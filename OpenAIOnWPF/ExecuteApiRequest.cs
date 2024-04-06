@@ -24,6 +24,7 @@ using System.Windows.Threading;
 using Google.Cloud.Translation.V2;
 using static OpenAIOnWPF.UtilityFunctions;
 using System.IO;
+using System.Threading;
 
 namespace OpenAIOnWPF
 {
@@ -106,7 +107,8 @@ namespace OpenAIOnWPF
                         Temperature = AppSettings.TemperatureSetting,
                         MaxTokens = AppSettings.MaxTokensSetting
                     });
-                    Task.Run(async () => { await HandleCompletionResultStream(completionResult); });
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    Task.Run(async () => { await HandleCompletionResultStream(completionResult,_cancellationTokenSource.Token); });
                 }
             }
             catch (Exception ex)
@@ -124,6 +126,7 @@ namespace OpenAIOnWPF
             stopWatch.Start();
             TimeLabel.Content = "";
             TokensLabel.Content = "";
+            CancelButton.Visibility = Visibility.Visible;
             ProgressRing.IsActive = true;
             UserTextBox.Text = "";
             ConversationListBox.IsEnabled = false;
@@ -152,6 +155,7 @@ namespace OpenAIOnWPF
             NewChatButton.IsEnabled = true;
             ConversationHistoryButton.IsEnabled = true;
             ConversationHistoryClearButton.IsEnabled = true;
+            CancelButton.Visibility = Visibility.Collapsed;
             isProcessing = false;
             imageFilePath = null;
             clipboardImage = null;
@@ -344,7 +348,7 @@ namespace OpenAIOnWPF
             }
             Reset();
         }
-        private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult)
+        private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult, CancellationToken cancellationToken)
         {
             System.Windows.Controls.RichTextBox richTextBox = null;
             await Dispatcher.InvokeAsync(() =>
@@ -395,34 +399,40 @@ namespace OpenAIOnWPF
             });
 
             string resultText = "";
-            await foreach (var completion in completionResult)
+            try
             {
-                if (completion.Successful)
+                await foreach (var completion in completionResult.WithCancellation(cancellationToken))
                 {
-                    var firstChoice = completion.Choices.FirstOrDefault();
-                    if (firstChoice == null)
+                    //cancellationToken.ThrowIfCancellationRequested();
+
+                    if (completion.Successful)
                     {
-                        continue;
+                        var firstChoice = completion.Choices.FirstOrDefault();
+                        if (firstChoice == null)
+                        {
+                            continue;
+                        }
+                        resultText = firstChoice.Message.Content;
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            responseText += $"{resultText}";
+                            richTextBox.AppendText(resultText);
+                            FlushWindowsMessageQueue(); // 描画遅延対策
+                        });
                     }
-                    resultText = firstChoice.Message.Content;
-                    await Dispatcher.InvokeAsync(() =>
+                    else
                     {
-                        responseText += $"{resultText}";
-                        richTextBox.AppendText(resultText);
-                        FlushWindowsMessageQueue(); // 描画遅延対策
-                    });
-                }
-                else
-                {
-                    if (completion.Error == null)
-                    {
-                        throw new Exception("Unknown Error");
+                        if (completion.Error == null)
+                        {
+                            throw new Exception("Unknown Error");
+                        }
+                        resultText = $"{completion.Error.Code}: {completion.Error.Message}";
+                        ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
+                        resultFlg = false;
                     }
-                    resultText = $"{completion.Error.Code}: {completion.Error.Message}";
-                    ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
-                    resultFlg = false;
                 }
             }
+            catch (OperationCanceledException) { }
 
             var pipeline = new MarkdownPipelineBuilder()
             .UseSoftlineBreakAsHardlineBreak()

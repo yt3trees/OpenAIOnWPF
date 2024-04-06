@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -269,7 +270,26 @@ namespace OpenAIOnWPF
         }
         private void ExecButton_Click(object sender, RoutedEventArgs e)
         {
-            _ = ProcessOpenAIAsync(UserTextBox.Text);
+            if (!(string.IsNullOrWhiteSpace(UserTextBox.Text)))
+            {
+                _ = ProcessOpenAIAsync(UserTextBox.Text);
+            }
+        }
+        private CancellationTokenSource _cancellationTokenSource;
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            _cancellationTokenSource?.Cancel();
+        }
+        private void AssistantMessageGrid_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (isProcessing)
+            {
+                CancelButton.Visibility = Visibility.Visible;
+            }
+        }
+        private void AssistantMessageGrid_MouseLeave(object sender, MouseEventArgs e)
+        {
+            CancelButton.Visibility = Visibility.Collapsed;
         }
         private void UserTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {

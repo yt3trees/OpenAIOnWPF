@@ -848,7 +848,10 @@
                     Content="⬇"
                     Opacity="0.8"
                     Style="{StaticResource ButtonRevealStyle}" />
-                <Grid Grid.Row="1">
+                <Grid
+                    Grid.Row="1"
+                    MouseEnter="AssistantMessageGrid_MouseEnter"
+                    MouseLeave="AssistantMessageGrid_MouseLeave">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="20*" MaxWidth="1300" />
@@ -982,6 +985,22 @@
                             Style="{StaticResource ButtonRevealStyle}"
                             ToolTip="Send message (Ctrl+Enter)">
                             <ui:SymbolIcon Symbol="Send" />
+                        </Button>
+                        <Button
+                            x:Name="CancelButton"
+                            Grid.Column="1"
+                            Width="43"
+                            Height="43"
+                            Margin="5,0,0,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            fw:RevealElement.BorderRadius="4"
+                            Click="CancelButton_Click"
+                            Foreground="{DynamicResource SystemBaseMediumHighColorBrush}"
+                            Opacity="0.9"
+                            Style="{StaticResource ButtonRevealStyle}"
+                            Visibility="Collapsed">
+                            <ui:SymbolIcon Symbol="Cancel" />
                         </Button>
                         <ui:ProgressRing
                             x:Name="ProgressRing"
