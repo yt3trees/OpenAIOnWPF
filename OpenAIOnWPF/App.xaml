@@ -78,6 +78,10 @@
                 <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
                 <Setter Property="FontWeight" Value="Bold" />
             </Style>
+            <Style x:Key="{x:Static markdig:Styles.Heading4StyleKey}" TargetType="{x:Type Paragraph}">
+                <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
             <Style x:Key="{x:Static markdig:Styles.CodeBlockStyleKey}" TargetType="{x:Type Paragraph}">
                 <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
                 <Setter Property="Background" Value="{DynamicResource SystemListLowColorBrush}" />
