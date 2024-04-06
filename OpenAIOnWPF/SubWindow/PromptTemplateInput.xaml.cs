@@ -63,7 +63,7 @@ namespace OpenAIOnWPF
         {
             // 必須入力フィールドが空かどうかを確認
             if (string.IsNullOrWhiteSpace(TitleTextBox.Text) ||
-                string.IsNullOrWhiteSpace(DescriptionTextBox.Text) ||
+                // string.IsNullOrWhiteSpace(DescriptionTextBox.Text) ||
                 string.IsNullOrWhiteSpace(PromptTextBox.Text))
             {
                 // 入力が不足している場合はユーザーに通知
