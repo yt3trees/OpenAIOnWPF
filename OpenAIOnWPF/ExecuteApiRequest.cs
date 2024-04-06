@@ -85,7 +85,7 @@ namespace OpenAIOnWPF
                 }
 
                 var openAiService = CreateOpenAiService();
-                userMessage = prompt;
+                userMessage = prompt.Trim();
                 var messages = PrepareMessages(prompt, binaryImage);
                 tempMessages = messages;
 
