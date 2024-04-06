@@ -126,7 +126,6 @@ namespace OpenAIOnWPF
             stopWatch.Start();
             TimeLabel.Content = "";
             TokensLabel.Content = "";
-            CancelButton.Visibility = Visibility.Visible;
             ProgressRing.IsActive = true;
             UserTextBox.Text = "";
             ConversationListBox.IsEnabled = false;
@@ -155,7 +154,6 @@ namespace OpenAIOnWPF
             NewChatButton.IsEnabled = true;
             ConversationHistoryButton.IsEnabled = true;
             ConversationHistoryClearButton.IsEnabled = true;
-            CancelButton.Visibility = Visibility.Collapsed;
             isProcessing = false;
             imageFilePath = null;
             clipboardImage = null;
@@ -478,7 +476,7 @@ namespace OpenAIOnWPF
             var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
             string tooltip = "";
             tooltip += $"Conversation History Tokens : {conversationResultTokens.Count().ToString("N0")}\r\n";
-            tooltip += $"Instruction Tokens : {instructionTokens.Count().ToString("N0")}\r\n";
+            tooltip += $"System Prompt Tokens : {instructionTokens.Count().ToString("N0")}\r\n";
             tooltip += $"User Message Tokens : {userTokens.Count().ToString("N0")}\r\n";
             tooltip += $"AI Response Tokens : {responseTokens.Count().ToString("N0")}\r\n";
             tooltip += $"Total Tokens : {totalTokens.ToString("N0")}";

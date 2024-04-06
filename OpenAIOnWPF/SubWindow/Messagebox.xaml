@@ -27,6 +27,7 @@
             <TextBox
                 x:Name="ContentLabel"
                 Padding="10,10,10,10"
+                Background="Transparent"
                 BorderBrush="{x:Null}"
                 IsReadOnly="True"
                 TextWrapping="Wrap" />
