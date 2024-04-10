@@ -68,12 +68,18 @@ namespace OpenAIOnWPF
 
             ModelComboBox.Items.Add("gpt-3.5-turbo");
             ModelComboBox.Items.Add("gpt-3.5-turbo-16k");
-            ModelComboBox.Items.Add("gpt-3.5-turbo-16k-instruct");
+            ModelComboBox.Items.Add("gpt-3.5-turbo-instruct");
             ModelComboBox.Items.Add("gpt-3.5-turbo-1106");
+            ModelComboBox.Items.Add("gpt-3.5-turbo-0125");
             ModelComboBox.Items.Add("gpt-4");
+            ModelComboBox.Items.Add("gpt-4-32k");
             ModelComboBox.Items.Add("gpt-4-0613");
             ModelComboBox.Items.Add("gpt-4-1106-preview");
+            ModelComboBox.Items.Add("gpt-4-0125-preview");
             ModelComboBox.Items.Add("gpt-4-vision-preview");
+            ModelComboBox.Items.Add("gpt-4-turbo");
+            ModelComboBox.Items.Add("gpt-4-turbo-2024-04-09");
+
             if (AppSettings.ConfigDataTable == null)
             {
                 DataSet ds = new DataSet();
