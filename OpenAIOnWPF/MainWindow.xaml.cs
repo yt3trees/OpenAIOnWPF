@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using ModernWpf;
 using ModernWpf.Controls;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.Tokenizer.GPT3;
 using OpenAIOnWPF.Model;

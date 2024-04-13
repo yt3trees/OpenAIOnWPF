@@ -95,6 +95,7 @@
                 <Setter Property="FontSize" Value="30" />
                 <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColorBrush}" />
                 <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="TextDecorations" Value="Underline" />
             </Style>
             <Style x:Key="{x:Static markdig:Styles.Heading2StyleKey}" TargetType="{x:Type Paragraph}">
                 <Setter Property="FontSize" Value="20" />
@@ -133,8 +134,12 @@
                 <Setter Property="BorderThickness" Value="1,1,0,0" />
             </Style>
             <Style TargetType="{x:Type List}">
-                <Setter Property="Margin" Value="40,0,0,0" />
+                <Setter Property="Margin" Value="30,0,0,0" />
                 <Setter Property="Padding" Value="0,0,0,0" />
+            </Style>
+            <Style x:Key="{x:Static markdig:Styles.ThematicBreakStyleKey}" TargetType="{x:Type Line}">
+                <Setter Property="Stretch" Value="Fill" />
+                <Setter Property="Stroke" Value="{DynamicResource SystemBaseHighColorBrush}" />
             </Style>
             <!--  Markdig To  -->
         </ResourceDictionary>
