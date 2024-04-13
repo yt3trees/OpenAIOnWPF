@@ -302,7 +302,7 @@ namespace OpenAIOnWPF
             string tooltip = $"Tokens : {tokens.Count()}";
             UserTextBox.ToolTip = tooltip;
         }
-        private void UserTextBoxTemplateManager_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void UserTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (UserTextBox.ActualHeight >= UserTextBox.MaxHeight)
             {
