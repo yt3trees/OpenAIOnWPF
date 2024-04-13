@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Globalization;
+using ModernWpf.Controls;
+using System.Windows.Media;
 
 namespace OpenAIOnWPF.Model
 {
@@ -227,15 +229,19 @@ namespace OpenAIOnWPF.Model
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool && (bool)value)
+            var isFavorite = value is bool && (bool)value;
+            var symbol = isFavorite ? Symbol.Favorite : Symbol.OutlineStar;
+
+            // SymbolIconを直接返す
+            return new SymbolIcon
             {
-                return "★";
-            }
-            return "☆";
+                Symbol = symbol,
+            };
         }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is string && (string)value == "★";
+            throw new NotImplementedException();
         }
     }
     public class ContentToVisibilityConverter : IValueConverter

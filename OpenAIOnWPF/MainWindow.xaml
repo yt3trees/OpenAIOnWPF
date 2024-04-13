@@ -420,6 +420,7 @@
                         <ListBox.ItemContainerStyle>
                             <Style BasedOn="{StaticResource DefaultListBoxItemStyle}" TargetType="ListBoxItem">
                                 <Setter Property="Height" Value="51" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                             </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.Background>
@@ -430,8 +431,6 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox
@@ -447,13 +446,16 @@
                                         <TextBox.ToolTip>
                                             <ToolTip>
                                                 <ToolTip.Content>
-                                                    <TextBlock Text="{Binding LastUpdated, StringFormat='LastUpdate: {0:yyyy/MM/dd HH:mm:ss}'}" />
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding LastUpdated, StringFormat='LastUpdate: {0:yyyy/MM/dd HH:mm:ss}'}" TextWrapping="Wrap" />
+                                                    </StackPanel>
                                                 </ToolTip.Content>
                                             </ToolTip>
                                         </TextBox.ToolTip>
                                     </TextBox>
                                     <Button
-                                        x:Name="ConversationFavoriteButton"
+                                        x:Name="ConversationListBoxMoreButton"
                                         Grid.Column="1"
                                         Width="32"
                                         Height="32"
@@ -462,10 +464,28 @@
                                         VerticalAlignment="Center"
                                         fw:RevealElement.BorderRadius="4"
                                         Background="Transparent"
-                                        Click="ConversationFavoriteButton_Click"
-                                        Content="{Binding Favorite, Converter={StaticResource FavoriteToSymbolConverter}, Mode=TwoWay}"
+                                        Click="ConversationListBoxMoreButton_Click"
                                         FontSize="20"
                                         Opacity="0.6">
+                                        <Button.ContextMenu>
+                                            <ContextMenu Opened="ContextMenu_Opened" PreviewKeyDown="ConversationListBoxContextMenu_PreviewKeyDown">
+                                                <MenuItem Click="ConversationFavoriteButton_Click" Header="Favorite">
+                                                    <MenuItem.Icon>
+                                                        <ContentControl Content="{Binding Favorite, Converter={StaticResource FavoriteToSymbolConverter}}" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Click="ConversationTitleEditButton_Click" Header="Title Edit">
+                                                    <MenuItem.Icon>
+                                                        <ui:SymbolIcon Symbol="Edit" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                                <MenuItem Click="ConversationDeleteButton_Click" Header="Delete">
+                                                    <MenuItem.Icon>
+                                                        <ui:SymbolIcon Symbol="Delete" />
+                                                    </MenuItem.Icon>
+                                                </MenuItem>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
                                         <Button.Style>
                                             <Style BasedOn="{StaticResource ButtonRevealStyle}" TargetType="Button">
                                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -476,54 +496,7 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
-                                    </Button>
-                                    <Button
-                                        x:Name="ConversationTitleEditButton"
-                                        Grid.Column="2"
-                                        Width="32"
-                                        Height="32"
-                                        Margin="5,0,0,0"
-                                        Padding="-10,-10,-10,-10"
-                                        VerticalAlignment="Center"
-                                        fw:RevealElement.BorderRadius="4"
-                                        Background="Transparent"
-                                        Click="ConversationTitleEditButton_Click"
-                                        Opacity="0.6">
-                                        <Button.Style>
-                                            <Style BasedOn="{StaticResource ButtonRevealStyle}" TargetType="Button">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                        <ui:SymbolIcon Symbol="Edit" />
-                                    </Button>
-                                    <Button
-                                        x:Name="ConversationDeleteButton"
-                                        Grid.Column="3"
-                                        Width="32"
-                                        Height="32"
-                                        Margin="5,0,0,0"
-                                        Padding="-10,-10,-10,-10"
-                                        VerticalAlignment="Center"
-                                        fw:RevealElement.BorderRadius="4"
-                                        Background="Transparent"
-                                        Click="ConversationDeleteButton_Click"
-                                        Opacity="0.6">
-                                        <Button.Style>
-                                            <Style BasedOn="{StaticResource ButtonRevealStyle}" TargetType="Button">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                        <ui:SymbolIcon Symbol="Delete" />
+                                        <ui:SymbolIcon Symbol="More" />
                                     </Button>
                                 </Grid>
                             </DataTemplate>
@@ -990,7 +963,6 @@
                             x:Name="CancelButton"
                             Grid.Column="1"
                             Width="43"
-                            Height="43"
                             Margin="5,0,0,0"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"

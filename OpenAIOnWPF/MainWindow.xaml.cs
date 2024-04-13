@@ -1228,7 +1228,16 @@ namespace OpenAIOnWPF
         }
         private void ConversationDeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
+            ConversationHistory itemToDelete = null;
+            if (sender is MenuItem)
+            {
+                itemToDelete = (ConversationHistory)((MenuItem)sender).DataContext;
+            }
+            if (sender is ContextMenu)
+            {
+                itemToDelete = (ConversationHistory)((ContextMenu)sender).DataContext;
+            }
+            //ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
             var result = ModernWpf.MessageBox.Show("Are you sure you want to delete this conversation?",
                                                    "Confirmation",
                                                    MessageBoxButton.YesNo,
@@ -1241,7 +1250,16 @@ namespace OpenAIOnWPF
         }
         private void ConversationTitleEditButton_Click(object sender, RoutedEventArgs e)
         {
-            ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
+            ConversationHistory itemToDelete = null;
+            if (sender is MenuItem)
+            {
+                itemToDelete = (ConversationHistory)((MenuItem)sender).DataContext;
+            }
+            if (sender is ContextMenu)
+            {
+                itemToDelete = (ConversationHistory)((ContextMenu)sender).DataContext;
+            }
+            //ConversationHistory itemToDelete = (ConversationHistory)((Button)sender).DataContext;
             string currentTitle = itemToDelete.Title;
 
             var editWindow = new TitleEditWindow(currentTitle);
@@ -1280,10 +1298,47 @@ namespace OpenAIOnWPF
                 PromptTemplateListBox.Items.Refresh();
             }
         }
+        private void ConversationListBoxContextMenu_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F)
+            {
+                ConversationFavoriteButton_Click(sender, e);
+            }
+            if (e.Key == Key.T)
+            {
+                ConversationTitleEditButton_Click(sender, e);
+            }
+            if (e.Key == Key.D)
+            {
+                ConversationDeleteButton_Click(sender, e);
+            }
+        }
         private void ConversationFavoriteButton_Click(object sender, RoutedEventArgs e)
         {
-            ConversationHistory item = (ConversationHistory)((Button)sender).DataContext;
+            ConversationHistory item = null;
+            if (sender is MenuItem)
+            {
+                item = (ConversationHistory)((MenuItem)sender).DataContext;
+            }
+            if (sender is ContextMenu)
+            {
+                item = (ConversationHistory)((ContextMenu)sender).DataContext;
+            }
             item.Favorite = !item.Favorite;
+        }
+
+        private void ConversationListBoxMoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button.ContextMenu != null)
+            {
+                button.ContextMenu.IsOpen = false;
+
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+
+                button.ContextMenu.IsOpen = true;
+            }
         }
         private void ConversationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
