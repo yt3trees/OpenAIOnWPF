@@ -42,6 +42,9 @@ namespace OpenAIOnWPF
         string responseText = "";
         byte[] binaryImage = null;
         byte[] clipboardImage = null;
+        string generatedTitle = "";
+        bool titleGenerating = false;
+        Guid newId;
         List<ChatMessage> tempMessages = new List<ChatMessage>();
         public static class ForTokenCalc
         {
@@ -84,10 +87,30 @@ namespace OpenAIOnWPF
                     binaryImage = clipboardImage;
                 }
 
-                var openAiService = CreateOpenAiService();
+                var openAiService = CreateOpenAiService(AppSettings.ProviderSetting
+                                                        , AppSettings.ModelSetting
+                                                        , AppSettings.ApiKeySetting
+                                                        , AppSettings.BaseDomainSetting
+                                                        , AppSettings.DeploymentIdSetting
+                                                        , AppSettings.ApiVersionSetting);
                 userMessage = prompt.Trim();
                 var messages = PrepareMessages(prompt, binaryImage);
                 tempMessages = messages;
+
+                generatedTitle = "";
+                if (AppSettings.UseTitleGenerationSetting && ConversationListBox.SelectedIndex == -1)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        string prompt = AppSettings.TitleGenerationPromptSetting
+                                        .Replace("{Language}", AppSettings.TitleLanguageSetting)
+                                        .Replace("{Prompt}", userMessage);
+                        Debug.Print("----- Title generation Prompt -----");
+                        Debug.Print(prompt);
+                        Debug.Print("-----------------------------------");
+                        await GenerateTitleAsync(prompt);
+                    });
+                }
 
                 if (1 == 2)
                 {
@@ -115,6 +138,7 @@ namespace OpenAIOnWPF
             {
                 Reset();
                 ModernWpf.MessageBox.Show(ex.ToString());
+                throw new Exception($"{ex.Message}");
             }
             finally
             {
@@ -197,40 +221,40 @@ namespace OpenAIOnWPF
                 return false;
             }
         }
-        private OpenAIService CreateOpenAiService()
+        private OpenAIService CreateOpenAiService(string providerSetting, string model, string targetApiKey, string targetBaseDomain, string targetDeploymentId, string? targetApiVersion)
         {
             ProviderType targetType = new ProviderType();
-            string targetApiKey = "";
-            string? targetBaseDomain = null;
-            string? targetDeploymentId = null;
-            string? targetApiVersion = null;
+            string tempTargetApiKey = "";
+            string? tempTargetBaseDomain = null;
+            string? tempTargetDeploymentId = null;
+            string? tempTargetApiVersion = null;
 
-            switch (AppSettings.ProviderSetting)
+            switch (providerSetting)
             {
                 case "OpenAI":
                     targetType = ProviderType.OpenAi;
-                    targetApiKey = AppSettings.ApiKeySetting;
+                    tempTargetApiKey = targetApiKey;
                     break;
                 case "Azure":
                     targetType = ProviderType.Azure;
-                    targetApiKey = AppSettings.ApiKeySetting;
-                    targetBaseDomain = AppSettings.BaseDomainSetting;
-                    targetDeploymentId = AppSettings.DeploymentIdSetting;
-                    targetApiVersion = string.IsNullOrEmpty(AppSettings.ApiVersionSetting) ? null : AppSettings.ApiVersionSetting;
+                    tempTargetApiKey = targetApiKey;
+                    tempTargetBaseDomain = targetBaseDomain;
+                    tempTargetDeploymentId = targetDeploymentId;
+                    tempTargetApiVersion = string.IsNullOrEmpty(targetApiVersion) ? null : targetApiVersion;
                     break;
             }
 
             var openAiService = new OpenAIService(new OpenAiOptions()
             {
                 ProviderType = targetType,
-                ApiKey = targetApiKey,
-                BaseDomain = targetBaseDomain,
-                DeploymentId = targetDeploymentId,
-                ApiVersion = targetApiVersion,
+                ApiKey = tempTargetApiKey,
+                BaseDomain = tempTargetBaseDomain,
+                DeploymentId = tempTargetDeploymentId,
+                ApiVersion = tempTargetApiVersion,
             });
 
             //openAiService.SetDefaultModelId("gpt-3.5-turbo");
-            openAiService.SetDefaultModelId(AppSettings.ModelSetting);
+            openAiService.SetDefaultModelId(model);
 
             return openAiService;
         }
@@ -351,48 +375,55 @@ namespace OpenAIOnWPF
             System.Windows.Controls.RichTextBox richTextBox = null;
             await Dispatcher.InvokeAsync(() =>
             {
-
-                // 再生成ボタンを非表示にする
-                List<System.Windows.Controls.Button> foundButtons = new List<System.Windows.Controls.Button>();
-                foreach (var child in GetAllChildren(MessagesPanel))
+                try
                 {
-                    if (child is System.Windows.Controls.Button button && (string)button.Tag == "RegenerateButton")
+
+                    // 再生成ボタンを非表示にする
+                    List<System.Windows.Controls.Button> foundButtons = new List<System.Windows.Controls.Button>();
+                    foreach (var child in GetAllChildren(MessagesPanel))
                     {
-                        button.Visibility = Visibility.Collapsed;
-                    }
-                }
-
-                // Userメッセージ
-                var messageElement = CreateMessageElement(userMessage, isUser: true, isLastMessage: false);
-                MessagesPanel.Children.Add(messageElement);
-
-                if (binaryImage != null)
-                {
-                    string imageString = Convert.ToBase64String(binaryImage);
-                    var messageElementImage = CreateMessageElement(userMessage, isUser: false, isLastMessage: false, imageString);
-                    MessagesPanel.Children.Add(messageElementImage);
-                }
-
-                // Assistantメッセージ
-                FrameworkElement assistantMessageElement = null;
-
-                assistantMessageElement = CreateMessageElement("", isUser: false, isLastMessage: true); // 要素だけ生成しておく
-                MessagesPanel.Children.Add(assistantMessageElement);
-
-                // Grid内のRichTextBox要素を検索
-                Grid assistantMessageGrid = assistantMessageElement as Grid;
-                //System.Windows.Controls.RichTextBox richTextBox = null;
-                if (assistantMessageGrid != null)
-                {
-                    foreach (var child in assistantMessageGrid.Children)
-                    {
-                        if (child is System.Windows.Controls.RichTextBox)
+                        if (child is System.Windows.Controls.Button button && (string)button.Tag == "RegenerateButton")
                         {
-                            richTextBox = child as System.Windows.Controls.RichTextBox;
-                            richTextBox.Document.LineHeight = 1.0;
-                            break;
+                            button.Visibility = Visibility.Collapsed;
                         }
                     }
+
+                    // Userメッセージ
+                    var messageElement = CreateMessageElement(userMessage, isUser: true, isLastMessage: false);
+                    MessagesPanel.Children.Add(messageElement);
+
+                    if (binaryImage != null)
+                    {
+                        string imageString = Convert.ToBase64String(binaryImage);
+                        var messageElementImage = CreateMessageElement(userMessage, isUser: false, isLastMessage: false, imageString);
+                        MessagesPanel.Children.Add(messageElementImage);
+                    }
+
+                    // Assistantメッセージ
+                    FrameworkElement assistantMessageElement = null;
+
+                    assistantMessageElement = CreateMessageElement("", isUser: false, isLastMessage: true); // 要素だけ生成しておく
+                    MessagesPanel.Children.Add(assistantMessageElement);
+
+                    // Grid内のRichTextBox要素を検索
+                    Grid assistantMessageGrid = assistantMessageElement as Grid;
+                    //System.Windows.Controls.RichTextBox richTextBox = null;
+                    if (assistantMessageGrid != null)
+                    {
+                        foreach (var child in assistantMessageGrid.Children)
+                        {
+                            if (child is System.Windows.Controls.RichTextBox)
+                            {
+                                richTextBox = child as System.Windows.Controls.RichTextBox;
+                                richTextBox.Document.LineHeight = 1.0;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"{ex.Message}");
                 }
             });
 
@@ -514,23 +545,43 @@ namespace OpenAIOnWPF
             if (ConversationListBox.SelectedIndex == -1)
             {
                 string cleanedUserMessage = userMessage.Replace("\n", "").Replace("\r", "");
+                string title = "";
+                if (AppSettings.UseTitleGenerationSetting)
+                {
+                    if (!string.IsNullOrEmpty(generatedTitle))
+                    {
+                        title = generatedTitle;
+                    }
+                    else
+                    {
+                        // 会話終了時点でタイトルが未生成の場合は一旦仮の値を入れる
+                        title = "generating...";
+                        titleGenerating = true;
+                    }
+                }
+                else
+                {
+                    title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage;
+                }
+
+                ConversationHistory newHistory;
                 if (binaryImage == null)
                 {
-                    AppSettings.ConversationManager.Histories.Add(new ConversationHistory()
+                    newHistory = new ConversationHistory()
                     {
-                        Title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage,
+                        Title = title,
                         Messages = new ObservableCollection<ChatMessage>()
                         {
                             ChatMessage.FromUser(userMessage),
                             ChatMessage.FromAssistant(responseText)
                         }
-                    });
+                    };
                 }
                 else
                 {
-                    AppSettings.ConversationManager.Histories.Add(new ConversationHistory()
+                    newHistory = new ConversationHistory()
                     {
-                        Title = cleanedUserMessage.Length > 20 ? cleanedUserMessage.Substring(0, 20) + "..." : cleanedUserMessage,
+                        Title = title,
                         Messages = new ObservableCollection<ChatMessage>()
                         {
                             ChatMessage.FromUser(
@@ -542,16 +593,25 @@ namespace OpenAIOnWPF
                             ),
                             ChatMessage.FromAssistant(responseText)
                         }
-                    });
+                    };
                 }
+                AppSettings.ConversationManager.Histories.Add(newHistory);
+
+                // AIからの回答終了時点でタイトルがセットできていない場合は別処理でセットするためIDを一旦退避
+                if (titleGenerating)
+                {
+                    newId = newHistory.ID;
+                }
+
                 RefreshConversationList(); // Sort
                 ConversationListBox.SelectedIndex = 0;
             }
 
+            string model = AppSettings.ModelSetting != "" ? AppSettings.ModelSetting : AppSettings.DeploymentIdSetting;
             // その日のトークン使用量記録に追加
-            AddTokenUsage(totalTokens);
+            AddTokenUsage(totalTokens, model, AppSettings.ProviderSetting);
         }
-        private void AddTokenUsage(int token)
+        private void AddTokenUsage(int token, string model, string provider)
         {
             int rowCount = AppSettings.TokenUsageSetting.GetLength(0);
             int colCount = AppSettings.TokenUsageSetting.GetLength(1);
@@ -566,22 +626,11 @@ namespace OpenAIOnWPF
             string[,] tokenUsage = AppSettings.TokenUsageSetting;
             int tokenUsageCount = tokenUsage.GetLength(0);
 
-            // OpenAIの場合はモデル、AzureOpenAIの場合はデプロイメントIDで集計する
-            string model;
-            if (AppSettings.ModelSetting != "")
-            {
-                model = AppSettings.ModelSetting;
-            }
-            else
-            {
-                model = AppSettings.DeploymentIdSetting;
-            }
-
             //今日のトークン使用量があるか
             bool todayTokenUsageExist = false;
             for (int i = 0; i < tokenUsageCount; i++)
             {
-                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == AppSettings.ProviderSetting && tokenUsage[i, 2] == model)
+                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == provider && tokenUsage[i, 2] == model)
                 {
                     // トークン使用量を加算
                     tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
@@ -594,7 +643,7 @@ namespace OpenAIOnWPF
                 //Array.Resize(ref tokenUsage, tokenUsageCount + 1);
                 tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 4);
                 tokenUsage[tokenUsageCount, 0] = todayString;
-                tokenUsage[tokenUsageCount, 1] = AppSettings.ProviderSetting;
+                tokenUsage[tokenUsageCount, 1] = provider;
                 tokenUsage[tokenUsageCount, 2] = model;
                 tokenUsage[tokenUsageCount, 3] = token.ToString();
             }
@@ -689,6 +738,104 @@ namespace OpenAIOnWPF
             else
             {
                 throw new Exception("Translation API Provider is not set.");
+            }
+        }
+        public async Task GenerateTitleAsync(string userMessage)
+        {
+            try
+            {
+                Debug.WriteLine($"GenerateTitleAsync started on thread ID: {Thread.CurrentThread.ManagedThreadId}");
+
+                string configName = AppSettings.ModelForTitleGenerationSetting;
+                DataRow[] rows = AppSettings.ConfigDataTable.Select("ConfigurationName = '" + configName + "'");
+                var ProviderSetting = rows[0]["Provider"].ToString();
+                var ModelSetting = rows[0]["Model"].ToString();
+                var ApiKeySetting = rows[0]["APIKey"].ToString();
+                var DeploymentIdSetting = rows[0]["DeploymentId"].ToString();
+                var BaseDomainSetting = rows[0]["BaseDomain"].ToString();
+                var ApiVersionSetting = rows[0]["ApiVersion"].ToString();
+                float TemperatureSetting;
+                int MaxTokensSetting;
+                if (string.IsNullOrEmpty(rows[0]["Temperature"].ToString()) == false)
+                {
+                    TemperatureSetting = float.Parse(rows[0]["Temperature"].ToString());
+                }
+                else
+                {
+                    TemperatureSetting = 1;
+                }
+                if (string.IsNullOrEmpty(rows[0]["MaxTokens"].ToString()) == false)
+                {
+                    MaxTokensSetting = int.Parse(rows[0]["MaxTokens"].ToString());
+                }
+                else
+                {
+                    MaxTokensSetting = 2048;
+                }
+
+                var openAiService = CreateOpenAiService(ProviderSetting
+                                                        , ModelSetting
+                                                        , ApiKeySetting
+                                                        , BaseDomainSetting
+                                                        , DeploymentIdSetting
+                                                        , ApiVersionSetting);
+
+                List<ChatMessage> messages = new List<ChatMessage>();
+                messages.Add(ChatMessage.FromUser(userMessage));
+
+                var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                {
+                    Messages = messages,
+                    Temperature = TemperatureSetting,
+                    MaxTokens = MaxTokensSetting
+                });
+                HandleCompletionResultForTitle(completionResult);
+
+                string model = ModelSetting != "" ? ModelSetting : DeploymentIdSetting;
+                var responseTokens = TokenizerGpt3.Encode(userMessage);
+                AddTokenUsage(responseTokens.Count(), model, ProviderSetting);
+
+                if (titleGenerating)
+                {
+                    var historyToUpdate = AppSettings.ConversationManager.Histories.FirstOrDefault(history => history.ID == newId);
+                    if (historyToUpdate != null)
+                    {
+                        historyToUpdate.Title = generatedTitle;
+                    }
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        RefreshConversationList();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    ModernWpf.MessageBox.Show(ex.Message);
+                });
+            }
+        }
+        private void HandleCompletionResultForTitle(OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
+        {
+            if (completionResult.Successful)
+            {
+                generatedTitle = completionResult.Choices.First().Message.Content;
+                Debug.Print("===== Generated Title =====");
+                Debug.Print(generatedTitle);
+                Debug.Print("===========================");
+            }
+            else
+            {
+                generatedTitle = "Error!";
+                if (completionResult.Error == null)
+                {
+                    throw new Exception("Unknown Error");
+                }
+                else if (completionResult.Error.Message != null)
+                {
+                    throw new Exception($"Title generation Error: {completionResult.Error.Message}");
+                }
             }
         }
     }

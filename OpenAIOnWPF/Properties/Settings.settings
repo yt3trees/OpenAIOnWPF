@@ -101,5 +101,31 @@
     <Setting Name="PromptTemplateGridRowHeightSave" Type="System.Double" Scope="User">
       <Value Profile="(Default)">200</Value>
     </Setting>
+    <Setting Name="ModelForTitleGeneration" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TitleGenerationPrompt" Type="System.String" Scope="User">
+      <Value Profile="(Default)">## Instructions
+I would like you to consider the title of the following prompt.
+
+## Constraints
+- Exclude the word "prompt"
+- Do not enclose title in quotes
+- Avoid spoken language
+- Consider the prompt's purpose
+- Title about 3 words
+- {Language}
+
+## prompt
+```
+{Prompt}
+```</Value>
+    </Setting>
+    <Setting Name="TitleLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">English</Value>
+    </Setting>
+    <Setting Name="UseTitleGeneration" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -302,7 +302,7 @@ namespace OpenAIOnWPF
             string tooltip = $"Tokens : {tokens.Count()}";
             UserTextBox.ToolTip = tooltip;
         }
-        private void UserTextBox_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void UserTextBoxTemplateManager_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (UserTextBox.ActualHeight >= UserTextBox.MaxHeight)
             {
@@ -448,6 +448,12 @@ namespace OpenAIOnWPF
         private void TranslationAPIMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var window = new TranslationAPISettingWindow();
+            window.Owner = this;
+            window.ShowDialog();
+        }
+        private void TitleGenerationMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new TitleGenerationSettings();
             window.Owner = this;
             window.ShowDialog();
         }

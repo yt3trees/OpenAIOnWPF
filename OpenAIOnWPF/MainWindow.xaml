@@ -260,6 +260,14 @@
                             </MenuItem.Icon>
                         </MenuItem>
                         <MenuItem
+                            x:Name="TitleGenerationMenuItem"
+                            Click="TitleGenerationMenuItem_Click"
+                            Header="Title Generation">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="Edit" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem
                             x:Name="VersionInformationMenuItem"
                             Click="VersionInformationMenuItem_Click"
                             Header="Version Information">

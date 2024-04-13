@@ -19,6 +19,10 @@ namespace OpenAIOnWPF
         public static double PromptTemplateGridRowHeighSetting = Properties.Settings.Default.PromptTemplateGridRowHeigh;
         public static double ChatListGridRowHeightSetting = Properties.Settings.Default.ChatListGridRowHeight;
         public static double PromptTemplateGridRowHeightSaveSetting = Properties.Settings.Default.PromptTemplateGridRowHeightSave;
+        public static string ModelForTitleGenerationSetting = Properties.Settings.Default.ModelForTitleGeneration;
+        public static string TitleGenerationPromptSetting = Properties.Settings.Default.TitleGenerationPrompt;
+        public static string TitleLanguageSetting = Properties.Settings.Default.TitleLanguage;
+        public static bool UseTitleGenerationSetting = Properties.Settings.Default.UseTitleGeneration;
         public static bool IsPromptTemplateListVisible { get; set; } = Properties.Settings.Default.IsPromptTemplateListVisible;
         public static bool NoticeFlgSetting { get; set; } = Properties.Settings.Default.NoticeFlg;
         public static string TranslationAPIProvider { get; set; } = Properties.Settings.Default.TranslationAPIProvider;

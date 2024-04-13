@@ -12,7 +12,7 @@ namespace OpenAIOnWPF.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -416,6 +416,68 @@ namespace OpenAIOnWPF.Properties {
             }
             set {
                 this["PromptTemplateGridRowHeightSave"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ModelForTitleGeneration {
+            get {
+                return ((string)(this["ModelForTitleGeneration"]));
+            }
+            set {
+                this["ModelForTitleGeneration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"## Instructions
+I would like you to consider the title of the following prompt.
+
+## Constraints
+- Exclude the word ""prompt""
+- Do not enclose title in quotes
+- Avoid spoken language
+- Consider the prompt's purpose
+- Title about 3 words
+- {Language}
+
+## prompt
+```
+{Prompt}
+```")]
+        public string TitleGenerationPrompt {
+            get {
+                return ((string)(this["TitleGenerationPrompt"]));
+            }
+            set {
+                this["TitleGenerationPrompt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("English")]
+        public string TitleLanguage {
+            get {
+                return ((string)(this["TitleLanguage"]));
+            }
+            set {
+                this["TitleLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseTitleGeneration {
+            get {
+                return ((bool)(this["UseTitleGeneration"]));
+            }
+            set {
+                this["UseTitleGeneration"] = value;
             }
         }
     }

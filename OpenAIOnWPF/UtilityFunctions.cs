@@ -46,6 +46,10 @@ namespace OpenAIOnWPF
             Properties.Settings.Default.PromptTemplateGridRowHeigh = AppSettings.PromptTemplateGridRowHeighSetting;
             Properties.Settings.Default.ChatListGridRowHeight = AppSettings.ChatListGridRowHeightSetting;
             Properties.Settings.Default.PromptTemplateGridRowHeightSave = AppSettings.PromptTemplateGridRowHeightSaveSetting;
+            Properties.Settings.Default.ModelForTitleGeneration = AppSettings.ModelForTitleGenerationSetting;
+            Properties.Settings.Default.TitleGenerationPrompt = AppSettings.TitleGenerationPromptSetting;
+            Properties.Settings.Default.TitleLanguage = AppSettings.TitleLanguageSetting;
+            Properties.Settings.Default.UseTitleGeneration = AppSettings.UseTitleGenerationSetting;
             Properties.Settings.Default.Save();
             SaveConversationsAsJson(AppSettings.ConversationManager);
             SavePromptTemplateAsJson(AppSettings.PromptTemplateManager);
