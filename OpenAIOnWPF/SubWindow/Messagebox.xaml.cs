@@ -25,6 +25,7 @@ namespace OpenAIOnWPF
             OkButton.Focus();
             this.Title = title;
             this.MaxWidth = SystemParameters.PrimaryScreenWidth * 0.8;
+            ContentLabel.Style = (Style)Application.Current.FindResource("NoBorderTextBoxStyle");
             ContentLabel.Text = content;
         }
 
