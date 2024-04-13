@@ -648,7 +648,7 @@ namespace OpenAIOnWPF
             }
             if (isUser && visionImage == null)
             {
-                TextBlock userTextBlock = new TextBlock
+                TextBox userTextBox = new TextBox
                 {
                     Padding = new Thickness(10),
                     FontSize = Properties.Settings.Default.FontSize,
@@ -656,15 +656,17 @@ namespace OpenAIOnWPF
                     TextAlignment = TextAlignment.Left,
                     TextWrapping = TextWrapping.Wrap,
                     Opacity = opacity,
+                    IsReadOnly = true,
+                    Style = (Style)Application.Current.FindResource("NoBorderTextBoxStyle"),
                     Text = messageContent
                 };
-                userTextBlock.MouseDown += UserTextBlock_MouseDown;
+                userTextBox.MouseDown += UserTextBox_MouseDown;
 
                 ContextMenu contextMenu = CreateContextMenu();
-                userTextBlock.ContextMenu = contextMenu;
+                userTextBox.ContextMenu = contextMenu;
 
-                Grid.SetColumn(userTextBlock, 1);
-                messageGrid.Children.Add(userTextBlock);
+                Grid.SetColumn(userTextBox, 1);
+                messageGrid.Children.Add(userTextBox);
 
                 // 行全体の背景色を設定する
                 Rectangle backgroundRect = new Rectangle { Fill = accentColorBrush };
@@ -678,8 +680,8 @@ namespace OpenAIOnWPF
                 Grid.SetColumn(translateButton, 1);
                 messageGrid.Children.Add(translateButton);
 
-                userTextBlock.MouseEnter += ShowButtonOnMouseEnter;
-                userTextBlock.MouseLeave += HideButtonOnMouseLeave;
+                userTextBox.MouseEnter += ShowButtonOnMouseEnter;
+                userTextBox.MouseLeave += HideButtonOnMouseLeave;
                 backgroundRect.MouseEnter += ShowButtonOnMouseEnter;
                 backgroundRect.MouseLeave += HideButtonOnMouseLeave;
 
@@ -698,10 +700,10 @@ namespace OpenAIOnWPF
 
                     Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
 
-                    if (PresentationSource.FromVisual(userTextBlock) != null) // アプリケーションエラー対策
+                    if (PresentationSource.FromVisual(userTextBox) != null) // アプリケーションエラー対策
                     {
-                        double topBoundary = userTextBlock.PointToScreen(new Point(0, 0)).Y;
-                        double bottomBoundary = userTextBlock.PointToScreen(new Point(0, userTextBlock.ActualHeight)).Y;
+                        double topBoundary = userTextBox.PointToScreen(new Point(0, 0)).Y;
+                        double bottomBoundary = userTextBox.PointToScreen(new Point(0, userTextBox.ActualHeight)).Y;
 
                         if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
                         {
@@ -870,7 +872,7 @@ namespace OpenAIOnWPF
 
             return messageGrid;
         }
-        private void UserTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
+        private void UserTextBox_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Keyboard.ClearFocus();
             ConversationListBox.Focus(); // ショートカットキーを有効にするためにListBoxにフォーカスを移す
@@ -909,9 +911,9 @@ namespace OpenAIOnWPF
             copyTextMenuItem.Header = copyTextButton;
             void CopyTextToClipboard(object target)
             {
-                if (target is TextBlock textBlock)
+                if (target is TextBox textBox)
                 {
-                    Clipboard.SetText(textBlock.Text);
+                    Clipboard.SetText(textBox.Text);
                 }
                 else if (target is RichTextBox richTextBox)
                 {
@@ -959,9 +961,9 @@ namespace OpenAIOnWPF
                     {
                         foreach (var child in grid.Children)
                         {
-                            if (child is TextBlock textBlock)
+                            if (child is TextBox textBox)
                             {
-                                textBlock.FontSize = newSize;
+                                textBox.FontSize = newSize;
                             }
                             else if (child is RichTextBox richTextBox)
                             {

@@ -373,9 +373,9 @@ namespace OpenAIOnWPF
         {
             foreach (var child in grid.Children)
             {
-                if (child is TextBlock textBlock)
+                if (child is TextBox textBox)
                 {
-                    Clipboard.SetText(textBlock.Text);
+                    Clipboard.SetText(textBox.Text);
                     break;
                 }
                 else if (child is RichTextBox richTextBox)
@@ -388,12 +388,12 @@ namespace OpenAIOnWPF
         }
         public static void TranslateTextFromMessageGrid(Grid grid)
         {
-            // Grid内のTextBlockやRichTextBoxを検索
+            // Grid内のTextBoxやRichTextBoxを検索
             foreach (var child in grid.Children)
             {
-                if (child is TextBlock textBlock)
+                if (child is TextBox textBox)
                 {
-                    TranslateText(textBlock);
+                    TranslateText(textBox);
                 }
                 else if (child is RichTextBox richTextBox)
                 {
@@ -409,18 +409,18 @@ namespace OpenAIOnWPF
         {
             MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
             Storyboard? animation = null;
-            if (target is TextBlock textBlock)
+            if (target is TextBox textBox)
             {
                 try
                 {
-                    animation = CreateOpacityAnimation(textBlock);
+                    animation = CreateOpacityAnimation(textBox);
                     animation.Begin();
 
-                    string text = textBlock.Text;
+                    string text = textBox.Text;
                     string text2 = await mainWindow.TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
 
                     text2 = text2.TrimEnd('\r', '\n');
-                    textBlock.Text = text2;
+                    textBox.Text = text2;
                 }
                 catch (Exception ex)
                 {
@@ -429,7 +429,7 @@ namespace OpenAIOnWPF
                 finally
                 {
                     animation?.Stop();
-                    textBlock.Opacity = 1.0;
+                    textBox.Opacity = 1.0;
                 }
             }
             else if (target is RichTextBox richTextBox)
