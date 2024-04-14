@@ -7,7 +7,6 @@
     xmlns:local="clr-namespace:OpenAIOnWPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
-    xmlns:model="clr-namespace:OpenAIOnWPF.Model"
     xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
     xmlns:ui="http://schemas.modernwpf.com/2019"
     Title="OpenAIOnWPF"
@@ -36,8 +35,8 @@
                 <scm:SortDescription Direction="Ascending" PropertyName="SortOrder" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
-        <model:FavoriteToSymbolConverter x:Key="FavoriteToSymbolConverter" />
-        <model:ContentToVisibilityConverter x:Key="ContentToVisibilityConverter" />
+        <local:FavoriteToSymbolConverter x:Key="FavoriteToSymbolConverter" />
+        <local:ContentToVisibilityConverter x:Key="ContentToVisibilityConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>

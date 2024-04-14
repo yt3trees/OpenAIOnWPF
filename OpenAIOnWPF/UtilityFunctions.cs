@@ -1,4 +1,5 @@
 ﻿using ModernWpf;
+using ModernWpf.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenAIOnWPF.Model;
@@ -6,12 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -20,40 +23,6 @@ namespace OpenAIOnWPF
 {
     internal class UtilityFunctions
     {
-        /// <summary>
-        /// 設定内容を保存
-        /// </summary>
-        public static void SaveSettings()
-        {
-            Properties.Settings.Default.ConversationHistoryCount = AppSettings.ConversationHistoryCountSetting;
-            Properties.Settings.Default.NoticeFlg = AppSettings.NoticeFlgSetting;
-            Properties.Settings.Default.Instruction = AppSettings.InstructionSetting;
-            Properties.Settings.Default.InstructionList = SerializeArray(AppSettings.InstructionListSetting);
-            Properties.Settings.Default.ConfigDataTable = SerializeDataTable(AppSettings.ConfigDataTable);
-            Properties.Settings.Default.SelectConfig = AppSettings.SelectConfigSetting;
-            Properties.Settings.Default.UseConversationHistory = AppSettings.UseConversationHistoryFlg;
-            Properties.Settings.Default.IsSystemPromptColumnVisible = AppSettings.IsSystemPromptColumnVisible;
-            Properties.Settings.Default.IsConversationColumnVisible = AppSettings.IsConversationColumnVisible;
-            Properties.Settings.Default.IsPromptTemplateListVisible = AppSettings.IsPromptTemplateListVisible;
-            Properties.Settings.Default.TranslationAPIProvider = AppSettings.TranslationAPIProvider;
-            Properties.Settings.Default.TranslationAPIUseFlg = AppSettings.TranslationAPIUseFlg;
-            Properties.Settings.Default.FromTranslationLanguage = AppSettings.FromTranslationLanguage;
-            Properties.Settings.Default.ToTranslationLanguage = AppSettings.ToTranslationLanguage;
-            Properties.Settings.Default.TranslationAPIUrlDeepL = AppSettings.TranslationAPIUrlDeepL;
-            Properties.Settings.Default.TranslationAPIKeyDeepL = AppSettings.TranslationAPIKeyDeepL;
-            Properties.Settings.Default.TranslationAPIUrlGoogle = AppSettings.TranslationAPIUrlGoogle;
-            Properties.Settings.Default.TranslationAPIKeyGoogle = AppSettings.TranslationAPIKeyGoogle;
-            Properties.Settings.Default.PromptTemplateGridRowHeigh = AppSettings.PromptTemplateGridRowHeighSetting;
-            Properties.Settings.Default.ChatListGridRowHeight = AppSettings.ChatListGridRowHeightSetting;
-            Properties.Settings.Default.PromptTemplateGridRowHeightSave = AppSettings.PromptTemplateGridRowHeightSaveSetting;
-            Properties.Settings.Default.ModelForTitleGeneration = AppSettings.ModelForTitleGenerationSetting;
-            Properties.Settings.Default.TitleGenerationPrompt = AppSettings.TitleGenerationPromptSetting;
-            Properties.Settings.Default.TitleLanguage = AppSettings.TitleLanguageSetting;
-            Properties.Settings.Default.UseTitleGeneration = AppSettings.UseTitleGenerationSetting;
-            Properties.Settings.Default.Save();
-            SaveConversationsAsJson(AppSettings.ConversationManager);
-            SavePromptTemplateAsJson(AppSettings.PromptTemplateManager);
-        }
         /// <summary>
         /// 指示内容を生成
         /// </summary>
@@ -155,20 +124,6 @@ namespace OpenAIOnWPF
             window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
             window.ShowDialog();
         }
-        /// <summary>
-        /// 設定画面を開く
-        /// </summary>
-        /// <param name="targetSetting">設定対象</param>
-        /// <param name="content">現在の設定</param>
-        /// <param name="type">設定値の種別</param>
-        /// <returns></returns>
-        public static string ShowSetting(string targetSetting, string content, string type)
-        {
-            var window = new Setting(targetSetting, content, type);
-            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-            bool result = (bool)window.ShowDialog();
-            return result ? window.inputResult : "";
-        }
         public static Storyboard CreateOpacityAnimation(DependencyObject target)
         {
             var animation = new DoubleAnimation
@@ -264,114 +219,13 @@ namespace OpenAIOnWPF
             //空の場合
             if (serializedDataTable == "" || serializedDataTable == null)
             {
-                return null;            }
+                return null;
+            }
             using (var stream = new MemoryStream(Convert.FromBase64String(serializedDataTable)))
             {
                 var formatter = new BinaryFormatter();
                 return (DataTable)formatter.Deserialize(stream);
             }
-        }
-        public static void SaveConversationsAsJson(ConversationManager manager)
-        {
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "ConversationHistory");
-
-            Directory.CreateDirectory(dataDirectory);
-
-            foreach (var file in Directory.EnumerateFiles(dataDirectory, "*.json"))
-            {
-                File.Delete(file);
-            }
-
-            var options = new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 非ASCII文字をエスケープしない
-            };
-
-            foreach (var conversation in manager.Histories)
-            {
-                string formattedLastUpdated = conversation.LastUpdated.ToString("yyyyMMddHHmmss");
-                string filePath = Path.Combine(dataDirectory, $"Conversation_{formattedLastUpdated}_{conversation.ID}.json");
-                string jsonString = System.Text.Json.JsonSerializer.Serialize(conversation, options);
-
-                File.WriteAllText(filePath, jsonString);
-            }
-        }
-        public static ConversationManager LoadConversationsFromJson()
-        {
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "ConversationHistory");
-
-            var manager = new ConversationManager();
-            manager.Histories = new ObservableCollection<ConversationHistory>();
-
-            Directory.CreateDirectory(dataDirectory);
-
-            string[] files = Directory.GetFiles(dataDirectory, "Conversation_*.json");
-
-            foreach (var file in files)
-            {
-                string jsonString = File.ReadAllText(file);
-                ConversationHistory conversation = System.Text.Json.JsonSerializer.Deserialize<ConversationHistory>(jsonString);
-
-                if (conversation != null)
-                {
-                    manager.Histories.Add(conversation);
-                }
-            }
-            return manager;
-        }
-        public static void SavePromptTemplateAsJson(PromptTemplateManager manager)
-        {
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "PromptTemplate");
-
-            Directory.CreateDirectory(dataDirectory);
-
-            foreach (var file in Directory.EnumerateFiles(dataDirectory, "*.json"))
-            {
-                File.Delete(file);
-            }
-
-            var options = new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 非ASCII文字をエスケープしない
-            };
-
-            foreach (var template in manager.Templates)
-            {
-                string formattedLastUpdated = template.LastUpdated.ToString("yyyyMMddHHmmss");
-                string filePath = Path.Combine(dataDirectory, $"PromptTemplate_{formattedLastUpdated}_{template.ID}.json");
-                string jsonString = System.Text.Json.JsonSerializer.Serialize(template, options);
-
-                File.WriteAllText(filePath, jsonString);
-            }
-        }
-        public static PromptTemplateManager LoadPromptTemplateFromJson()
-        {
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string dataDirectory = Path.Combine(documentsPath, "OpenAIOnWPF", "PromptTemplate");
-
-            var manager = new PromptTemplateManager();
-            manager.Templates = new ObservableCollection<PromptTemplate>();
-
-            Directory.CreateDirectory(dataDirectory);
-
-            string[] files = Directory.GetFiles(dataDirectory, "PromptTemplate_*.json");
-
-            foreach (var file in files)
-            {
-                string jsonString = File.ReadAllText(file);
-                PromptTemplate templates = System.Text.Json.JsonSerializer.Deserialize<PromptTemplate>(jsonString);
-
-                if (templates != null)
-                {
-                    manager.Templates.Add(templates);
-                }
-            }
-            return manager;
         }
         public static void CopyTextFromMessageGrid(Grid grid)
         {
@@ -574,6 +428,40 @@ namespace OpenAIOnWPF
             }
 
             return (user, image);
+        }
+    }
+    /// <summary>
+    /// ListBoxのFavorite表示用コンバータ
+    /// </summary>
+    public class FavoriteToSymbolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var isFavorite = value is bool && (bool)value;
+            var symbol = isFavorite ? Symbol.Favorite : Symbol.OutlineStar;
+
+            // SymbolIconを直接返す
+            return new SymbolIcon
+            {
+                Symbol = symbol,
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ContentToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // ラベルのContentが空でなければVisibility.Visibleを、そうでなければVisibility.Collapsedを返す
+            return string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

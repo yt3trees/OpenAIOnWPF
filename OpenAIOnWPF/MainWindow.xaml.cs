@@ -52,7 +52,8 @@ namespace OpenAIOnWPF
         public MainWindow()
         {
             InitializeComponent();
-            InitializeSettings();
+            DataManagement.SettingsManager.InitializeSettings();
+            InitializeUI();
             RecoverWindowBounds();
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -81,54 +82,70 @@ namespace OpenAIOnWPF
                 PromptTemplateGridRow.Height = new GridLength(0);
             }
         }
-        private void InitializeSettings()
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // 前バージョンの設定を引き継ぐ
-            if (Properties.Settings.Default.UpgradeRequired)
+            AppSettings.PromptTemplateGridRowHeighSetting = PromptTemplateGridRow.ActualHeight;
+            AppSettings.ChatListGridRowHeightSetting = ChatListGridRow.ActualHeight;
+            DataManagement.SettingsManager.SaveSettings();
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // ウィンドウのサイズを保存
+            SaveWindowBounds();
+            base.OnClosing(e);
+        }
+        void SaveWindowBounds()
+        {
+            var settings = Properties.Settings.Default;
+            settings.WindowMaximized = WindowState == WindowState.Maximized;
+            WindowState = WindowState.Normal; // 最大化解除
+            settings.WindowLeft = Left;
+            settings.WindowTop = Top;
+            settings.WindowWidth = Width;
+            settings.WindowHeight = Height;
+            if (SystemPromptGridColumn.Width.Value > 0)
             {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.UpgradeRequired = false;
-                Properties.Settings.Default.Save();
+                Properties.Settings.Default.SystemPromptColumnWidth = SystemPromptGridColumn.Width.Value;
             }
-
+            if (ConversationHistorytGridColumn.Width.Value > 0)
+            {
+                Properties.Settings.Default.ConversationColumnWidth = ConversationHistorytGridColumn.Width.Value;
+            }
+            settings.Save();
+        }
+        void RecoverWindowBounds()
+        {
+            var settings = Properties.Settings.Default;
+            // 左
+            if (settings.WindowLeft >= 0 &&
+                (settings.WindowLeft + settings.WindowWidth) < SystemParameters.VirtualScreenWidth)
+            { Left = settings.WindowLeft; }
+            // 上
+            if (settings.WindowTop >= 0 &&
+                (settings.WindowTop + settings.WindowHeight) < SystemParameters.VirtualScreenHeight)
+            { Top = settings.WindowTop; }
+            // 幅
+            if (settings.WindowWidth > 0 &&
+                settings.WindowWidth <= SystemParameters.WorkArea.Width)
+            { Width = settings.WindowWidth; }
+            // 高さ
+            if (settings.WindowHeight > 0 &&
+                settings.WindowHeight <= SystemParameters.WorkArea.Height)
+            { Height = settings.WindowHeight; }
+            // 最大化
+            if (settings.WindowMaximized)
+            {
+                // ロード後に最大化
+                Loaded += (o, e) => WindowState = WindowState.Maximized;
+            }
+        }
+        private void InitializeUI()
+        {
             InitialColorSet();
             ToastNotificationManagerCompat.OnActivated += this.ToastNotificationManagerCompat_OnActivated;
             UserTextBox.Focus();
             NoticeToggleSwitch.IsOn = AppSettings.NoticeFlgSetting;
 
-            try
-            {
-                AppSettings.ConversationManager = LoadConversationsFromJson();
-                AppSettings.PromptTemplateManager = LoadPromptTemplateFromJson();
-            }
-            catch (Exception ex)
-            {
-                string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                var message = new StringBuilder()
-                    .AppendLine("Failed to load conversation history.")
-                    .AppendLine(ex.Message)
-                    .AppendLine()
-                    .AppendLine("Do you want to reset the conversation history?")
-                    .AppendLine("If you choose No, the application will exit at this point.")
-                    .AppendLine("Please re-launch the application after the problem with the folder where the conversation history is saved has been resolved.")
-                    .AppendLine()
-                    .AppendLine($"{documentsPath}\\OpenAIOnWPF\\ConversationHistory")
-                    .ToString();
-                var result = ModernWpf.MessageBox.Show(
-                    message, 
-                    "Error", 
-                    MessageBoxButton.YesNo, 
-                    MessageBoxImage.Error
-                );
-                if (result == MessageBoxResult.Yes)
-                {
-                    AppSettings.ConversationManager = new ConversationManager();
-                }
-                else
-                {
-                      Environment.Exit(1);
-                }
-            }
             if (AppSettings.ConversationManager.Histories == null)
             {
                 AppSettings.ConversationManager.Histories = new ObservableCollection<ConversationHistory>();
@@ -191,6 +208,35 @@ namespace OpenAIOnWPF
 
             ImageFilePathLabel.Content = string.Empty;
         }
+        private void InitializeSystemPromptColumn()
+        {
+            if (AppSettings.IsSystemPromptColumnVisible == true)
+            {
+                SystemPromptGridColumn.Width = new GridLength(Properties.Settings.Default.SystemPromptColumnWidth);
+                GridSplitterGridColumn.Width = new GridLength(1, GridUnitType.Auto);
+                SystemPromptSplitter.Visibility = Visibility.Visible;
+                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
+                // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
+                SystemPromptComboBox2.SelectedIndex = SystemPromptComboBox.SelectedIndex;
+            }
+            else
+            {
+                SystemPromptGridColumn.Width = new GridLength(0);
+                GridSplitterGridColumn.Width = new GridLength(0);
+                SystemPromptSplitter.Visibility = Visibility.Hidden;
+                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.OpenPane;
+            }
+            if (AppSettings.IsConversationColumnVisible == true)
+            {
+                ConversationHistorytGridColumn.Width = new GridLength(Properties.Settings.Default.ConversationColumnWidth);
+                GridSplitterGridColumn2.Width = new GridLength(1, GridUnitType.Auto);
+            }
+            else
+            {
+                ConversationHistorytGridColumn.Width = new GridLength(0);
+                GridSplitterGridColumn2.Width = new GridLength(0);
+            }
+        }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F2)
@@ -216,8 +262,8 @@ namespace OpenAIOnWPF
             {
                 try
                 {
-                    SaveConversationsAsJson(AppSettings.ConversationManager);
-                    SavePromptTemplateAsJson(AppSettings.PromptTemplateManager);
+                    DataManagement.DataManager.SaveConversationsAsJson(AppSettings.ConversationManager);
+                    DataManagement.DataManager.SavePromptTemplateAsJson(AppSettings.PromptTemplateManager);
                     string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     ModernWpf.MessageBox.Show("Saved to " + documentsPath + @"\OpenAIOnWPF\ConversationHistory"
                                                 + "\r\n" + documentsPath + @"\OpenAIOnWPF\PromptTemplate"
@@ -321,12 +367,6 @@ namespace OpenAIOnWPF
         {
             ShowMessagebox("Tokens", TokensLabel.ToolTip.ToString());
         }
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            AppSettings.PromptTemplateGridRowHeighSetting = PromptTemplateGridRow.ActualHeight;
-            AppSettings.ChatListGridRowHeightSetting = ChatListGridRow.ActualHeight;
-            SaveSettings();
-        }
         private void ConfigurationComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (ConfigurationComboBox.SelectedItem == null) return;
@@ -405,10 +445,6 @@ namespace OpenAIOnWPF
                 }
             }
         }
-        private void ConversationHistoryButton_Click(object sender, RoutedEventArgs e)
-        {
-            ShowTable();
-        }
         private void TokenUsage_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var window = new TokenUsageWindow();
@@ -467,417 +503,6 @@ namespace OpenAIOnWPF
         {
             //UserTextBox.Width = Math.Max(UserTextBox.ActualWidth + e.HorizontalChange, UserTextBox.MinWidth);
             UserTextBox.Height = Math.Max(UserTextBox.ActualHeight + e.VerticalChange, UserTextBox.MinHeight);
-        }
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            // ウィンドウのサイズを保存
-            SaveWindowBounds();
-            base.OnClosing(e);
-        }
-        void SaveWindowBounds()
-        {
-            var settings = Properties.Settings.Default;
-            settings.WindowMaximized = WindowState == WindowState.Maximized;
-            WindowState = WindowState.Normal; // 最大化解除
-            settings.WindowLeft = Left;
-            settings.WindowTop = Top;
-            settings.WindowWidth = Width;
-            settings.WindowHeight = Height;
-            if (SystemPromptGridColumn.Width.Value > 0)
-            {
-                Properties.Settings.Default.SystemPromptColumnWidth = SystemPromptGridColumn.Width.Value;
-            }
-            if (ConversationHistorytGridColumn.Width.Value > 0)
-            {
-                Properties.Settings.Default.ConversationColumnWidth = ConversationHistorytGridColumn.Width.Value;
-            }
-            settings.Save();
-        }
-        void RecoverWindowBounds()
-        {
-            var settings = Properties.Settings.Default;
-            // 左
-            if (settings.WindowLeft >= 0 &&
-                (settings.WindowLeft + settings.WindowWidth) < SystemParameters.VirtualScreenWidth)
-            { Left = settings.WindowLeft; }
-            // 上
-            if (settings.WindowTop >= 0 &&
-                (settings.WindowTop + settings.WindowHeight) < SystemParameters.VirtualScreenHeight)
-            { Top = settings.WindowTop; }
-            // 幅
-            if (settings.WindowWidth > 0 &&
-                settings.WindowWidth <= SystemParameters.WorkArea.Width)
-            { Width = settings.WindowWidth; }
-            // 高さ
-            if (settings.WindowHeight > 0 &&
-                settings.WindowHeight <= SystemParameters.WorkArea.Height)
-            { Height = settings.WindowHeight; }
-            // 最大化
-            if (settings.WindowMaximized)
-            {
-                // ロード後に最大化
-                Loaded += (o, e) => WindowState = WindowState.Maximized;
-            }
-        }
-        private void ShowTable()
-        {
-            ConversationHistory targetConversation = ConversationListBox.SelectedItem as ConversationHistory;
-            if (targetConversation == null)
-            {
-                return;
-            }
-
-            var window = new Table(targetConversation);
-            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-            bool result = (bool)window.ShowDialog();
-            if (result)
-            {
-                targetConversation.Messages = window.UpdatedConversationHistory.Messages;
-                SetMessages();
-            }
-        }
-        private void SetMessages()
-        {
-            MessagesPanel.Children.Clear();
-
-            ConversationHistory selectedConversation = ConversationListBox.SelectedItem as ConversationHistory;
-            if (selectedConversation == null)
-            {
-                return;
-            }
-
-            var targetMessages = selectedConversation.Messages;
-            for (int i = 0; i < targetMessages.Count; i++)
-            {
-                var message = targetMessages[i];
-
-                if (message.Role == null) { break; }
-
-                bool isUser = message.Role == "user";
-                bool isLastMessage = i == targetMessages.Count - 1;
-
-                string messageContent = message.Content ?? System.Text.Json.JsonSerializer.Serialize(message.Contents, new JsonSerializerOptions { WriteIndented = true });
-                var result = UtilityFunctions.ExtractUserAndImageFromMessage(messageContent);
-                var messageElement = CreateMessageElement(result.userMessage, isUser, isLastMessage);
-                MessagesPanel.Children.Add(messageElement);
-                if (result.image != "")
-                {
-                    var messageElementImage = CreateMessageElement("", false, isLastMessage, result.image);
-                    MessagesPanel.Children.Add(messageElementImage);
-                }
-            }
-            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
-        }
-        /// <summary>
-        /// メッセージの要素を作成する
-        /// </summary>
-        private FrameworkElement CreateMessageElement(string messageContent, bool isUser, bool isLastMessage, string visionImage = null)
-        {
-            var accentColor = ThemeManager.Current.AccentColor;
-            if (accentColor == null)
-            {
-                accentColor = SystemParameters.WindowGlassColor;
-            }
-            var accentColorBrush = new SolidColorBrush((Color)accentColor);
-            accentColorBrush.Opacity = 0.3;
-
-            Grid messageGrid = new Grid
-            {
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(8, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
-                }
-            };
-            // グリッドのサイズが変更されたときにイベントを追加
-            messageGrid.SizeChanged += MessageGrid_SizeChanged;
-
-            var copyIcon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy)
-            {
-                Foreground = (Brush)Application.Current.Resources["SystemBaseMediumHighColorBrush"]
-            };
-            Viewbox copyViewBox = new Viewbox
-            {
-                Width = 16,
-                Child = copyIcon
-            };
-            Button copyTextButton = new Button
-            {
-                Width = 30,
-                Opacity = 0.5,
-                Height = 30,
-                Content = copyViewBox,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                Padding = new Thickness(0),
-                Margin = new Thickness(0, 5, -30, 0),
-                Background = Brushes.Transparent,
-                Visibility = Visibility.Collapsed
-            };
-            copyTextButton.Click += (s, e) =>
-            {
-                CopyTextFromMessageGrid(messageGrid);
-                AnimateButtonOpacityToOriginal(copyTextButton, 0.5, TimeSpan.FromMilliseconds(500));
-            };
-            var translateIcon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Globe)
-            {
-                Foreground = (Brush)Application.Current.Resources["SystemBaseMediumHighColorBrush"]
-            };
-            Viewbox viewbox = new Viewbox
-            {
-                Width = 16,
-                Child = translateIcon
-            };
-            Button translateButton = new Button
-            {
-                Width = 30,
-                Opacity = 0.5,
-                Height = 30,
-                Content = viewbox,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                Padding = new Thickness(0),
-                Margin = new Thickness(0, 5, -60, 0),
-                Background = Brushes.Transparent,
-                Visibility = Visibility.Collapsed
-            };
-            translateButton.Click += (s, e) =>
-            {
-                TranslateTextFromMessageGrid(messageGrid);
-                AnimateButtonOpacityToOriginal(translateButton, 0.5, TimeSpan.FromMilliseconds(500));
-            };
-
-            double opacity = 1;
-            if (ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark)
-            {
-                opacity = 0.9;
-            }
-            if (isUser && visionImage == null)
-            {
-                TextBox userTextBox = new TextBox
-                {
-                    Padding = new Thickness(10),
-                    FontSize = Properties.Settings.Default.FontSize,
-                    //Background = accentColorBrush,
-                    TextAlignment = TextAlignment.Left,
-                    TextWrapping = TextWrapping.Wrap,
-                    Opacity = opacity,
-                    IsReadOnly = true,
-                    Style = (Style)Application.Current.FindResource("NoBorderTextBoxStyle"),
-                    Text = messageContent
-                };
-                userTextBox.MouseDown += UserTextBox_MouseDown;
-
-                ContextMenu contextMenu = CreateContextMenu();
-                userTextBox.ContextMenu = contextMenu;
-
-                Grid.SetColumn(userTextBox, 1);
-                messageGrid.Children.Add(userTextBox);
-
-                // 行全体の背景色を設定する
-                Rectangle backgroundRect = new Rectangle { Fill = accentColorBrush };
-                Grid.SetColumnSpan(backgroundRect, 3);
-                messageGrid.Children.Add(backgroundRect);
-                Panel.SetZIndex(backgroundRect, -1);
-
-                Grid.SetColumn(copyTextButton, 1);
-                messageGrid.Children.Add(copyTextButton);
-
-                Grid.SetColumn(translateButton, 1);
-                messageGrid.Children.Add(translateButton);
-
-                userTextBox.MouseEnter += ShowButtonOnMouseEnter;
-                userTextBox.MouseLeave += HideButtonOnMouseLeave;
-                backgroundRect.MouseEnter += ShowButtonOnMouseEnter;
-                backgroundRect.MouseLeave += HideButtonOnMouseLeave;
-
-                // マウスが要素に入ったときにボタンを表示する
-                void ShowButtonOnMouseEnter(object s, MouseEventArgs e)
-                {
-                    copyTextButton.Visibility = Visibility.Visible;
-                    translateButton.Visibility = Visibility.Visible;
-                }
-                void HideButtonOnMouseLeave(object s, MouseEventArgs e)
-                {
-                    if (copyTextButton.IsMouseOver)
-                        return;
-                    if (translateButton.IsMouseOver)
-                        return;
-
-                    Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
-
-                    if (PresentationSource.FromVisual(userTextBox) != null) // アプリケーションエラー対策
-                    {
-                        double topBoundary = userTextBox.PointToScreen(new Point(0, 0)).Y;
-                        double bottomBoundary = userTextBox.PointToScreen(new Point(0, userTextBox.ActualHeight)).Y;
-
-                        if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
-                        {
-                            copyTextButton.Visibility = Visibility.Visible;
-                            translateButton.Visibility = Visibility.Visible;
-                        }
-                        else
-                        {
-                            copyTextButton.Visibility = Visibility.Collapsed;
-                            translateButton.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
-            }
-            else if (!(isUser) && visionImage == null)
-            {
-                var pipeline = new MarkdownPipelineBuilder()
-                .UseSoftlineBreakAsHardlineBreak()
-                .UseAdvancedExtensions()
-                .Build();
-
-                var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(messageContent, pipeline);
-                var richTextBox = new RichTextBox
-                {
-                    Padding = new Thickness(5, 10, 5, 10),
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    Opacity = opacity,
-                    Document = flowDocument
-                };
-                richTextBox.Document.FontSize = Properties.Settings.Default.FontSize;
-                richTextBox.Document.FontFamily = new FontFamily("Yu Gothic UI");
-
-                ContextMenu contextMenu = CreateContextMenu();
-                richTextBox.ContextMenu = contextMenu;
-
-                Grid.SetColumn(richTextBox, 1);
-                messageGrid.Children.Add(richTextBox);
-
-                Rectangle backgroundRect = new Rectangle { Fill = Brushes.Transparent };
-                Grid.SetColumnSpan(backgroundRect, 3);
-                messageGrid.Children.Add(backgroundRect);
-                Panel.SetZIndex(backgroundRect, -1);
-
-                Grid.SetColumn(copyTextButton, 1);
-                messageGrid.Children.Add(copyTextButton);
-
-                Grid.SetColumn(translateButton, 1);
-                messageGrid.Children.Add(translateButton);
-
-                Button regenerateButton = null;
-                if (isLastMessage)
-                {
-                    var icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Sync)
-                    {
-                        Foreground = (Brush)Application.Current.Resources["SystemBaseMediumHighColorBrush"]
-                    };
-                    Viewbox viewBox = new Viewbox
-                    {
-                        Width = 16,
-                        Child = icon
-                    };
-                    regenerateButton = new Button
-                    {
-                        Tag = "RegenerateButton",
-                        Width = 30,
-                        Opacity = 0.5,
-                        Height = 30,
-                        Content = viewBox,
-                        HorizontalAlignment = HorizontalAlignment.Right,
-                        VerticalAlignment = VerticalAlignment.Top,
-                        Padding = new Thickness(0),
-                        Margin = new Thickness(0, 5, -90, 0),
-                        Background = Brushes.Transparent,
-                        Visibility = Visibility.Collapsed
-                    };
-                    regenerateButton.Click += (s, e) =>
-                    {
-                        AnimateButtonOpacityToOriginal(regenerateButton, 0.5, TimeSpan.FromMilliseconds(500));
-                        RegenerateLatestResponse();
-                    };
-                    Grid.SetColumn(regenerateButton, 1);
-                    messageGrid.Children.Add(regenerateButton);
-                }
-
-                richTextBox.MouseEnter += ShowButtonOnMouseEnter;
-                richTextBox.MouseLeave += HideButtonOnMouseLeave;
-                backgroundRect.MouseEnter += ShowButtonOnMouseEnter;
-                backgroundRect.MouseLeave += HideButtonOnMouseLeave;
-
-                // マウスが要素に入ったときにボタンを表示する
-                void ShowButtonOnMouseEnter(object s, MouseEventArgs e)
-                {
-                    copyTextButton.Visibility = Visibility.Visible;
-                    translateButton.Visibility = Visibility.Visible;
-                    if (regenerateButton != null)
-                    {
-                        regenerateButton.Visibility = Visibility.Visible;
-                    }
-                }
-                void HideButtonOnMouseLeave(object s, MouseEventArgs e)
-                {
-                    if (copyTextButton.IsMouseOver)
-                        return;
-                    if (translateButton.IsMouseOver)
-                        return;
-                    if (regenerateButton != null && regenerateButton.IsMouseOver)
-                        return;
-
-                    Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
-                    if (PresentationSource.FromVisual(richTextBox) != null) // アプリケーションエラー対策
-                    {
-                        double topBoundary = richTextBox.PointToScreen(new Point(0, 0)).Y;
-                        double bottomBoundary = richTextBox.PointToScreen(new Point(0, richTextBox.ActualHeight)).Y;
-
-                        if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
-                        {
-                            copyTextButton.Visibility = Visibility.Visible;
-                            translateButton.Visibility = Visibility.Visible;
-                            if (regenerateButton != null)
-                            {
-                                regenerateButton.Visibility = Visibility.Visible;
-                            }
-                        }
-                        else
-                        {
-                            copyTextButton.Visibility = Visibility.Collapsed;
-                            translateButton.Visibility = Visibility.Collapsed;
-                            if (regenerateButton != null)
-                            {
-                                regenerateButton.Visibility = Visibility.Collapsed;
-                            }
-                        }
-                    }
-                }
-            }
-            if (visionImage != null)
-            {
-                string base64Data = visionImage.Substring(visionImage.IndexOf(",") + 1);
-                byte[] imageBytes =  Convert.FromBase64String(base64Data); 
-                BitmapImage bitmapImage = new BitmapImage();
-                using (var ms = new MemoryStream(imageBytes))
-                {
-                    bitmapImage.BeginInit();
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.StreamSource = ms;
-                    bitmapImage.EndInit();
-                }
-                bitmapImage.Freeze();
-                Image imageControl = new Image
-                {
-                    Source = bitmapImage,
-                    Stretch = Stretch.Uniform,
-                    MaxWidth = 400,
-                    MaxHeight = 400,
-                };
-                messageGrid.Children.Add(imageControl);
-                Grid.SetColumn(imageControl, 1);
-
-                // 行全体の背景色を設定する
-                Rectangle backgroundRect = new Rectangle { Fill = accentColorBrush };
-                Grid.SetColumnSpan(backgroundRect, 3);
-                messageGrid.Children.Add(backgroundRect);
-                Panel.SetZIndex(backgroundRect, -1);
-            }
-
-
-            return messageGrid;
         }
         private void UserTextBox_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -1018,35 +643,6 @@ namespace OpenAIOnWPF
                 }
             }
         }
-        private void UseConversationHistoryToggleSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (UseConversationHistoryToggleSwitch.IsOn == false)
-            {
-                AppSettings.UseConversationHistoryFlg = false;
-            }
-            else
-            {
-                AppSettings.UseConversationHistoryFlg = true;
-            }
-        }
-        private void ConversationHistoryClearButton_Click(object sender, RoutedEventArgs e)
-        {
-            var yesno = ModernWpf.MessageBox.Show("Do you want to delete the entire conversation history?", "Delete Conversation History", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (yesno == MessageBoxResult.No)
-            {
-                return;
-            }
-
-            ConversationHistory targetConversation = ConversationListBox.SelectedItem as ConversationHistory;
-            if (targetConversation == null)
-            {
-                return;
-            }
-            targetConversation.Messages.Clear();
-
-            //MessagesPanelをすべてクリア
-            MessagesPanel.Children.Clear();
-        }
         private void MessageScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             // スクロールが一番下にあるかどうかをチェック
@@ -1118,44 +714,6 @@ namespace OpenAIOnWPF
                 gKeyPressed = false;
             }
         }
-        private void InitializeSystemPromptColumn()
-        {
-            if (AppSettings.IsSystemPromptColumnVisible == true)
-            {
-                SystemPromptGridColumn.Width = new GridLength(Properties.Settings.Default.SystemPromptColumnWidth);
-                GridSplitterGridColumn.Width = new GridLength(1, GridUnitType.Auto);
-                SystemPromptSplitter.Visibility = Visibility.Visible;
-                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.ClosePane;
-                // InstructionComboBoxで選択しているのと同じ内容をSystemPromptComboBox2にセット
-                SystemPromptComboBox2.SelectedIndex = SystemPromptComboBox.SelectedIndex;
-            }
-            else
-            {
-                SystemPromptGridColumn.Width = new GridLength(0);
-                GridSplitterGridColumn.Width = new GridLength(0);
-                SystemPromptSplitter.Visibility = Visibility.Hidden;
-                OpenSytemPromptWindowButtonIcon.Symbol = ModernWpf.Controls.Symbol.OpenPane;
-            }
-            if (AppSettings.IsConversationColumnVisible == true)
-            {
-                ConversationHistorytGridColumn.Width = new GridLength(Properties.Settings.Default.ConversationColumnWidth);
-                GridSplitterGridColumn2.Width = new GridLength(1, GridUnitType.Auto);
-            }
-            else
-            {
-                ConversationHistorytGridColumn.Width = new GridLength(0);
-                GridSplitterGridColumn2.Width = new GridLength(0);
-            }
-
-            //var accentColor = ThemeManager.Current.AccentColor;
-            //if (accentColor == null)
-            //{
-            //    accentColor = SystemParameters.WindowGlassColor;
-            //}
-            //var accentColorBrush = new SolidColorBrush((Color)accentColor);
-            //accentColorBrush.Opacity = 0.08;
-            //SystemPromptGrid.Background = accentColorBrush;
-        }
         private void OpenSytemPromptWindowButton_Click(object sender, RoutedEventArgs e)
         {
             if (SystemPromptGridColumn.Width.Value > 0)
@@ -1207,31 +765,6 @@ namespace OpenAIOnWPF
             UserTextBox.Focus();
             UserTextBox.CaretIndex = UserTextBox.Text.Length;
         }
-        private PromptTemplateManager templateManager = new PromptTemplateManager();
-        private void NewTemplateButton_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new PromptTemplateInput();
-            dialog.Owner = this;
-            if (dialog.ShowDialog() == true)
-            {
-                PromptTemplate newTemplate = dialog.Result;
-
-                if (AppSettings.PromptTemplateManager.Templates.Count > 0)
-                {
-                    int maxSortOrder = AppSettings.PromptTemplateManager.Templates.Max(t => t.SortOrder);
-                    newTemplate.SortOrder = maxSortOrder + 1;
-                }
-                else
-                {
-                    newTemplate.SortOrder = 1;
-                }
-
-                AppSettings.PromptTemplateManager.Templates.Add(newTemplate);
-                PromptTemplateListBox.SelectedItem = newTemplate;
-                PromptTemplateListBox.ScrollIntoView(newTemplate);
-                PromptTemplateListBox.Focus();
-            }
-        }
         private void ConversationDeleteButton_Click(object sender, RoutedEventArgs e)
         {
             ConversationHistory itemToDelete = null;
@@ -1277,33 +810,6 @@ namespace OpenAIOnWPF
                 itemToDelete.Title = newTitle;
             }
         }
-        private void PromptTemplateEditButton_Click(object sender, RoutedEventArgs e)
-        {
-            PromptTemplate item = (PromptTemplate)((Button)sender).DataContext;
-
-            var dialog = new PromptTemplateInput(item);
-            dialog.Owner = this;
-            if (dialog.ShowDialog() == true)
-            {
-                PromptTemplate newTemplate = dialog.Result;
-                item.Title = newTemplate.Title;
-                item.Description = newTemplate.Description;
-                item.Prompt = newTemplate.Prompt;
-                item.LastUpdated = DateTime.Now; // 最終更新日時も更新
-
-                var index = AppSettings.PromptTemplateManager.Templates.IndexOf(item);
-                AppSettings.PromptTemplateManager.Templates[index] = item;
-
-                // 変更されたアイテムを再選択
-                PromptTemplateListBox.SelectedItem = item;
-                PromptTemplateListBox.ScrollIntoView(item);
-                PromptTemplateListBox.Items.Refresh();
-            }
-            else
-            {
-                PromptTemplateListBox.Items.Refresh();
-            }
-        }
         private void ConversationListBoxContextMenu_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F)
@@ -1344,164 +850,6 @@ namespace OpenAIOnWPF
                 button.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
 
                 button.ContextMenu.IsOpen = true;
-            }
-        }
-        private void ConversationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ConversationListBox.SelectedItem == null)
-            {
-                MessagesPanel.Children.Clear();
-                return;
-            }
-            var selectedConversation = (ConversationHistory)ConversationListBox.SelectedItem;
-            List<ChatMessage> messages = selectedConversation.Messages.ToList();
-
-            MessagesPanel.Children.Clear();
-
-            var targetMessages = selectedConversation.Messages;
-            for (int i = 0; i < targetMessages.Count; i++)
-            {
-                var message = targetMessages[i];
-
-                if (message.Role == null) { break; }
-
-                bool isUser = message.Role == "user";
-                bool isLastMessage = i == targetMessages.Count - 1;
-
-                // Documents\OpenAIOnWPF\ConversationHistory以外から取得した場合はContentがnullになるので取得元を変更
-                string messageContent = message.Content ?? System.Text.Json.JsonSerializer.Serialize(message.Contents, new JsonSerializerOptions { WriteIndented = true });
-                var result = UtilityFunctions.ExtractUserAndImageFromMessage(messageContent);
-
-                var messageElement = CreateMessageElement(result.userMessage, isUser, isLastMessage);
-                MessagesPanel.Children.Add(messageElement);
-                if (result.image != "")
-                {
-                    var messageElementImage = CreateMessageElement("", false, isLastMessage, result.image);
-                    MessagesPanel.Children.Add(messageElementImage);
-                }
-            }
-
-            MessagesPanel.PreviewMouseWheel += PreviewMouseWheel;
-
-            // 削除ボタン活性制御用
-            foreach (var item in ConversationListBox.Items.OfType<ConversationHistory>())
-            {
-                item.IsSelected = false;
-            }
-            if (selectedConversation != null)
-            {
-                selectedConversation.IsSelected = true;
-            }
-            foreach (ConversationHistory item in e.RemovedItems)
-            {
-                item.IsSelected = false;
-            }
-
-            if (!isFiltering)
-            {
-                UserTextBox.Focus();
-            }
-            UserTextBox.CaretIndex = UserTextBox.Text.Length;
-        }
-        private void PromptTemplateListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var selectedTemplate = (PromptTemplate)PromptTemplateListBox.SelectedItem;
-
-            // 削除ボタン活性制御用
-            foreach (var item in PromptTemplateListBox.Items.OfType<PromptTemplate>())
-            {
-                item.IsSelected = false;
-            }
-            if (selectedTemplate != null)
-            {
-                selectedTemplate.IsSelected = true;
-            }
-            foreach (PromptTemplate item in e.RemovedItems)
-            {
-                item.IsSelected = false;
-            }
-        }
-        private void PromptTemplateSortUpButton_Click(object sender, RoutedEventArgs e)
-        {
-            PromptTemplate selectedItem = (PromptTemplate)((Button)sender).DataContext;
-            int currentIndex = AppSettings.PromptTemplateManager.Templates.IndexOf(selectedItem);
-            if (currentIndex > 0)
-            {
-                PromptTemplate itemAbove = AppSettings.PromptTemplateManager.Templates[currentIndex - 1];
-
-                selectedItem.SortOrder -= 1;
-                itemAbove.SortOrder += 1;
-
-                SortTemplatesBySortOrder();
-                PromptTemplateListBox.Items.Refresh();
-                PromptTemplateListBox.SelectedItem = selectedItem;
-                PromptTemplateListBox.ScrollIntoView(selectedItem);
-            }
-        }
-        private void PromptTemplateSortDownButton_Click(object sender, RoutedEventArgs e)
-        {
-            PromptTemplate selectedItem = (PromptTemplate)((Button)sender).DataContext;
-            var templates = AppSettings.PromptTemplateManager.Templates;
-            int currentIndex = templates.IndexOf(selectedItem);
-
-            if (currentIndex < templates.Count - 1)
-            {
-                PromptTemplate itemBelow = templates[currentIndex + 1];
-
-                selectedItem.SortOrder += 1;
-                itemBelow.SortOrder -= 1;
-
-                SortTemplatesBySortOrder();
-                PromptTemplateListBox.Items.Refresh();
-                PromptTemplateListBox.SelectedItem = selectedItem;
-                PromptTemplateListBox.ScrollIntoView(selectedItem);
-            }
-        }
-        private void SortTemplatesBySortOrder()
-        {
-            var sortedTemplates = AppSettings.PromptTemplateManager.Templates
-                                   .OrderBy(t => t.SortOrder)
-                                   .ToList();
-
-            AppSettings.PromptTemplateManager.Templates.Clear();
-            foreach (var template in sortedTemplates)
-            {
-                AppSettings.PromptTemplateManager.Templates.Add(template);
-            }
-        }
-        private void PromptTemplateInsertButton_Click(object sender, RoutedEventArgs e)
-        {
-            PromptTemplate selectedItem = (PromptTemplate)((Button)sender).DataContext;
-            string prompt = selectedItem.Prompt;
-            if (!string.IsNullOrEmpty(UserTextBox.Text))
-            {
-                // ユーザーに確認するメッセージボックスを表示
-                var result = ModernWpf.MessageBox.Show(
-                    "The text box already contains text. Do you want to replace it?",
-                    "Confirm Replace",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    UserTextBox.Text = prompt;
-                }
-            }
-            else
-            {
-                UserTextBox.Text = prompt;
-            }
-        }
-        private void PromptTemplateListBox_MouseLeave(object sender, MouseEventArgs e)
-        {
-            PromptTemplateListBox.SelectedItem = null;
-        }
-        private void PromptTemplateListBoxItem_MouseEnter(object sender, MouseEventArgs e)
-        {
-            var item = sender as ListBoxItem;
-            if (item != null && !item.IsSelected)
-            {
-                item.IsSelected = true;
             }
         }
         public void RefreshConversationList()
@@ -1545,76 +893,6 @@ namespace OpenAIOnWPF
                 TranslateButton.IsEnabled = true;
                 animation?.Stop();
                 UserTextBox.Foreground = new SolidColorBrush(initialTextColor);
-            }
-        }
-        private void RegenerateLatestResponse()
-        {
-            var messages = ConversationListBox.SelectedItems
-                .OfType<ConversationHistory>()
-                .SelectMany(item => item.Messages)
-                .ToList();
-
-            if (messages.Count > 1)
-            {
-                string userMessage = messages[messages.Count - 2].Content;
-                JToken token;
-                try
-                {
-                    token = JToken.Parse(userMessage);
-                    if (token.Type != JTokenType.Array)
-                    {
-                        // JSONが配列でない場合はnullとするか、適切なデフォルト値に設定
-                        token = null;
-                    }
-                }
-                catch (Exception)
-                {
-                    token = null;
-                }
-                string user = "";
-                string image = "";
-                if (token != null) // Vision API
-                {
-                    var items = token.ToObject<List<VisionUserContentItem>>();
-                    foreach (var item in items)
-                    {
-                        if (item.type == "text")
-                        {
-                            user = item.text;
-                        }
-                        if ((item.type == "image_url" || item.type == "image") && item.image_url?.url != null)
-                        {
-                            image = item.image_url.url;
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(image)) // TODO:Response to vision
-                    {
-                        ModernWpf.MessageBox.Show("Currently, regenerating VisionAPI exchanges is not supported.", "error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                }
-                else // not Vision API
-                {
-                    user = userMessage;
-                }
-
-                //会話履歴の最新2つを削除
-                foreach (ConversationHistory item in ConversationListBox.SelectedItems.OfType<ConversationHistory>())
-                {
-                    if (item.Messages.Count > 1)
-                    {
-                        item.Messages.RemoveAt(item.Messages.Count - 1);
-                        item.Messages.RemoveAt(item.Messages.Count - 1);
-                    }
-                    else if (item.Messages.Count == 1)
-                    {
-                        item.Messages.RemoveAt(0); // メッセージが1つのみの場合
-                    }
-                }
-                // MessagePanelの下2つを削除
-                MessagesPanel.Children.RemoveRange(MessagesPanel.Children.Count - 2, 2);
-
-                _ = ProcessOpenAIAsync(user);
             }
         }
         private void ApplyFilter(string filterText, bool? isFilteringByFavorite = null)
