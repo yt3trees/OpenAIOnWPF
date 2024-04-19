@@ -79,7 +79,7 @@ namespace OpenAIOnWPF.DataManagement
             foreach (var template in manager.Templates)
             {
                 string formattedLastUpdated = template.LastUpdated.ToString("yyyyMMddHHmmss");
-                string filePath = Path.Combine(dataDirectory, $"PromptTemplate_{formattedLastUpdated}_{template.ID}.json");
+                string filePath = Path.Combine(dataDirectory, $"PromptTemplate_{template.SortOrder}_{formattedLastUpdated}_{template.ID}.json");
                 string jsonString = System.Text.Json.JsonSerializer.Serialize(template, options);
 
                 File.WriteAllText(filePath, jsonString);
