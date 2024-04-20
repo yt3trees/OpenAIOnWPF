@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -301,8 +302,24 @@ namespace OpenAIOnWPF
                 richTextBox.Document.FontSize = Properties.Settings.Default.FontSize;
                 richTextBox.Document.FontFamily = new FontFamily("Yu Gothic UI");
 
-                ContextMenu contextMenu = CreateContextMenu();
-                richTextBox.ContextMenu = contextMenu;
+                richTextBox.ContextMenuOpening += RichTextBox_ContextMenuOpening;
+                void RichTextBox_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+                {
+                    RichTextBox rtb = sender as RichTextBox;
+                    if (rtb != null)
+                    {
+                        TextPointer position = rtb.GetPositionFromPoint(Mouse.GetPosition(rtb), true);
+                        if (position != null)
+                        {
+                            TextPointer start = position.Paragraph.ContentStart;
+                            TextPointer end = position.Paragraph.ContentEnd;
+                            string paragraphText = new TextRange(start, end).Text;
+
+                            ContextMenu contextMenu = CreateContextMenu(paragraphText);
+                            richTextBox.ContextMenu = contextMenu;
+                        }
+                    }
+                }
 
                 Grid.SetColumn(richTextBox, 1);
                 messageGrid.Children.Add(richTextBox);

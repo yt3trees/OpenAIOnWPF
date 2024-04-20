@@ -526,13 +526,14 @@ namespace OpenAIOnWPF
         /// <summary>
         /// 右クリックメニュー
         /// </summary>
-        private ContextMenu CreateContextMenu()
+        private ContextMenu CreateContextMenu(string paragraphText = null)
         {
             ContextMenu contextMenu = new ContextMenu();
 
             MenuItem copyTextMenuItem = new MenuItem();
             copyTextMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy);
             Button copyTextButton = new Button { Content = "Copy Text", Background = Brushes.Transparent };
+            contextMenu.Opened += (s, e) => UpdateMenuItemButtonContent(contextMenu.PlacementTarget, copyTextButton);
             Action copyTextAndCloseMenu = () =>
             {
                 CopyTextToClipboard(contextMenu.PlacementTarget);
@@ -545,41 +546,58 @@ namespace OpenAIOnWPF
             {
                 if (target is TextBox textBox)
                 {
-                    Clipboard.SetText(textBox.Text);
+                    string textToCopy = textBox.SelectedText.Length > 0 ? textBox.SelectedText : textBox.Text;
+                    Clipboard.SetText(textToCopy);
                 }
                 else if (target is RichTextBox richTextBox)
                 {
-                    TextRange textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
-                    Clipboard.SetText(textRange.Text);
+                    TextRange selectedTextRange = new TextRange(richTextBox.Selection.Start, richTextBox.Selection.End);
+                    if (!string.IsNullOrEmpty(selectedTextRange.Text))
+                    {
+                        Clipboard.SetText(selectedTextRange.Text);
+                    }
+                    else
+                    {
+                        TextRange allTextRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
+                        Clipboard.SetText(allTextRange.Text);
+                    }
                 }
             }
             contextMenu.Items.Add(copyTextMenuItem);
+
+            contextMenu.Items.Add(new Separator());
+
+            MenuItem currentFontSizeMenuItem = new MenuItem();
+            currentFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Font);
+            currentFontSizeMenuItem.Header = $"Current Font Size: {Properties.Settings.Default.FontSize}pt";
+            currentFontSizeMenuItem.IsEnabled = false;
+            contextMenu.Items.Add(currentFontSizeMenuItem);
 
             MenuItem increaseFontSizeMenuItem = new MenuItem();
             increaseFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontIncrease);
             Button increaseFontSizeButton = new Button { Content = "Increase Font Size", Background = Brushes.Transparent };
             increaseFontSizeMenuItem.Header = increaseFontSizeButton;
-            increaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1);
-            increaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1);
+            increaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1, currentFontSizeMenuItem);
+            increaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1, currentFontSizeMenuItem);
             contextMenu.Items.Add(increaseFontSizeMenuItem);
 
             MenuItem decreaseFontSizeMenuItem = new MenuItem();
             decreaseFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
             Button decreaseFontSizeButton = new Button { Content = "Decrease Font Size", Background = Brushes.Transparent };
             decreaseFontSizeMenuItem.Header = decreaseFontSizeButton;
-            decreaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1);
-            decreaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1);
+            decreaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1, currentFontSizeMenuItem);
+            decreaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1, currentFontSizeMenuItem);
             contextMenu.Items.Add(decreaseFontSizeMenuItem);
 
             MenuItem defaultFontSizeMenuItem = new MenuItem { Header = "Default Font Size" };
             defaultFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Refresh);
             Button defaultFontSizeButton = new Button { Content = "Default Font Size", Background = Brushes.Transparent };
             defaultFontSizeMenuItem.Header = defaultFontSizeButton;
-            defaultFontSizeButton.Click += (s, e) => SetFontSize(16);
-            defaultFontSizeMenuItem.Click += (s, e) => SetFontSize(16);
+            defaultFontSizeButton.Click += (s, e) => SetFontSize(16, currentFontSizeMenuItem);
+            defaultFontSizeMenuItem.Click += (s, e) => SetFontSize(16, currentFontSizeMenuItem);
             contextMenu.Items.Add(defaultFontSizeMenuItem);
 
-            void SetFontSize(int newSize)
+            void SetFontSize(int newSize, MenuItem menuItem)
             {
                 int minSize = 8;
                 int maxSize = 32;
@@ -604,24 +622,113 @@ namespace OpenAIOnWPF
                         }
                     }
                 }
+
+                menuItem.Header = $"Current Font Size: {Properties.Settings.Default.FontSize}pt";
             }
 
-            MenuItem translateMenuItem = new MenuItem();
-            translateMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Globe);
-            Button translateButton = new Button { Content = "Translate", Background = Brushes.Transparent };
-            Action translateTextAndCloseMenu = () =>
+            if (paragraphText is not null && IsMermaidCode(paragraphText))
             {
-                TranslateText(contextMenu.PlacementTarget);
-                contextMenu.IsOpen = false;
-            };
-            translateButton.Click += (s, e) => translateTextAndCloseMenu();
-            translateMenuItem.Click += (s, e) => translateTextAndCloseMenu();
-            translateMenuItem.Header = translateButton;
-            translateMenuItem.Visibility = AppSettings.TranslationAPIUseFlg ? Visibility.Visible : Visibility.Collapsed;
+                contextMenu.Items.Add(new Separator());
 
-            contextMenu.Items.Add(translateMenuItem);
+                MenuItem mermaidMenuItem = new MenuItem();
+                mermaidMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.AllApps);
+                Button mermaidButton = new Button { Content = "Mermaid Preview", Background = Brushes.Transparent };
+                Action mermaidTextAndCloseMenu = () =>
+                {
+                    MermaidPreviewContextMenu_Click(paragraphText);
+                    contextMenu.IsOpen = false;
+                };
+                mermaidButton.Click += (s, e) => mermaidTextAndCloseMenu();
+                mermaidMenuItem.Click += (s, e) => mermaidTextAndCloseMenu();
+                mermaidMenuItem.Header = mermaidButton;
+
+                contextMenu.Items.Add(mermaidMenuItem);
+            }
 
             return contextMenu;
+        }
+        private void MermaidPreviewContextMenu_Click(string text)
+        {
+            ShowMermaidPreview(text);
+        }
+        private void ShowMermaidPreview(string mermaidCode)
+        {
+            string theme;
+            string backgroundColor;
+            if (ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark)
+            {
+                theme = "dark";
+                backgroundColor = "#333";
+            }
+            else
+            {
+                theme = "default";
+                backgroundColor = "#FFFFFF";
+            }
+            string htmlContent = $@"<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ background-color: {backgroundColor}; }}
+    </style>
+    <script src='https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js'></script>
+    <script>mermaid.initialize({{startOnLoad:true, theme: '{theme}'}});</script>
+</head>
+<body>
+    <div class='mermaid'>
+{mermaidCode}
+    </div>
+</body>
+</html>";
+            var previewWindow = new WebBrowserPreview(htmlContent);
+            double parentCenterX = this.Left + (this.Width / 2);
+            double parentCenterY = this.Top + (this.Height / 2);
+            previewWindow.Left = parentCenterX - (previewWindow.Width / 2);
+            previewWindow.Top = parentCenterY - (previewWindow.Height / 2);
+            previewWindow.Show();
+        }
+        public static bool IsMermaidCode(string text)
+        {
+            string[] patterns = new string[]
+            {
+                @"^\s*graph\s+(?:TB|BT|RL|LR|TD|DT)\s*",
+                @"^\s*sequenceDiagram\s*",
+                @"^\s*classDiagram\s*",
+                @"^\s*stateDiagram\s*",
+                @"^\s*entityRelationship\s*",
+                @"^\s*erDiagram\s*",
+                @"^\s*gantt\s*",
+                @"^\s*pie\s*",
+                @"^\s*gitGraph\s*",
+                @"^\s*Journey\s*",
+                @"^\s*flowchart\s+(?:TB|BT|RL|LR)\s*"
+            };
+
+            foreach (var pattern in patterns)
+            {
+                if (Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                    return true;
+            }
+            return false;
+        }
+        void UpdateMenuItemButtonContent(object target, Button button)
+        {
+            string headerText = "Copy All Text";
+
+            if (target is TextBox textBox && !string.IsNullOrEmpty(textBox.SelectedText))
+            {
+                headerText = "Copy Selected Text";
+            }
+            else if (target is RichTextBox richTextBox)
+            {
+                TextRange selectedTextRange = new TextRange(richTextBox.Selection.Start, richTextBox.Selection.End);
+                if (!string.IsNullOrEmpty(selectedTextRange.Text))
+                {
+                    headerText = "Copy Selected Text";
+                }
+            }
+
+            button.Content = headerText;
         }
         /// <summary>
         /// 親のScrollViewerでスクロールする
