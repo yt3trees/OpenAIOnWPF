@@ -317,6 +317,16 @@ namespace OpenAIOnWPF
                     TranslateButton_Click(sender, e);
                 }
             }
+            else if (e.Key == Key.K && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset - 20;
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+            }
+            else if (e.Key == Key.J && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                double newVerticalOffset = MessageScrollViewer.VerticalOffset + 20;
+                MessageScrollViewer.ScrollToVerticalOffset(newVerticalOffset);
+            }
         }
         private void ExecButton_Click(object sender, RoutedEventArgs e)
         {
