@@ -780,6 +780,16 @@ namespace OpenAIOnWPF
                     gKeyPressed = true;
                 }
             }
+            else if (e.Key == Key.Home)
+            {
+                MessageScrollViewer.ScrollToTop();
+                gKeyPressed = false;
+            }
+            else if (e.Key == Key.End)
+            {
+                MessageScrollViewer.ScrollToBottom();
+                gKeyPressed = false;
+            }
             else if (e.Key == Key.U && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 double newVerticalOffset = MessageScrollViewer.VerticalOffset - (MessageScrollViewer.ViewportHeight / 2);
