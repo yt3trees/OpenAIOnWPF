@@ -37,7 +37,7 @@ https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/18462921-7c50-45d3-87cd-
 ### カラーテーマの変更
 ![color_theme](https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/8ab7f837-e7c6-4038-b98b-20b52146c399)
 
-## Dependencies
+## 依存関係
 このプロジェクトの主な依存関係は以下の通りです:
 
 - [**Betalgo.OpenAI** ](https://github.com/betalgo/openai)
