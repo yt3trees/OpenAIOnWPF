@@ -1,4 +1,5 @@
-﻿using ModernWpf;
+﻿using MdXaml;
+using ModernWpf;
 using ModernWpf.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -236,30 +237,24 @@ namespace OpenAIOnWPF
                     Clipboard.SetText(textBox.Text);
                     break;
                 }
-                else if (child is RichTextBox richTextBox)
+                else if (child is MarkdownScrollViewer markdownScrollViewer)
                 {
-                    TextRange textRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
-                    Clipboard.SetText(textRange.Text);
+                    Clipboard.SetText(markdownScrollViewer.Markdown);
                     break;
                 }
             }
         }
         public static void TranslateTextFromMessageGrid(Grid grid)
         {
-            // Grid内のTextBoxやRichTextBoxを検索
             foreach (var child in grid.Children)
             {
                 if (child is TextBox textBox)
                 {
                     TranslateText(textBox);
                 }
-                else if (child is RichTextBox richTextBox)
+                else if (child is MarkdownScrollViewer markdownScrollViewer)
                 {
-                    TranslateText(richTextBox);
-                }
-                else if (child is Border border && border.Child is RichTextBox borderRichTextBox) // RichTextBoxがBorderでラップされている場合
-                {
-                    TranslateText(borderRichTextBox);
+                    TranslateText(markdownScrollViewer);
                 }
             }
         }
@@ -290,16 +285,15 @@ namespace OpenAIOnWPF
                     textBox.Opacity = 1.0;
                 }
             }
-            else if (target is RichTextBox richTextBox)
+            else if (target is MarkdownScrollViewer markdownScrollViewer)
             {
                 try
                 {
-                    animation = CreateOpacityAnimation(richTextBox);
+                    animation = CreateOpacityAnimation(markdownScrollViewer);
                     animation.Begin();
 
-                    // 元のRichTextBoxのデータ(ListItem、Paragraph、Text)を保存するリスト
                     List<(ListItem listItem, Paragraph paragraph, string text)> originalData = new List<(ListItem listItem, Paragraph paragraph, string text)>();
-                    foreach (Block block in richTextBox.Document.Blocks)
+                    foreach (Block block in markdownScrollViewer.Document.Blocks)
                     {
                         // 各ブロックを処理して、originalDataリストにデータを追加
                         ProcessBlocks(new List<Block> { block }, originalData);
@@ -332,7 +326,7 @@ namespace OpenAIOnWPF
                 finally
                 {
                     animation?.Stop();
-                    richTextBox.Opacity = 1.0;
+                    markdownScrollViewer.Opacity = ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark ? 0.9 : 1;
                 }
             }
         }

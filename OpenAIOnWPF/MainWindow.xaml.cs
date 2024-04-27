@@ -1,5 +1,4 @@
-﻿using Markdig;
-using Markdig.Wpf;
+﻿using MdXaml;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32;
 using ModernWpf;
@@ -546,30 +545,53 @@ namespace OpenAIOnWPF
             contextMenu.Opened += (s, e) => UpdateMenuItemButtonContent(contextMenu.PlacementTarget, copyTextButton);
             Action copyTextAndCloseMenu = () =>
             {
-                CopyTextToClipboard(contextMenu.PlacementTarget);
                 contextMenu.IsOpen = false;
             };
             copyTextButton.Click += (s, e) => copyTextAndCloseMenu();
             copyTextMenuItem.Click += (s, e) => copyTextAndCloseMenu();
+            copyTextButton.Click += CopyTextToClipboard;
+            copyTextMenuItem.Click += CopyTextToClipboard;
             copyTextMenuItem.Header = copyTextButton;
-            void CopyTextToClipboard(object target)
+            void CopyTextToClipboard(object sender, RoutedEventArgs e)
             {
+                var target = contextMenu.PlacementTarget;
                 if (target is TextBox textBox)
                 {
                     string textToCopy = textBox.SelectedText.Length > 0 ? textBox.SelectedText : textBox.Text;
                     Clipboard.SetText(textToCopy);
                 }
-                else if (target is RichTextBox richTextBox)
+                else if (target is MarkdownScrollViewer markdownScrollViewer)
                 {
-                    TextRange selectedTextRange = new TextRange(richTextBox.Selection.Start, richTextBox.Selection.End);
-                    if (!string.IsNullOrEmpty(selectedTextRange.Text))
+                    TextRange selectedTextRange = new TextRange(markdownScrollViewer.Selection.Start, markdownScrollViewer.Selection.End);
+                    if (!string.IsNullOrEmpty(selectedTextRange.Text)) // copy selected text
                     {
                         Clipboard.SetText(selectedTextRange.Text);
                     }
                     else
                     {
-                        TextRange allTextRange = new TextRange(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
-                        Clipboard.SetText(allTextRange.Text);
+                        var mousePos = Mouse.GetPosition(markdownScrollViewer); // マウス位置の要素を取得
+                        Visual hitVisual = markdownScrollViewer.InputHitTest(mousePos) as Visual;
+                        if (hitVisual is ICSharpCode.AvalonEdit.Rendering.TextView editor) // copy code block
+                        {
+                            Clipboard.SetText(editor.Document.Text); // code block paragraph text
+                        }
+                        else // copy all
+                        {
+                            Clipboard.SetText(markdownScrollViewer.Markdown);
+                        }
+                    }
+                }
+                else if (target is ICSharpCode.AvalonEdit.Rendering.TextView textView)
+                {
+                    var mousePos = Mouse.GetPosition(textView); // マウス位置の要素を取得
+                    Visual hitVisual = textView.InputHitTest(mousePos) as Visual;
+                    if (hitVisual is ICSharpCode.AvalonEdit.Rendering.TextView editor)
+                    {
+                        Clipboard.SetText(editor.Document.Text); // code block paragraph text
+                    }
+                    else
+                    {
+                        Clipboard.SetText(textView.Document.Text);
                     }
                 }
             }
@@ -625,9 +647,9 @@ namespace OpenAIOnWPF
                             {
                                 textBox.FontSize = newSize;
                             }
-                            else if (child is RichTextBox richTextBox)
+                            else if (child is MarkdownScrollViewer markdownScrollViewer)
                             {
-                                richTextBox.Document.FontSize = newSize;
+                                markdownScrollViewer.Document.FontSize = newSize;
                             }
                         }
                     }
@@ -729,12 +751,38 @@ namespace OpenAIOnWPF
             {
                 headerText = "Copy Selected Text";
             }
-            else if (target is RichTextBox richTextBox)
+            else if (target is MarkdownScrollViewer markdownScrollViewer)
             {
-                TextRange selectedTextRange = new TextRange(richTextBox.Selection.Start, richTextBox.Selection.End);
+                TextRange selectedTextRange = new TextRange(markdownScrollViewer.Selection.Start, markdownScrollViewer.Selection.End);
                 if (!string.IsNullOrEmpty(selectedTextRange.Text))
                 {
                     headerText = "Copy Selected Text";
+                }
+                else
+                {
+                    var mousePos = Mouse.GetPosition(markdownScrollViewer); // マウス位置の要素を取得
+                    Visual hitVisual = markdownScrollViewer.InputHitTest(mousePos) as Visual;
+                    if (hitVisual is ICSharpCode.AvalonEdit.Rendering.TextView editor)
+                    {
+                        headerText = "Copy Code Block Text";
+                    }
+                    else
+                    {
+                        headerText = "Copy All Text";
+                    }
+                }
+            }
+            else if (target is ICSharpCode.AvalonEdit.Rendering.TextView textView)
+            {
+                var mousePos = Mouse.GetPosition(textView); // マウス位置の要素を取得
+                Visual hitVisual = textView.InputHitTest(mousePos) as Visual;
+                if (hitVisual is ICSharpCode.AvalonEdit.Rendering.TextView editor)
+                {
+                    headerText = "Copy Code Block Text";
+                }
+                else
+                {
+                    headerText = "Copy All Text";
                 }
             }
 

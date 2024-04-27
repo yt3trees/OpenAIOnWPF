@@ -1,4 +1,4 @@
-﻿using Markdig;
+﻿using MdXaml;
 using ModernWpf;
 using Newtonsoft.Json.Linq;
 using OpenAI.ObjectModels.RequestModels;
@@ -286,43 +286,47 @@ namespace OpenAIOnWPF
             }
             else if (!(isUser) && visionImage == null)
             {
-                var pipeline = new MarkdownPipelineBuilder()
-                .UseSoftlineBreakAsHardlineBreak()
-                .UseAdvancedExtensions()
-                .Build();
+                MarkdownScrollViewer markDownScrollViewer = new MarkdownScrollViewer();
+                markDownScrollViewer.MarkdownStyle = (Style)Application.Current.FindResource("MdXamlStyle");
+                markDownScrollViewer.Engine.DisabledContextMenu = true;
+                markDownScrollViewer.UseSoftlineBreakAsHardlineBreak = true; // *Options Added in the Forked Version of MdXaml
+                markDownScrollViewer.UseDarkThemeSyntaxHighlighting =
+                    ThemeManager.Current.ActualApplicationTheme == ModernWpf.ApplicationTheme.Dark; // *Options Added in the Forked Version of MdXaml
+                markDownScrollViewer.Markdown = messageContent;
+                markDownScrollViewer.Opacity = opacity;
+                markDownScrollViewer.SelectionBrush = new SolidColorBrush(ThemeManager.Current.ActualAccentColor);
+                markDownScrollViewer.Padding = new Thickness(12, 10, 12, 10);
+                markDownScrollViewer.HorizontalContentAlignment = HorizontalAlignment.Left;
+                markDownScrollViewer.Document.FontSize = Properties.Settings.Default.FontSize;
+                markDownScrollViewer.Document.FontFamily = new FontFamily("Yu Gothic UI");
 
-                var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(messageContent, pipeline);
-                var richTextBox = new RichTextBox
-                {
-                    Padding = new Thickness(5, 10, 5, 10),
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    Opacity = opacity,
-                    Document = flowDocument
-                };
-                richTextBox.Document.FontSize = Properties.Settings.Default.FontSize;
-                richTextBox.Document.FontFamily = new FontFamily("Yu Gothic UI");
+                markDownScrollViewer.ContextMenuOpening += MarkdwonScroll_ContextMenuOpening;
 
-                richTextBox.ContextMenuOpening += RichTextBox_ContextMenuOpening;
-                void RichTextBox_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+                void MarkdwonScroll_ContextMenuOpening(object sender, ContextMenuEventArgs e)
                 {
-                    RichTextBox rtb = sender as RichTextBox;
-                    if (rtb != null)
+                    string paragraphText = "";
+                    MarkdownScrollViewer msv = sender as MarkdownScrollViewer;
+                    if (msv != null)
                     {
-                        TextPointer position = rtb.GetPositionFromPoint(Mouse.GetPosition(rtb), true);
-                        if (position != null)
+                        // マウス位置の要素を取得
+                        var mousePos = Mouse.GetPosition(msv);
+                        Visual hitVisual = msv.InputHitTest(mousePos) as Visual;
+                        if (hitVisual != null)
                         {
-                            TextPointer start = position.Paragraph.ContentStart;
-                            TextPointer end = position.Paragraph.ContentEnd;
-                            string paragraphText = new TextRange(start, end).Text;
-
-                            ContextMenu contextMenu = CreateContextMenu(paragraphText);
-                            richTextBox.ContextMenu = contextMenu;
+                            var editor = hitVisual as ICSharpCode.AvalonEdit.Rendering.TextView;
+                            paragraphText = editor.Document.Text;
                         }
+                        else if (msv != null)
+                        {
+                            paragraphText = msv.Markdown;
+                        }
+                        ContextMenu contextMenu = CreateContextMenu(paragraphText);
+                        markDownScrollViewer.ContextMenu = contextMenu;
                     }
                 }
 
-                Grid.SetColumn(richTextBox, 1);
-                messageGrid.Children.Add(richTextBox);
+                Grid.SetColumn(markDownScrollViewer, 1);
+                messageGrid.Children.Add(markDownScrollViewer);
 
                 Rectangle backgroundRect = new Rectangle { Fill = Brushes.Transparent };
                 Grid.SetColumnSpan(backgroundRect, 3);
@@ -370,8 +374,8 @@ namespace OpenAIOnWPF
                     messageGrid.Children.Add(regenerateButton);
                 }
 
-                richTextBox.MouseEnter += ShowButtonOnMouseEnter;
-                richTextBox.MouseLeave += HideButtonOnMouseLeave;
+                markDownScrollViewer.MouseEnter += ShowButtonOnMouseEnter;
+                markDownScrollViewer.MouseLeave += HideButtonOnMouseLeave;
                 backgroundRect.MouseEnter += ShowButtonOnMouseEnter;
                 backgroundRect.MouseLeave += HideButtonOnMouseLeave;
 
@@ -395,10 +399,10 @@ namespace OpenAIOnWPF
                         return;
 
                     Point mousePosToWindow = Mouse.GetPosition(Application.Current.MainWindow);
-                    if (PresentationSource.FromVisual(richTextBox) != null) // アプリケーションエラー対策
+                    if (PresentationSource.FromVisual(markDownScrollViewer) != null) // アプリケーションエラー対策
                     {
-                        double topBoundary = richTextBox.PointToScreen(new Point(0, 0)).Y;
-                        double bottomBoundary = richTextBox.PointToScreen(new Point(0, richTextBox.ActualHeight)).Y;
+                        double topBoundary = markDownScrollViewer.PointToScreen(new Point(0, 0)).Y;
+                        double bottomBoundary = markDownScrollViewer.PointToScreen(new Point(0, markDownScrollViewer.ActualHeight)).Y;
 
                         if (mousePosToWindow.Y >= topBoundary && mousePosToWindow.Y <= bottomBoundary)
                         {

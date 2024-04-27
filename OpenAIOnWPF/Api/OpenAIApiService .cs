@@ -1,4 +1,5 @@
 ﻿using Markdig;
+using MdXaml;
 using Microsoft.Toolkit.Uwp.Notifications;
 using OpenAI;
 using OpenAI.Managers;
@@ -365,7 +366,7 @@ namespace OpenAIOnWPF
         }
         private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult, CancellationToken cancellationToken)
         {
-            System.Windows.Controls.RichTextBox richTextBox = null;
+            MarkdownScrollViewer markdownScrollViewer = null;
             await Dispatcher.InvokeAsync(() =>
             {
                 try
@@ -398,17 +399,16 @@ namespace OpenAIOnWPF
                     assistantMessageElement = CreateMessageElement("", isUser: false, isLastMessage: true); // 要素だけ生成しておく
                     MessagesPanel.Children.Add(assistantMessageElement);
 
-                    // Grid内のRichTextBox要素を検索
+                    // Grid内のMarkdownScrollViewer要素を検索
                     Grid assistantMessageGrid = assistantMessageElement as Grid;
-                    //System.Windows.Controls.RichTextBox richTextBox = null;
                     if (assistantMessageGrid != null)
                     {
                         foreach (var child in assistantMessageGrid.Children)
                         {
-                            if (child is System.Windows.Controls.RichTextBox)
+                            if (child is MarkdownScrollViewer)
                             {
-                                richTextBox = child as System.Windows.Controls.RichTextBox;
-                                richTextBox.Document.LineHeight = 1.0;
+                                markdownScrollViewer = child as MarkdownScrollViewer;
+                                markdownScrollViewer.Document.LineHeight = 1.0;
                                 break;
                             }
                         }
@@ -438,7 +438,8 @@ namespace OpenAIOnWPF
                         await Dispatcher.InvokeAsync(() =>
                         {
                             responseText += $"{resultText}";
-                            richTextBox.AppendText(resultText);
+                            markdownScrollViewer.Markdown += resultText;
+                            markdownScrollViewer.Document.FontSize = Properties.Settings.Default.FontSize;
                             FlushWindowsMessageQueue(); // 描画遅延対策
                         });
                     }
@@ -470,8 +471,6 @@ namespace OpenAIOnWPF
 
             await Dispatcher.InvokeAsync(() =>
             {
-                var flowDocument = Markdig.Wpf.Markdown.ToFlowDocument(responseText, pipeline);
-                richTextBox.Document = flowDocument;
                 ForTokenCalc.responseToken = responseText;
 
                 if (resultFlg)
