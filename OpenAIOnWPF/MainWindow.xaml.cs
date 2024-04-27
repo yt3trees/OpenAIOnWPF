@@ -676,6 +676,38 @@ namespace OpenAIOnWPF
 
                 contextMenu.Items.Add(mermaidMenuItem);
             }
+            if (paragraphText is not null && IsMarkdownTable(paragraphText))
+            {
+                contextMenu.Items.Add(new Separator());
+
+                MenuItem copyTableMenuItem = new MenuItem();
+                copyTableMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy);
+                Button copyTableButton = new Button { Content = "Copy Table to Clipboard", Background = Brushes.Transparent };
+                Action copyTableAndCloseMenu = () =>
+                {
+                    CopyMarkdownTableToClipboard(paragraphText);
+                    contextMenu.IsOpen = false;
+                };
+                copyTableButton.Click += (s, e) => copyTableAndCloseMenu();
+                copyTableMenuItem.Click += (s, e) => copyTableAndCloseMenu();
+                copyTableMenuItem.Header = copyTableButton;
+
+                contextMenu.Items.Add(copyTableMenuItem);
+
+                MenuItem exportCsvMenuItem = new MenuItem();
+                exportCsvMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Download);
+                Button exportCsvButton = new Button { Content = "Export CSV", Background = Brushes.Transparent };
+                Action exportCsvAndCloseMenu = () =>
+                {
+                    ExportCsvContextMenu_Click(paragraphText);
+                    contextMenu.IsOpen = false;
+                };
+                exportCsvButton.Click += (s, e) => exportCsvAndCloseMenu();
+                exportCsvMenuItem.Click += (s, e) => exportCsvAndCloseMenu();
+                exportCsvMenuItem.Header = exportCsvButton;
+
+                contextMenu.Items.Add(exportCsvMenuItem);
+            }
 
             return contextMenu;
         }
@@ -736,12 +768,95 @@ namespace OpenAIOnWPF
                 @"^\s*flowchart\s+(?:TB|BT|RL|LR)\s*"
             };
 
+            string firstLine = text.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)[0];
+
             foreach (var pattern in patterns)
             {
-                if (Regex.IsMatch(text, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                if (Regex.IsMatch(firstLine, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline))
                     return true;
             }
             return false;
+        }
+        private void ExportCsvContextMenu_Click(string text)
+        {
+            var lines = text.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var csvLines = new System.Text.StringBuilder();
+
+            foreach (var line in lines)
+            {
+                if (!line.StartsWith("|")) continue; // テーブルの行のみ処理
+                // 区切り行(ヘッダとデータの間にある行)をスキップ
+                if (line.Contains("---")) continue;
+                // 行の両端からパイプとスペースを取り除く
+                var cleanedLine = line.Trim('|', ' ');
+                // セルをパイプで分割し、余分な空白を削除
+                var values = cleanedLine.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                // CSV行を生成
+                var csvLine = string.Join(",", values.Select(v => v.Trim()));
+                csvLines.AppendLine(csvLine);
+            }
+
+            var dialog = new System.Windows.Forms.SaveFileDialog();
+            dialog.Title = "Please select an export file.";
+            dialog.FileName = DateTime.Now.ToString("yyyyMMdd") + "_output.csv";
+            dialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
+            dialog.DefaultExt = "csv";
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                if (ContainsJapanese(csvLines.ToString()))
+                {
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                    Encoding sjisEncoding = Encoding.GetEncoding("shift_jis");
+                    File.WriteAllText(dialog.FileName, csvLines.ToString(), sjisEncoding);
+                }
+                else
+                {
+                    File.WriteAllText(dialog.FileName, csvLines.ToString());
+                }
+                ModernWpf.MessageBox.Show("Exported successfully.");
+            }
+        }
+        public static void CopyMarkdownTableToClipboard(string markdownText)
+        {
+            var lines = markdownText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var tableData = new List<List<string>>();
+
+            foreach (var line in lines)
+            {
+                if (!line.StartsWith("|")) continue; // テーブルの行のみ処理
+                if (line.Contains("---")) continue; // 区切り行は無視
+
+                var row = line.Trim('|').Split('|').Select(s => s.Trim()).ToList();
+                tableData.Add(row);
+            }
+
+            if (tableData.Count > 0)
+            {
+                var stringBuilder = new System.Text.StringBuilder();
+                foreach (var row in tableData)
+                {
+                    stringBuilder.AppendLine(string.Join("\t", row));
+                }
+                Clipboard.SetText(stringBuilder.ToString());
+                Console.WriteLine("Table data has been copied to the clipboard. You can now paste it into Excel.");
+            }
+            else
+            {
+                Console.WriteLine("No table data found in the markdown text.");
+            }
+        }
+        static bool IsMarkdownTable(string text)
+        {
+            string pattern = @"^\|.*\|\s*\n\|\s*[-:]+\s*\|";
+            return Regex.IsMatch(text, pattern, RegexOptions.Multiline);
+        }
+        public static bool ContainsJapanese(string text)
+        {
+            // 日本語文字の範囲を確認（ひらがな、カタカナ、漢字など）
+            return text.Any(c => (c >= 0x3040 && c <= 0x30FF) ||  // ひらがなとカタカナ
+                                 (c >= 0x4E00 && c <= 0x9FAF) ||  // CJK統合漢字
+                                 (c >= 0xFF66 && c <= 0xFF9D));   // 半角カタカナ
         }
         void UpdateMenuItemButtonContent(object target, Button button)
         {
