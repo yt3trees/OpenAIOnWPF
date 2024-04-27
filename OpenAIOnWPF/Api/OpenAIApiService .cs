@@ -1,5 +1,4 @@
-﻿using Markdig;
-using MdXaml;
+﻿using MdXaml;
 using Microsoft.Toolkit.Uwp.Notifications;
 using OpenAI;
 using OpenAI.Managers;
@@ -456,11 +455,6 @@ namespace OpenAIOnWPF
                 }
             }
             catch (OperationCanceledException) { }
-
-            var pipeline = new MarkdownPipelineBuilder()
-            .UseSoftlineBreakAsHardlineBreak()
-            .UseAdvancedExtensions()
-            .Build();
 
             Debug.Print("----- Conversation History -----");
             tempMessages.Add(ChatMessage.FromAssistant(responseText));
