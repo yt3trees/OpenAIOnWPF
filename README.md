@@ -39,6 +39,14 @@ https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/18462921-7c50-45d3-87cd-
 ### Change Color Theme
 ![color_theme](https://github.com/yt3trees/OpenAIOnWPF/assets/57471763/8ab7f837-e7c6-4038-b98b-20b52146c399)
 
+## Dependencies
+Here are the key dependencies of this project:
+
+- [**Betalgo.OpenAI** ](https://github.com/betalgo/openai)
+- [**ModernWpf**](https://github.com/Kinnara/ModernWpf)
+- [**FluentWPF**](https://github.com/sourcechord/FluentWPF)
+- [**MdXaml(Fork)**](https://github.com/yt3trees/MdXaml/tree/dev_yt3trees) - This is a forked version from the original project.
+
 ## Author
 
 [@yt3trees](https://twitter.com/yt3trees)
