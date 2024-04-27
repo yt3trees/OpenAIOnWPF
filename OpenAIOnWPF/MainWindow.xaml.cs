@@ -155,6 +155,7 @@ namespace OpenAIOnWPF
                 if (selectedConversation != null)
                 {
                     ConversationListBox.SelectedItem = selectedConversation;
+                    ConversationListBox.ScrollIntoView(selectedConversation);
                 }
             }
             if (AppSettings.PromptTemplateManager.Templates == null)
