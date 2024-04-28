@@ -466,46 +466,7 @@ namespace OpenAIOnWPF
             if (messages.Count > 1)
             {
                 string userMessage = messages[messages.Count - 2].Content;
-                JToken token;
-                try
-                {
-                    token = JToken.Parse(userMessage);
-                    if (token.Type != JTokenType.Array)
-                    {
-                        // JSONが配列でない場合はnullとするか、適切なデフォルト値に設定
-                        token = null;
-                    }
-                }
-                catch (Exception)
-                {
-                    token = null;
-                }
-                string user = "";
-                string image = "";
-                if (token != null) // Vision API
-                {
-                    var items = token.ToObject<List<VisionUserContentItem>>();
-                    foreach (var item in items)
-                    {
-                        if (item.type == "text")
-                        {
-                            user = item.text;
-                        }
-                        if ((item.type == "image_url" || item.type == "image") && item.image_url?.url != null)
-                        {
-                            image = item.image_url.url;
-                        }
-                    }
-                    if (!string.IsNullOrEmpty(image)) // TODO:Response to vision
-                    {
-                        ModernWpf.MessageBox.Show("Currently, regenerating VisionAPI exchanges is not supported.", "error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                }
-                else // not Vision API
-                {
-                    user = userMessage;
-                }
+                (string user, string image) result = UtilityFunctions.ExtractUserAndImageFromMessage(userMessage);
 
                 //会話履歴の最新2つを削除
                 foreach (ConversationHistory item in ConversationListBox.SelectedItems.OfType<ConversationHistory>())
@@ -523,7 +484,7 @@ namespace OpenAIOnWPF
                 // MessagePanelの下2つを削除
                 MessagesPanel.Children.RemoveRange(MessagesPanel.Children.Count - 2, 2);
 
-                _ = ProcessOpenAIAsync(user);
+                _ = ProcessOpenAIAsync(result.user);
             }
         }
         private void UseConversationHistoryToggleSwitch_Toggled(object sender, RoutedEventArgs e)
