@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_2039AE13D3984190A19075881E42F27B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A96D92455ADC474299DAE9660CB04888"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -23,6 +29,12 @@
         {
         "MsmKey" = "8:_FACDD9C9281548889B952533712E8E66"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_2039AE13D3984190A19075881E42F27B"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -118,10 +130,49 @@
                 "Architecture" = "2:0"
                 "Runtime" = "2:0"
                 }
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_8A3A8AD699B7488C92DE8A353C4E635F"
+                {
+                "Name" = "8:.NET Framework"
+                "Message" = "8:[VSDNETMSG]"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.7.2"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=863262"
+                }
             }
         }
         "File"
         {
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_2039AE13D3984190A19075881E42F27B"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:MdXaml, Version=1.27.0.0, Culture=neutral, PublicKeyToken=9f8c7afb435b7edc, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_2039AE13D3984190A19075881E42F27B"
+                    {
+                    "Name" = "8:MdXaml.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\OpenAIOnWPF\\bin\\MdXaml.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_4788618C5AF64E799B79EBB2DF126759"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FACDD9C9281548889B952533712E8E66"
             {
             "SourcePath" = "8:..\\OpenAIOnWPF\\image\\OpenAI.ico"
@@ -210,7 +261,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OpenAIOnWPF"
         "ProductCode" = "8:{B90D9A0D-87EA-4C51-9023-9FFF823506CB}"
-        "PackageCode" = "8:{AA471D84-B72B-49BA-96EA-A445BCE2B7C4}"
+        "PackageCode" = "8:{56984128-7656-46C3-A7FA-80E85A06A647}"
         "UpgradeCode" = "8:{65900B12-E77C-4E62-84FF-64E38C5117FD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
