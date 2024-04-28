@@ -203,7 +203,7 @@ namespace OpenAIOnWPF
             };
             translateButton.Click += (s, e) =>
             {
-                TranslateTextFromMessageGrid(messageGrid);
+                TranslateTextFromMessageGrid(messageGrid, ConversationListBox.SelectedItem);
                 AnimateButtonOpacityToOriginal(translateButton, 0.5, TimeSpan.FromMilliseconds(500));
             };
 

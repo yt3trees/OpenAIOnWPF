@@ -12,7 +12,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -244,21 +246,21 @@ namespace OpenAIOnWPF
                 }
             }
         }
-        public static void TranslateTextFromMessageGrid(Grid grid)
+        public static void TranslateTextFromMessageGrid(Grid grid, object selectedItem)
         {
             foreach (var child in grid.Children)
             {
                 if (child is TextBox textBox)
                 {
-                    TranslateText(textBox);
+                    TranslateText(textBox, selectedItem);
                 }
                 else if (child is MarkdownScrollViewer markdownScrollViewer)
                 {
-                    TranslateText(markdownScrollViewer);
+                    TranslateText(markdownScrollViewer, selectedItem);
                 }
             }
         }
-        public static async void TranslateText(object target)
+        public static async void TranslateText(object target, object selectedItem)
         {
             MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
             Storyboard? animation = null;
@@ -269,11 +271,33 @@ namespace OpenAIOnWPF
                     animation = CreateOpacityAnimation(textBox);
                     animation.Begin();
 
-                    string text = textBox.Text;
-                    string text2 = await mainWindow.TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
+                    string beforeText = textBox.Text;
+                    string translatedText = await mainWindow.TranslateAPIRequestAsync(beforeText, AppSettings.FromTranslationLanguage);
+                    translatedText = translatedText.TrimEnd('\r', '\n');
 
-                    text2 = text2.TrimEnd('\r', '\n');
-                    textBox.Text = text2;
+                    textBox.Text = translatedText;
+
+                    var messageboxResult = ModernWpf.MessageBox.Show("Would you like the translation results to be reflected in the existing conversation history?",
+                                       "Confirmation",
+                                       MessageBoxButton.YesNo,
+                                       MessageBoxImage.Question);
+
+                    if (messageboxResult == MessageBoxResult.Yes)
+                    {
+                        if (selectedItem is ConversationHistory targetConversation)
+                        {
+                            foreach (var message in targetConversation.Messages)
+                            {
+                                (string user, string image) result = ExtractUserAndImageFromMessage(message.Content);
+
+                                if (result.user == beforeText)
+                                {
+                                    message.Content = translatedText;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -292,30 +316,32 @@ namespace OpenAIOnWPF
                     animation = CreateOpacityAnimation(markdownScrollViewer);
                     animation.Begin();
 
-                    List<(ListItem listItem, Paragraph paragraph, string text)> originalData = new List<(ListItem listItem, Paragraph paragraph, string text)>();
-                    foreach (Block block in markdownScrollViewer.Document.Blocks)
-                    {
-                        // 各ブロックを処理して、originalDataリストにデータを追加
-                        ProcessBlocks(new List<Block> { block }, originalData);
-                    }
+                    string beforeText = markdownScrollViewer.Markdown;
+                    string translatedText = await TranslateTextWithCodeBlocks(beforeText);
+                    translatedText = translatedText.TrimEnd('\r', '\n');
+                    translatedText = Regex.Replace(translatedText, @"(\d+\.)\s*(\S)", "$1 $2");
 
-                    // 元のデータの各アイテムを翻訳
-                    foreach (var (listItem, paragraph, text) in originalData)
-                    {
-                        string translatedText = await mainWindow.TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
-                        translatedText = translatedText.TrimEnd('\r', '\n');
+                    markdownScrollViewer.Markdown = translatedText;
 
-                        // パラグラフが存在する場合、翻訳されたテキストで更新
-                        if (paragraph != null)
+                    var messageboxResult = ModernWpf.MessageBox.Show("Would you like the translation results to be reflected in the existing conversation history?",
+                                       "Confirmation",
+                                       MessageBoxButton.YesNo,
+                                       MessageBoxImage.Question);
+
+                    if (messageboxResult == MessageBoxResult.Yes)
+                    {
+                        if (selectedItem is ConversationHistory targetConversation)
                         {
-                            paragraph.Inlines.Clear();
-                            paragraph.Inlines.Add(new Run(translatedText));
-                        }
-                        // リストアイテムが存在する場合、翻訳されたテキストで更新
-                        else if (listItem != null && listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
-                        {
-                            listItemParagraph.Inlines.Clear();
-                            listItemParagraph.Inlines.Add(new Run(translatedText));
+                            foreach (var message in targetConversation.Messages)
+                            {
+                                (string user, string image) result = ExtractUserAndImageFromMessage(message.Content);
+
+                                if (result.user == beforeText)
+                                {
+                                    message.Content = translatedText;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -331,41 +357,43 @@ namespace OpenAIOnWPF
             }
         }
 
-        public static void ProcessBlocks(IEnumerable<Block> blocks, List<(ListItem listItem, Paragraph paragraph, string text)> originalData)
+        static async Task<string> TranslateTextWithCodeBlocks(string markdownText)
         {
-            foreach (Block block in blocks)
+            var regex = new Regex(@"(```\w*\s[\s\S]*?```)");
+            var matches = regex.Matches(markdownText);
+            int lastPos = 0;
+            StringBuilder translatedText = new StringBuilder();
+
+            foreach (Match match in matches)
             {
-                // ブロックが独立した段落(リストアイテムの一部ではない)であるかを確認
-                if (block is Paragraph paragraph && !(block.Parent is ListItem))
-                {
-                    string paragraphText = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text.Trim();
-                    originalData.Add((null, paragraph, paragraphText));
-                }
-                else if (block is List list)
-                {
-                    foreach (ListItem listItem in list.ListItems)
-                    {
-                        // リストアイテムの最初のブロックが段落であるかを確認
-                        if (listItem.Blocks.FirstBlock is Paragraph listItemParagraph)
-                        {
-                            string listItemText = new TextRange(listItemParagraph.ContentStart, listItemParagraph.ContentEnd).Text.Trim();
-                            // リストアイテムのテキストから番号または箇条書きを削除
-                            var match = Regex.Match(listItemText, @"^(\d+\.\s+|•\s+)");
-                            if (match.Success)
-                            {
-                                listItemText = listItemText.Substring(match.Length);
-                            }
-                            originalData.Add((listItem, null, listItemText));
-                        }
-                        // リストアイテム内のブロックを再帰的に処理
-                        ProcessBlocks(listItem.Blocks, originalData);
-                    }
-                }
-                else if (block is Section section)
-                {
-                    ProcessBlocks(section.Blocks, originalData);
-                }
+                // コードブロックの前のテキストを翻訳
+                string textToTranslate = markdownText.Substring(lastPos, match.Index - lastPos);
+                string translatedSegment = await TranslateTextAsync(textToTranslate);
+                translatedText.Append(translatedSegment);
+
+                // コードブロックをそのまま追加
+                translatedText.Append(match.Value);
+                lastPos = match.Index + match.Length;
             }
+
+            // 最後のコードブロック後のテキストを翻訳
+            if (lastPos < markdownText.Length)
+            {
+                string remainingText = markdownText.Substring(lastPos);
+                string translatedRemaining = await TranslateTextAsync(remainingText);
+                translatedText.Append(translatedRemaining);
+            }
+
+            return translatedText.ToString();
+        }
+
+        static async Task<string> TranslateTextAsync(string text)
+        {
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            return await mainWindow.TranslateAPIRequestAsync(text, AppSettings.FromTranslationLanguage);
         }
         public static IEnumerable<DependencyObject> GetAllChildren(DependencyObject parent)
         {
