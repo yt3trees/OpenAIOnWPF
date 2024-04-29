@@ -21,6 +21,7 @@
     <Window.Resources>
         <Style x:Key="editingTextBoxStyle" TargetType="TextBox">
             <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="AcceptsReturn" Value="true" />
             <EventSetter Event="KeyDown" Handler="editingTextBox_KeyDown" />
         </Style>
     </Window.Resources>
