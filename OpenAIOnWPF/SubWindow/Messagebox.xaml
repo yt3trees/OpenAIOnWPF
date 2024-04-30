@@ -31,6 +31,17 @@
                 BorderBrush="{x:Null}"
                 IsReadOnly="True"
                 TextWrapping="Wrap" />
+            <ui:NumberBox
+                x:Name="Numberbox"
+                MinWidth="200"
+                MinHeight="0"
+                Padding="10,10,10,10"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Minimum="0"
+                SmallChange="1"
+                SpinButtonPlacementMode="Inline"
+                Visibility="Collapsed" />
         </StackPanel>
         <StackPanel Grid.Row="1" Margin="15,0,15,15">
             <Button

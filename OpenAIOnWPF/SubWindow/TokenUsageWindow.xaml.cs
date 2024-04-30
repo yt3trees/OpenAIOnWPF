@@ -62,5 +62,17 @@ namespace OpenAIOnWPF
         {
             DialogResult = true;
         }
+
+        private void AlertSettingButton_Click(object sender, RoutedEventArgs e)
+        {
+            int threshold = Properties.Settings.Default.dailyTokenThreshold;
+            var window = new Messagebox("Set an alert threshold", "You will be alerted when daily token usage exceeds this threshold.", threshold);
+            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            if (window.ShowDialog() == true)
+            {
+                Properties.Settings.Default.dailyTokenThreshold = window.resultInt;
+                Properties.Settings.Default.Save();
+            }
+        }
     }
 }

@@ -82,6 +82,30 @@ namespace OpenAIOnWPF.Properties {
                 this["TokenUsage"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30000")]
+        public int dailyTokenThreshold {
+            get {
+                return ((int)(this["dailyTokenThreshold"]));
+            }
+            set {
+                this["dailyTokenThreshold"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastAlertDate {
+            get {
+                return ((string)(this["LastAlertDate"]));
+            }
+            set {
+                this["LastAlertDate"] = value;
+            }
+        }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -94,7 +118,7 @@ namespace OpenAIOnWPF.Properties {
                 this["AccentColor"] = value;
             }
         }
-                
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
@@ -106,7 +130,7 @@ namespace OpenAIOnWPF.Properties {
                 this["AccentColorName"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]

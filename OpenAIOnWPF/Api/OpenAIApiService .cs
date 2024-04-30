@@ -37,6 +37,9 @@ namespace OpenAIOnWPF
         byte[] clipboardImage = null;
         string generatedTitle = "";
         bool titleGenerating = false;
+        bool alertFlg = false;
+        int dailyTotal = 0;
+        string todayString = null;
         Guid newId;
         List<ChatMessage> tempMessages = new List<ChatMessage>();
         public static class ForTokenCalc
@@ -478,6 +481,19 @@ namespace OpenAIOnWPF
                         .Show();
                 }
 
+                if (alertFlg && Properties.Settings.Default.LastAlertDate != todayString)
+                {
+                    var result = ModernWpf.MessageBox.Show(
+                        $"Daily token usage of {dailyTotal} exceeds the threshold of {Properties.Settings.Default.dailyTokenThreshold}! Do not show alerts for today again?",
+                        "Token Usage Alert",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Properties.Settings.Default.LastAlertDate = todayString;
+                        Properties.Settings.Default.Save();
+                    }
+                }
+
                 Reset();
             });
         }
@@ -608,34 +624,48 @@ namespace OpenAIOnWPF
                 AppSettings.TokenUsageSetting = temp;
             }
 
-            string todayString = DateTime.Today.ToString("yyyy/MM/dd");
+            todayString = DateTime.Today.ToString("yyyy/MM/dd");
             string[,] tokenUsage = AppSettings.TokenUsageSetting;
             int tokenUsageCount = tokenUsage.GetLength(0);
+            dailyTotal = 0;
 
             //今日のトークン使用量があるか
             bool todayTokenUsageExist = false;
             for (int i = 0; i < tokenUsageCount; i++)
             {
-                if (tokenUsage[i, 0] == todayString && tokenUsage[i, 1] == provider && tokenUsage[i, 2] == model)
+                if (tokenUsage[i, 0] == todayString)
                 {
-                    // トークン使用量を加算
-                    tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
-                    todayTokenUsageExist = true;
+                    dailyTotal += int.Parse(tokenUsage[i, 3]);
+                    dailyTotal += token;
+                    if (tokenUsage[i, 1] == provider && tokenUsage[i, 2] == model)
+                    {
+                        {
+                            // トークン使用量を加算
+                            tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
+                            todayTokenUsageExist = true;
+                        }
+                    }
                 }
             }
             //今日のトークン使用量がなければ追加
             if (!todayTokenUsageExist)
             {
-                //Array.Resize(ref tokenUsage, tokenUsageCount + 1);
                 tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 4);
                 tokenUsage[tokenUsageCount, 0] = todayString;
                 tokenUsage[tokenUsageCount, 1] = provider;
                 tokenUsage[tokenUsageCount, 2] = model;
                 tokenUsage[tokenUsageCount, 3] = token.ToString();
+                dailyTotal += token;
             }
             AppSettings.TokenUsageSetting = tokenUsage;
             Properties.Settings.Default.TokenUsage = SerializeArray(AppSettings.TokenUsageSetting);
             Properties.Settings.Default.Save();
+
+            alertFlg = false;
+            if (dailyTotal > Properties.Settings.Default.dailyTokenThreshold)
+            {
+                alertFlg = true;
+            }
         }
         /// <summary>
         /// 他次元配列のサイズを変更する

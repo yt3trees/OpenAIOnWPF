@@ -38,16 +38,28 @@
                 <DataGridTextColumn Binding="{Binding TokensUsed}" Header="TokensUsed" />
             </DataGrid.Columns>
         </DataGrid>
-        <Button
-            x:Name="OkButton"
+        <StackPanel
             Grid.Row="1"
-            MinWidth="60"
-            Margin="0,0,10,0"
             HorizontalAlignment="Right"
-            VerticalAlignment="Center"
-            Click="OkButton_Click"
-            Content="OK"
-            Style="{StaticResource AccentButtonStyle}" />
+            Orientation="Horizontal">
+            <Button
+                x:Name="AlertSettingButton"
+                MinWidth="60"
+                Margin="0,0,10,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Click="AlertSettingButton_Click"
+                Content="Set Alert Threshold" />
+            <Button
+                x:Name="OkButton"
+                MinWidth="60"
+                Margin="0,0,10,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Click="OkButton_Click"
+                Content="OK"
+                Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
     </Grid>
     <fw:AcrylicWindow.Background>
         <SolidColorBrush Opacity="0.3" Color="{DynamicResource SystemChromeLowColor}" />

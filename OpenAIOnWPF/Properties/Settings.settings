@@ -17,6 +17,12 @@
     <Setting Name="TokenUsage" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="dailyTokenThreshold" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">30000</Value>
+    </Setting>
+    <Setting Name="LastAlertDate" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="AccentColor" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

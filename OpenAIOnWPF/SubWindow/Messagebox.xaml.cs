@@ -19,6 +19,7 @@ namespace OpenAIOnWPF
     /// </summary>
     public partial class Messagebox
     {
+        public int resultInt { get; private set; }
         public Messagebox(string title, string content)
         {
             InitializeComponent();
@@ -28,10 +29,25 @@ namespace OpenAIOnWPF
             ContentLabel.Style = (Style)Application.Current.FindResource("NoBorderTextBoxStyle");
             ContentLabel.Text = content;
         }
+        public Messagebox(string title, string content, int integer)
+        {
+            InitializeComponent();
+            OkButton.Focus();
+            this.Title = title;
+            this.MaxWidth = SystemParameters.PrimaryScreenWidth * 0.8;
+            ContentLabel.Style = (Style)Application.Current.FindResource("NoBorderTextBoxStyle");
+            ContentLabel.Text = content;
+            Numberbox.Visibility = Visibility.Visible;
+            Numberbox.Text = integer.ToString();
+        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            if(Numberbox.Visibility == Visibility.Visible)
+            {
+                resultInt = int.Parse(Numberbox.Text);
+            }
+            DialogResult = true;
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
