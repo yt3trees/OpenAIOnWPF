@@ -94,7 +94,19 @@ namespace OpenAIOnWPF.Properties {
                 this["AccentColor"] = value;
             }
         }
-        
+                
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AccentColorName {
+            get {
+                return ((string)(this["AccentColorName"]));
+            }
+            set {
+                this["AccentColorName"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]

@@ -66,7 +66,8 @@ namespace OpenAIOnWPF
             else
             {
                 AccentColorSet.IsChecked = true;
-                AccentColorList.SelectedItem = ThemeManager.Current.AccentColor.ToString();
+                AccentColorList.SelectedItem = Properties.Settings.Default.AccentColorName;
+                AccentColorList.ScrollIntoView(AccentColorList.SelectedItem);
             }
         }
         /// <summary>
@@ -124,6 +125,7 @@ namespace OpenAIOnWPF
             else
             {
                 Properties.Settings.Default.AccentColor = ThemeManager.Current.AccentColor.ToString();
+                Properties.Settings.Default.AccentColorName = AccentColorList.SelectedValue.ToString();
             }
 
             DialogResult = true;

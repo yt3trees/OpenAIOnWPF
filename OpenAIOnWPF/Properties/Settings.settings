@@ -20,6 +20,9 @@
     <Setting Name="AccentColor" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="AccentColorName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="Theme" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
