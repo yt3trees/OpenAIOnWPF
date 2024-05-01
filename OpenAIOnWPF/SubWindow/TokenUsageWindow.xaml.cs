@@ -49,6 +49,8 @@ namespace OpenAIOnWPF
 
             // 日付を新しい順に並び替える
             TokenUsageDataGrid.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Date", System.ComponentModel.ListSortDirection.Descending));
+
+            AlertSettingButton.Content = $"Set Alert Threshold: {Properties.Settings.Default.dailyTokenThreshold}";
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -72,6 +74,7 @@ namespace OpenAIOnWPF
             {
                 Properties.Settings.Default.dailyTokenThreshold = window.resultInt;
                 Properties.Settings.Default.Save();
+                AlertSettingButton.Content = $"Set Alert Threshold: {Properties.Settings.Default.dailyTokenThreshold}";
             }
         }
     }
