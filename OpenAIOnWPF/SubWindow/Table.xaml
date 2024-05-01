@@ -27,7 +27,7 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60" />
+            <RowDefinition Height="20" />
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
@@ -36,16 +36,27 @@
             Margin="0,0,10,0"
             HorizontalAlignment="Right">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="70" />
-                <ColumnDefinition Width="70" />
-                <ColumnDefinition Width="40" />
-                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Button
+                x:Name="SetHistoryCountButton"
+                Grid.Column="0"
+                MinWidth="60"
+                Margin="0,0,10,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Click="SetHistoryCountButton_Click"
+                Content="Set Number of Past Conversations" />
+            <Button
                 x:Name="ExportButton"
-                Grid.Column="2"
+                Grid.Column="3"
                 Width="32"
                 Height="32"
+                Margin="0,0,10,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 VerticalContentAlignment="Center"
@@ -59,7 +70,7 @@
             <Button
                 x:Name="ImportButton"
                 Grid.Row="2"
-                Grid.Column="3"
+                Grid.Column="4"
                 Width="32"
                 Height="32"
                 HorizontalAlignment="Center"
@@ -74,18 +85,20 @@
             </Button>
             <Button
                 x:Name="SaveButton"
-                Grid.Column="0"
+                Grid.Column="1"
                 Height="32"
                 MinWidth="60"
+                Margin="0,0,10,0"
                 HorizontalAlignment="Center"
                 Click="SaveButton_Click"
                 Content="Save"
                 Style="{StaticResource AccentButtonStyle}" />
             <Button
                 x:Name="CancelButton"
-                Grid.Column="1"
+                Grid.Column="2"
                 Height="32"
                 MinWidth="60"
+                Margin="0,0,10,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Click="CancelButton_Click"
@@ -100,25 +113,6 @@
                 Loaded="DataTable_Loaded"
                 PreviewMouseWheel="PreviewMouseWheel" />
         </ScrollViewer>
-        <StackPanel
-            Margin="10,0,0,0"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <Label
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Content="Number of Past Conversations Included" />
-            <ui:NumberBox
-                x:Name="Numberbox"
-                MinWidth="200"
-                MinHeight="0"
-                Padding="10,10,10,10"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Minimum="0"
-                SmallChange="1"
-                SpinButtonPlacementMode="Inline" />
-        </StackPanel>
     </Grid>
     <fw:AcrylicWindow.Background>
         <SolidColorBrush Opacity="0.3" Color="{DynamicResource SystemChromeLowColor}" />

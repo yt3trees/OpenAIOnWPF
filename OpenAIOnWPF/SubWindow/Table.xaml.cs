@@ -50,9 +50,6 @@ namespace OpenAIOnWPF
             //    Dispatcher.Invoke(InvalidateVisual, DispatcherPriority.Input);
             //};
 
-            // 会話履歴の保持件数を設定
-            Numberbox.Text = AppSettings.ConversationHistoryCountSetting.ToString();
-
             viewModel = new ViewModel();
             this.DataContext = viewModel;
             viewModel.ComboBoxItems.Add("user");
@@ -75,11 +72,11 @@ namespace OpenAIOnWPF
                 System.Windows.Media.Brush brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#19FFFFFF"));
                 DataTable.AlternatingRowBackground = brush;
             }
+
+            SetHistoryCountButton.Content = $"Set Number of Past Conversations: {AppSettings.ConversationHistoryCountSetting}";
         }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            AppSettings.ConversationHistoryCountSetting = int.Parse(Numberbox.Text);
-
             // 会話履歴を保存
             ObservableCollection<DataTableItem> list = (ObservableCollection<DataTableItem>)DataTable.ItemsSource;
             UpdatedConversationHistory = new ConversationHistory();
@@ -312,6 +309,17 @@ namespace OpenAIOnWPF
                     e.Handled = true;
                     return;
                 }
+            }
+        }
+        private void SetHistoryCountButton_Click(object sender, RoutedEventArgs e)
+        {
+            int conversationHistoryCount = AppSettings.ConversationHistoryCountSetting;
+            var window = new Messagebox("Conversation History Setting", "Adjust the number of past conversation histories to include in the conversation.", conversationHistoryCount);
+            window.Owner = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            if (window.ShowDialog() == true)
+            {
+                AppSettings.ConversationHistoryCountSetting = window.resultInt;
+                SetHistoryCountButton.Content = $"Set Number of Past Conversations: {AppSettings.ConversationHistoryCountSetting}";
             }
         }
     }
