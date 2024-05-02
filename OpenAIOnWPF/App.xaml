@@ -185,6 +185,9 @@
                 <mdhtml:HtmlPluginSetup />
                 <mdsvg:SvgPluginSetup />
             </mdplug:MdXamlPlugins>
+            <Style TargetType="{x:Type mdxam:MarkdownScrollViewer}">
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            </Style>
             <!--  MdXaml To  -->
         </ResourceDictionary>
     </Application.Resources>
