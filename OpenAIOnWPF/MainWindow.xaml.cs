@@ -754,6 +754,11 @@ namespace OpenAIOnWPF
         }
         public static bool IsMermaidCode(string text)
         {
+            if (string.IsNullOrEmpty(text))
+            {
+                return false;
+            }
+
             string[] patterns = new string[]
             {
                 @"^\s*graph\s+(?:TB|BT|RL|LR|TD|DT)\s*",

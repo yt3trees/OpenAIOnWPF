@@ -311,10 +311,14 @@ namespace OpenAIOnWPF
                         // マウス位置の要素を取得
                         var mousePos = Mouse.GetPosition(msv);
                         Visual hitVisual = msv.InputHitTest(mousePos) as Visual;
-                        if (hitVisual != null)
+                        if (hitVisual != null && hitVisual is ICSharpCode.AvalonEdit.Rendering.TextView)
                         {
                             var editor = hitVisual as ICSharpCode.AvalonEdit.Rendering.TextView;
                             paragraphText = editor.Document.Text;
+                        }
+                        else if (hitVisual != null && hitVisual is Rectangle)
+                        {
+                            paragraphText = "";
                         }
                         else if (msv != null)
                         {
