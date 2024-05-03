@@ -303,6 +303,11 @@ namespace OpenAIOnWPF
                 ConversationListBox.ScrollIntoView(ConversationListBox.SelectedItem);
                 e.Handled = true;
             }
+            else if (e.Key == Key.F && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ToggleFilterButton_Click(sender, null);
+                FilterTextBox.Focus();
+            }
         }
         private void UserTextBox_KeyDown(object sender, KeyEventArgs e)
         {
