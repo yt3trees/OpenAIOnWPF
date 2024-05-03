@@ -89,17 +89,26 @@
                 Height="180"
                 Margin="10,0,10,0"
                 d:ItemsSource="{d:SampleData ItemCount=5}"
-                FontSize="14"
                 ItemsSource="{Binding Items}"
                 SelectionChanged="AccentColorList_SelectionChanged">
-                <!--<ListBox.Resources>
-                    <sys:Double x:Key="ControlContentThemeFontSize">10</sys:Double>
-                </ListBox.Resources>-->
                 <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Height" Value="20" />
+                    <Style BasedOn="{StaticResource DefaultListBoxItemStyle}" TargetType="ListBoxItem">
+                        <Setter Property="Height" Value="32" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                     </Style>
                 </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock
+                            Margin="2,0,2,0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Text="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.Background>
+                    <SolidColorBrush Opacity="0.2" />
+                </ListBox.Background>
             </ListBox>
         </StackPanel>
         <Button
