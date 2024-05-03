@@ -139,5 +139,17 @@ I would like you to consider the title of the following prompt.
     <Setting Name="UseTitleGeneration" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="DestinationCurrency" Type="System.String" Scope="User">
+      <Value Profile="(Default)">JPY</Value>
+    </Setting>
+    <Setting Name="ExchangeRate" Type="System.String" Scope="User">
+      <Value Profile="(Default)">150</Value>
+    </Setting>
+    <Setting Name="InputTokenCost" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0.01</Value>
+    </Setting>
+    <Setting Name="OutputTokenCost" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0.03</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

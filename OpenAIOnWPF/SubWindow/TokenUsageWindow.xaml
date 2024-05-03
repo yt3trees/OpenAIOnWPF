@@ -8,10 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.modernwpf.com/2019"
     Title="Token Usage"
-    Width="500"
-    Height="353.6"
+    Width="700"
+    Height="495"
     HorizontalAlignment="Center"
     VerticalAlignment="Center"
+    fw:AcrylicWindow.AcrylicAccentState="Default"
+    fw:AcrylicWindow.Enabled="True"
+    fw:PointerTracker.Enabled="True"
     AcrylicWindowStyle="NoIcon"
     BorderBrush="{DynamicResource SystemAltHighColor}"
     KeyDown="Window_KeyDown"
@@ -34,8 +37,28 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Date}" Header="Date" />
                 <DataGridTextColumn Binding="{Binding Provider}" Header="Provider" />
-                <DataGridTextColumn Binding="{Binding GptVersion}" Header="GptVersion" />
-                <DataGridTextColumn Binding="{Binding TokensUsed}" Header="TokensUsed" />
+                <DataGridTextColumn Binding="{Binding GptVersion}" Header="Model" />
+                <DataGridTextColumn Binding="{Binding TotalTokenUsage}" Header="Total Tokens" />
+                <DataGridTextColumn Binding="{Binding InputTokenUsage}" Header="Input Tokens" />
+                <DataGridTextColumn Binding="{Binding OutputTokenUsage}" Header="Output Tokens" />
+                <DataGridTemplateColumn Header="">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Width="32"
+                                Height="32"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                fw:RevealElement.BorderRadius="2"
+                                Background="Transparent"
+                                Click="CalculateButton_Click"
+                                FontSize="14"
+                                Style="{StaticResource ButtonRevealStyle}">
+                                <ui:SymbolIcon Symbol="Calculator" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel
@@ -44,21 +67,29 @@
             Orientation="Horizontal">
             <Button
                 x:Name="AlertSettingButton"
+                Height="32"
                 MinWidth="60"
                 Margin="0,0,10,0"
+                Padding="5,0,5,0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
                 Click="AlertSettingButton_Click"
-                Content="Set Alert Threshold" />
+                Content="Set Alert Threshold"
+                FontSize="14"
+                Style="{StaticResource ButtonRevealStyle}" />
             <Button
                 x:Name="OkButton"
+                Height="32"
                 MinWidth="60"
                 Margin="0,0,10,0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
                 Click="OkButton_Click"
                 Content="OK"
-                Style="{StaticResource AccentButtonStyle}" />
+                FontSize="14"
+                Style="{StaticResource ButtonRevealStyle}" />
         </StackPanel>
     </Grid>
     <fw:AcrylicWindow.Background>

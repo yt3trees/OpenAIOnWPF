@@ -9,6 +9,9 @@
     xmlns:ui="http://schemas.modernwpf.com/2019"
     Width="1200"
     HorizontalContentAlignment="Center"
+    fw:AcrylicWindow.AcrylicAccentState="Default"
+    fw:AcrylicWindow.Enabled="True"
+    fw:PointerTracker.Enabled="True"
     AcrylicWindowStyle="NoIcon"
     BorderBrush="{DynamicResource SystemAltHighColor}"
     Closing="Window_Closing"
@@ -45,12 +48,17 @@
             <Button
                 x:Name="SetHistoryCountButton"
                 Grid.Column="0"
+                Height="32"
                 MinWidth="60"
                 Margin="0,0,10,0"
+                Padding="5,0,5,0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
                 Click="SetHistoryCountButton_Click"
-                Content="Set Number of Past Conversations" />
+                Content="Set Number of Past Conversations"
+                FontSize="14"
+                Style="{StaticResource ButtonRevealStyle}" />
             <Button
                 x:Name="ExportButton"
                 Grid.Column="3"
@@ -90,9 +98,11 @@
                 MinWidth="60"
                 Margin="0,0,10,0"
                 HorizontalAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
                 Click="SaveButton_Click"
                 Content="Save"
-                Style="{StaticResource AccentButtonStyle}" />
+                FontSize="14"
+                Style="{StaticResource ButtonRevealStyle}" />
             <Button
                 x:Name="CancelButton"
                 Grid.Column="2"
@@ -101,8 +111,11 @@
                 Margin="0,0,10,0"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
+                fw:RevealElement.BorderRadius="2"
                 Click="CancelButton_Click"
-                Content="Cancel" />
+                Content="Cancel"
+                FontSize="14"
+                Style="{StaticResource ButtonRevealStyle}" />
         </Grid>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">

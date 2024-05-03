@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModernWpf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,9 @@ namespace OpenAIOnWPF
             public string? Date { get; set; }
             public string? Provider { get; set; }
             public string? GptVersion { get; set; }
-            public string? TokensUsed { get; set; }
+            public string? TotalTokenUsage { get; set; }
+            public string? InputTokenUsage { get; set; }
+            public string? OutputTokenUsage { get; set; }
         }
         public TokenUsageWindow()
         {
@@ -42,7 +45,28 @@ namespace OpenAIOnWPF
                 tokenUsageDisplayItem.Date = savedTokenUsage[i, 0];
                 tokenUsageDisplayItem.Provider = savedTokenUsage[i, 1];
                 tokenUsageDisplayItem.GptVersion = savedTokenUsage[i, 2];
-                tokenUsageDisplayItem.TokensUsed = int.Parse(savedTokenUsage[i, 3]).ToString("N0");
+                tokenUsageDisplayItem.TotalTokenUsage = int.Parse(savedTokenUsage[i, 3]).ToString("N0");
+
+                int inputTokens = 0;
+                if (savedTokenUsage.GetLength(1) > 4 && int.TryParse(savedTokenUsage[i, 4], out inputTokens))
+                {
+                    tokenUsageDisplayItem.InputTokenUsage = inputTokens.ToString("N0");
+                }
+                else
+                {
+                    tokenUsageDisplayItem.InputTokenUsage = "0";
+                }
+
+                int outputTokens = 0;
+                if (savedTokenUsage.GetLength(1) > 5 && int.TryParse(savedTokenUsage[i, 5], out outputTokens))
+                {
+                    tokenUsageDisplayItem.OutputTokenUsage = outputTokens.ToString("N0");
+                }
+                else
+                {
+                    tokenUsageDisplayItem.OutputTokenUsage = "0";
+                }
+
                 TokenUsageDisplayItems.Add(tokenUsageDisplayItem);
             }
             TokenUsageDataGrid.ItemsSource = TokenUsageDisplayItems;
@@ -51,6 +75,14 @@ namespace OpenAIOnWPF
             TokenUsageDataGrid.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Date", System.ComponentModel.ListSortDirection.Descending));
 
             AlertSettingButton.Content = $"Set Alert Threshold: {Properties.Settings.Default.dailyTokenThreshold}";
+
+            var accentColor = ThemeManager.Current.AccentColor;
+            if (accentColor == null)
+            {
+                accentColor = SystemParameters.WindowGlassColor;
+            }
+            var accentColorBrush = new SolidColorBrush((Color)accentColor);
+            OkButton.Background = accentColorBrush;
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -76,6 +108,17 @@ namespace OpenAIOnWPF
                 Properties.Settings.Default.Save();
                 AlertSettingButton.Content = $"Set Alert Threshold: {Properties.Settings.Default.dailyTokenThreshold}";
             }
+        }
+        private void CalculateButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var dataContext = button.DataContext;
+            string input = (dataContext as TokenUsageDisplayItem).InputTokenUsage.Replace(",", "");
+            string output = (dataContext as TokenUsageDisplayItem).OutputTokenUsage.Replace(",", "");;
+
+            var calculationWindow = new TokenCalculator(input, output);
+            calculationWindow.Owner = this;
+            calculationWindow.ShowDialog();
         }
     }
 }

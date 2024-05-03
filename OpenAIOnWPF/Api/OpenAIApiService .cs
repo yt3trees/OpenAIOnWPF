@@ -506,7 +506,9 @@ namespace OpenAIOnWPF
             var instructionTokens = TokenizerGpt3.Encode(ForTokenCalc.systemPromptToken);
             var userTokens = TokenizerGpt3.Encode(ForTokenCalc.userPromptToken);
             var responseTokens = TokenizerGpt3.Encode(ForTokenCalc.responseToken);
-            var totalTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count() + responseTokens.Count();
+            var inputTokens = conversationResultTokens.Count() + instructionTokens.Count() + userTokens.Count();
+            var outputTokens = responseTokens.Count();
+            var totalTokens = inputTokens + outputTokens;
             string tooltip = "";
             tooltip += $"Conversation History Tokens : {conversationResultTokens.Count().ToString("N0")}\r\n";
             tooltip += $"System Prompt Tokens : {instructionTokens.Count().ToString("N0")}\r\n";
@@ -611,17 +613,34 @@ namespace OpenAIOnWPF
 
             string model = AppSettings.ModelSetting != "" ? AppSettings.ModelSetting : AppSettings.DeploymentIdSetting;
             // その日のトークン使用量記録に追加
-            AddTokenUsage(totalTokens, model, AppSettings.ProviderSetting);
+            AddTokenUsage(totalTokens, inputTokens, outputTokens, model, AppSettings.ProviderSetting);
         }
-        private void AddTokenUsage(int token, string model, string provider)
+        private void AddTokenUsage(int totalToken, int inputTokens, int outputTokens, string model, string provider)
         {
             int rowCount = AppSettings.TokenUsageSetting.GetLength(0);
             int colCount = AppSettings.TokenUsageSetting.GetLength(1);
             if (AppSettings.TokenUsageSetting == null || rowCount == 0 || colCount == 0)
             {
-                // 日付、プロバイダ、モデル、トークン量
-                string[,] temp = new string[0, 4];
+                // 日付、プロバイダ、モデル、合計トークン量、入力トークン量、出力トークン量
+                string[,] temp = new string[0, 5];
                 AppSettings.TokenUsageSetting = temp;
+            }
+
+            string[,] oldTokenUsage = AppSettings.TokenUsageSetting; // 既存の配列
+            int rows = oldTokenUsage.GetLength(0); // 既存の配列の行数
+            int cols = oldTokenUsage.GetLength(1); // 既存の配列の列数
+            // 新しい配列を作成（行数は同じ、列数は2つ増やす）
+            string[,] newTokenUsage = new string[rows, cols + 2];
+            // 既存のデータを新しい配列にコピーし、新しい要素を追加
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    newTokenUsage[i, j] = oldTokenUsage[i, j];
+                }
+                // 新しい列のデータを追加
+                newTokenUsage[i, cols] = "0";
+                newTokenUsage[i, cols + 1] = "0";
             }
 
             todayString = DateTime.Today.ToString("yyyy/MM/dd");
@@ -636,12 +655,14 @@ namespace OpenAIOnWPF
                 if (tokenUsage[i, 0] == todayString)
                 {
                     dailyTotal += int.Parse(tokenUsage[i, 3]);
-                    dailyTotal += token;
+                    dailyTotal += totalToken;
                     if (tokenUsage[i, 1] == provider && tokenUsage[i, 2] == model)
                     {
                         {
                             // トークン使用量を加算
-                            tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + token).ToString();
+                            tokenUsage[i, 3] = (int.Parse(tokenUsage[i, 3]) + totalToken).ToString();
+                            tokenUsage[i, 4] = (int.Parse(tokenUsage[i, 4]) + inputTokens).ToString();
+                            tokenUsage[i, 5] = (int.Parse(tokenUsage[i, 5]) + outputTokens).ToString();
                             todayTokenUsageExist = true;
                         }
                     }
@@ -650,12 +671,14 @@ namespace OpenAIOnWPF
             //今日のトークン使用量がなければ追加
             if (!todayTokenUsageExist)
             {
-                tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 4);
+                tokenUsage = ResizeArray(tokenUsage, tokenUsageCount + 1, 6);
                 tokenUsage[tokenUsageCount, 0] = todayString;
                 tokenUsage[tokenUsageCount, 1] = provider;
                 tokenUsage[tokenUsageCount, 2] = model;
-                tokenUsage[tokenUsageCount, 3] = token.ToString();
-                dailyTotal += token;
+                tokenUsage[tokenUsageCount, 3] = totalToken.ToString();
+                tokenUsage[tokenUsageCount, 4] = inputTokens.ToString();
+                tokenUsage[tokenUsageCount, 5] = outputTokens.ToString();
+                dailyTotal += totalToken;
             }
             AppSettings.TokenUsageSetting = tokenUsage;
             Properties.Settings.Default.TokenUsage = SerializeArray(AppSettings.TokenUsageSetting);
@@ -739,8 +762,10 @@ namespace OpenAIOnWPF
                 HandleCompletionResultForTitle(completionResult);
 
                 string model = ModelSetting != "" ? ModelSetting : DeploymentIdSetting;
-                var responseTokens = TokenizerGpt3.Encode(userMessage);
-                AddTokenUsage(responseTokens.Count(), model, ProviderSetting);
+                var userMessageTokens = TokenizerGpt3.Encode(userMessage);
+                var responseTokens = TokenizerGpt3.Encode(generatedTitle);
+                var totalTokens = userMessageTokens.Count() + responseTokens.Count();
+                AddTokenUsage(totalTokens, userMessageTokens.Count(), responseTokens.Count(), model, ProviderSetting);
 
                 if (titleGenerating)
                 {

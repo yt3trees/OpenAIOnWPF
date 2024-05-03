@@ -61,6 +61,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="SubWindow\TokenCalculator.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="SubWindow\WebBrowserPreview.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

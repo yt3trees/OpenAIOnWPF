@@ -74,6 +74,14 @@ namespace OpenAIOnWPF
             }
 
             SetHistoryCountButton.Content = $"Set Number of Past Conversations: {AppSettings.ConversationHistoryCountSetting}";
+
+            var accentColor = ThemeManager.Current.AccentColor;
+            if (accentColor == null)
+            {
+                accentColor = SystemParameters.WindowGlassColor;
+            }
+            var accentColorBrush = new SolidColorBrush((System.Windows.Media.Color)accentColor);
+            SaveButton.Background = accentColorBrush;
         }
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {

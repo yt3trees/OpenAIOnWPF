@@ -528,5 +528,53 @@ I would like you to consider the title of the following prompt.
                 this["UseTitleGeneration"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("JPY")]
+        public string DestinationCurrency {
+            get {
+                return ((string)(this["DestinationCurrency"]));
+            }
+            set {
+                this["DestinationCurrency"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("150")]
+        public string ExchangeRate {
+            get {
+                return ((string)(this["ExchangeRate"]));
+            }
+            set {
+                this["ExchangeRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.01")]
+        public string InputTokenCost {
+            get {
+                return ((string)(this["InputTokenCost"]));
+            }
+            set {
+                this["InputTokenCost"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.03")]
+        public string OutputTokenCost {
+            get {
+                return ((string)(this["OutputTokenCost"]));
+            }
+            set {
+                this["OutputTokenCost"] = value;
+            }
+        }
     }
 }
