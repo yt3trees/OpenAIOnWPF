@@ -71,6 +71,9 @@
     <Setting Name="FontSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>
     </Setting>
+    <Setting Name="FontWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">400</Value>
+    </Setting>
     <Setting Name="TranslationAPIUrlDeepL" Type="System.String" Scope="User">
       <Value Profile="(Default)">https://api-free.deepl.com/v2/translate</Value>
     </Setting>

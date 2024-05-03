@@ -224,6 +224,7 @@ namespace OpenAIOnWPF
                     Opacity = opacity,
                     IsReadOnly = true,
                     Style = (Style)Application.Current.FindResource("NoBorderTextBoxStyle"),
+                    FontWeight = FontWeight.FromOpenTypeWeight(Properties.Settings.Default.FontWeight),
                     Text = messageContent
                 };
                 userTextBox.MouseDown += UserTextBox_MouseDown;
@@ -299,6 +300,7 @@ namespace OpenAIOnWPF
                 markDownScrollViewer.HorizontalContentAlignment = HorizontalAlignment.Left;
                 markDownScrollViewer.Document.FontSize = Properties.Settings.Default.FontSize;
                 markDownScrollViewer.Document.FontFamily = new FontFamily("Yu Gothic UI");
+                markDownScrollViewer.Document.FontWeight = FontWeight.FromOpenTypeWeight(Properties.Settings.Default.FontWeight);
 
                 markDownScrollViewer.ContextMenuOpening += MarkdwonScroll_ContextMenuOpening;
 

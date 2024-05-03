@@ -542,17 +542,14 @@ namespace OpenAIOnWPF
 
             MenuItem copyTextMenuItem = new MenuItem();
             copyTextMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy);
-            Button copyTextButton = new Button { Content = "Copy Text", Background = Brushes.Transparent };
-            contextMenu.Opened += (s, e) => UpdateMenuItemButtonContent(contextMenu.PlacementTarget, copyTextButton);
+            contextMenu.Opened += (s, e) => UpdateMenuItemButtonContent(contextMenu.PlacementTarget, copyTextMenuItem);
             Action copyTextAndCloseMenu = () =>
             {
                 contextMenu.IsOpen = false;
             };
-            copyTextButton.Click += (s, e) => copyTextAndCloseMenu();
             copyTextMenuItem.Click += (s, e) => copyTextAndCloseMenu();
-            copyTextButton.Click += CopyTextToClipboard;
             copyTextMenuItem.Click += CopyTextToClipboard;
-            copyTextMenuItem.Header = copyTextButton;
+            copyTextMenuItem.Header = "Copy Text";
             void CopyTextToClipboard(object sender, RoutedEventArgs e)
             {
                 var target = contextMenu.PlacementTarget;
@@ -601,9 +598,8 @@ namespace OpenAIOnWPF
             contextMenu.Items.Add(new Separator());
 
             MenuItem currentFontSizeMenuItem = new MenuItem();
-            currentFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Font);
-            currentFontSizeMenuItem.Header = $"Current Font Size: {Properties.Settings.Default.FontSize}pt";
-            currentFontSizeMenuItem.IsEnabled = false;
+            currentFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontSize);
+            currentFontSizeMenuItem.Header = $"Font Size: {Properties.Settings.Default.FontSize}pt";
             contextMenu.Items.Add(currentFontSizeMenuItem);
 
             MenuItem increaseFontSizeMenuItem = new MenuItem();
@@ -612,7 +608,6 @@ namespace OpenAIOnWPF
             increaseFontSizeMenuItem.Header = increaseFontSizeButton;
             increaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1, currentFontSizeMenuItem);
             increaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize + 1, currentFontSizeMenuItem);
-            contextMenu.Items.Add(increaseFontSizeMenuItem);
 
             MenuItem decreaseFontSizeMenuItem = new MenuItem();
             decreaseFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
@@ -620,7 +615,6 @@ namespace OpenAIOnWPF
             decreaseFontSizeMenuItem.Header = decreaseFontSizeButton;
             decreaseFontSizeButton.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1, currentFontSizeMenuItem);
             decreaseFontSizeMenuItem.Click += (s, e) => SetFontSize(Properties.Settings.Default.FontSize - 1, currentFontSizeMenuItem);
-            contextMenu.Items.Add(decreaseFontSizeMenuItem);
 
             MenuItem defaultFontSizeMenuItem = new MenuItem { Header = "Default Font Size" };
             defaultFontSizeMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Refresh);
@@ -628,7 +622,40 @@ namespace OpenAIOnWPF
             defaultFontSizeMenuItem.Header = defaultFontSizeButton;
             defaultFontSizeButton.Click += (s, e) => SetFontSize(16, currentFontSizeMenuItem);
             defaultFontSizeMenuItem.Click += (s, e) => SetFontSize(16, currentFontSizeMenuItem);
-            contextMenu.Items.Add(defaultFontSizeMenuItem);
+
+            currentFontSizeMenuItem.Items.Add(increaseFontSizeMenuItem);
+            currentFontSizeMenuItem.Items.Add(decreaseFontSizeMenuItem);
+            currentFontSizeMenuItem.Items.Add(defaultFontSizeMenuItem);
+
+            MenuItem currentFontWeightMenuItem = new MenuItem();
+            currentFontWeightMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Font);
+            currentFontWeightMenuItem.Header = $"Font Weight: {Properties.Settings.Default.FontWeight}";
+            contextMenu.Items.Add(currentFontWeightMenuItem);
+
+            MenuItem increaseFontWeightMenuItem = new MenuItem();
+            increaseFontWeightMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontIncrease);
+            Button increaseFontWeightButton = new Button { Content = "Increase Font Weight", Background = Brushes.Transparent };
+            increaseFontWeightMenuItem.Header = increaseFontWeightButton;
+            increaseFontWeightButton.Click += (s, e) => SetFontWeight(Properties.Settings.Default.FontWeight + 50, currentFontWeightMenuItem);
+            increaseFontWeightMenuItem.Click += (s, e) => SetFontWeight(Properties.Settings.Default.FontWeight + 50, currentFontWeightMenuItem);
+
+            MenuItem decreaseFontWeightMenuItem = new MenuItem();
+            decreaseFontWeightMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.FontDecrease);
+            Button decreaseFontWeightButton = new Button { Content = "Decrease Font Weight", Background = Brushes.Transparent };
+            decreaseFontWeightMenuItem.Header = decreaseFontWeightButton;
+            decreaseFontWeightButton.Click += (s, e) => SetFontWeight(Properties.Settings.Default.FontWeight - 50, currentFontWeightMenuItem);
+            decreaseFontWeightMenuItem.Click += (s, e) => SetFontWeight(Properties.Settings.Default.FontWeight - 50, currentFontWeightMenuItem);
+
+            MenuItem defaultFontWeightMenuItem = new MenuItem { Header = "Default Font Weight" };
+            defaultFontWeightMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Refresh);
+            Button defaultFontWeightButton = new Button { Content = "Default Font Weight", Background = Brushes.Transparent };
+            defaultFontWeightMenuItem.Header = defaultFontWeightButton;
+            defaultFontWeightButton.Click += (s, e) => SetFontWeight(400, currentFontWeightMenuItem);
+            defaultFontWeightMenuItem.Click += (s, e) => SetFontWeight(400, currentFontWeightMenuItem);
+
+            currentFontWeightMenuItem.Items.Add(increaseFontWeightMenuItem);
+            currentFontWeightMenuItem.Items.Add(decreaseFontWeightMenuItem);
+            currentFontWeightMenuItem.Items.Add(defaultFontWeightMenuItem);
 
             void SetFontSize(int newSize, MenuItem menuItem)
             {
@@ -656,8 +683,38 @@ namespace OpenAIOnWPF
                     }
                 }
 
-                menuItem.Header = $"Current Font Size: {Properties.Settings.Default.FontSize}pt";
+                menuItem.Header = $"Font Size: {Properties.Settings.Default.FontSize}pt";
             }
+
+            void SetFontWeight(int newWeight, MenuItem menuItem)
+            {
+                int minSize = 300;
+                int maxSize = 600;
+                newWeight = Math.Max(minSize, Math.Min(maxSize, newWeight));
+
+                Properties.Settings.Default.FontWeight = newWeight;
+                Properties.Settings.Default.Save();
+                foreach (var item in MessagesPanel.Children)
+                {
+                    if (item is Grid grid)
+                    {
+                        foreach (var child in grid.Children)
+                        {
+                            if (child is TextBox textBox)
+                            {
+                                textBox.FontWeight = FontWeight.FromOpenTypeWeight(newWeight);
+                            }
+                            else if (child is MarkdownScrollViewer markdownScrollViewer)
+                            {
+                                markdownScrollViewer.Document.FontWeight = FontWeight.FromOpenTypeWeight(newWeight);
+                            }
+                        }
+                    }
+                }
+
+                menuItem.Header = $"Font Weight: {Properties.Settings.Default.FontWeight}";
+            }
+
 
             if (paragraphText is not null && IsMermaidCode(paragraphText))
             {
@@ -665,15 +722,13 @@ namespace OpenAIOnWPF
 
                 MenuItem mermaidMenuItem = new MenuItem();
                 mermaidMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.AllApps);
-                Button mermaidButton = new Button { Content = "Mermaid Preview", Background = Brushes.Transparent };
                 Action mermaidTextAndCloseMenu = () =>
                 {
                     MermaidPreviewContextMenu_Click(paragraphText);
                     contextMenu.IsOpen = false;
                 };
-                mermaidButton.Click += (s, e) => mermaidTextAndCloseMenu();
                 mermaidMenuItem.Click += (s, e) => mermaidTextAndCloseMenu();
-                mermaidMenuItem.Header = mermaidButton;
+                mermaidMenuItem.Header = "Mermaid Preview";
 
                 contextMenu.Items.Add(mermaidMenuItem);
             }
@@ -683,29 +738,25 @@ namespace OpenAIOnWPF
 
                 MenuItem copyTableMenuItem = new MenuItem();
                 copyTableMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Copy);
-                Button copyTableButton = new Button { Content = "Copy Table to Clipboard", Background = Brushes.Transparent };
                 Action copyTableAndCloseMenu = () =>
                 {
                     CopyMarkdownTableToClipboard(paragraphText);
                     contextMenu.IsOpen = false;
                 };
-                copyTableButton.Click += (s, e) => copyTableAndCloseMenu();
                 copyTableMenuItem.Click += (s, e) => copyTableAndCloseMenu();
-                copyTableMenuItem.Header = copyTableButton;
+                copyTableMenuItem.Header = "Copy Table to Clipboard";
 
                 contextMenu.Items.Add(copyTableMenuItem);
 
                 MenuItem exportCsvMenuItem = new MenuItem();
                 exportCsvMenuItem.Icon = new ModernWpf.Controls.SymbolIcon(ModernWpf.Controls.Symbol.Download);
-                Button exportCsvButton = new Button { Content = "Export CSV", Background = Brushes.Transparent };
                 Action exportCsvAndCloseMenu = () =>
                 {
                     ExportCsvContextMenu_Click(paragraphText);
                     contextMenu.IsOpen = false;
                 };
-                exportCsvButton.Click += (s, e) => exportCsvAndCloseMenu();
                 exportCsvMenuItem.Click += (s, e) => exportCsvAndCloseMenu();
-                exportCsvMenuItem.Header = exportCsvButton;
+                exportCsvMenuItem.Header = "Export CSV";
 
                 contextMenu.Items.Add(exportCsvMenuItem);
             }
@@ -864,7 +915,7 @@ namespace OpenAIOnWPF
                                  (c >= 0x4E00 && c <= 0x9FAF) ||  // CJK統合漢字
                                  (c >= 0xFF66 && c <= 0xFF9D));   // 半角カタカナ
         }
-        void UpdateMenuItemButtonContent(object target, Button button)
+        void UpdateMenuItemButtonContent(object target, MenuItem menuItem)
         {
             string headerText = "Copy All Text";
 
@@ -907,7 +958,7 @@ namespace OpenAIOnWPF
                 }
             }
 
-            button.Content = headerText;
+            menuItem.Header = headerText;
         }
         /// <summary>
         /// 親のScrollViewerでスクロールする

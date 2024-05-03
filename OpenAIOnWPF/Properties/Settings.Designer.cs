@@ -82,7 +82,7 @@ namespace OpenAIOnWPF.Properties {
                 this["TokenUsage"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("30000")]
@@ -299,6 +299,18 @@ namespace OpenAIOnWPF.Properties {
             }
         }
         
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("400")]
+        public int FontWeight {
+            get {
+                return ((int)(this["FontWeight"]));
+            }
+            set {
+                this["FontWeight"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("https://api-free.deepl.com/v2/translate")]
