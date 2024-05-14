@@ -79,6 +79,7 @@ namespace OpenAIOnWPF
             ModelComboBox.Items.Add("gpt-4-vision-preview");
             ModelComboBox.Items.Add("gpt-4-turbo");
             ModelComboBox.Items.Add("gpt-4-turbo-2024-04-09");
+            ModelComboBox.Items.Add("gpt-4o");
 
             if (AppSettings.ConfigDataTable == null)
             {
