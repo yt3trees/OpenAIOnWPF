@@ -173,6 +173,16 @@
                 Grid.Column="1"
                 MinHeight="340"
                 Margin="15,0,15,0">
+                <Label Content="BaseModel" FontSize="20" />
+                <ComboBox
+                    x:Name="BaseModelComboBox"
+                    MinWidth="140"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                          SelectionChanged="BaseModelComboBox_SelectionChanged">
+                    <ComboBoxItem Content="GPT" />
+                    <ComboBoxItem Content="o1" />
+                </ComboBox>
                 <Label Content="Parameter" FontSize="20" />
                 <Label HorizontalAlignment="Left" Content="Temperature" />
                 <ui:NumberBox

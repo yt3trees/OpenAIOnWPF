@@ -41,5 +41,6 @@ namespace OpenAIOnWPF
         public static string? ApiVersionSetting { get; set; }
         public static int MaxTokensSetting { get; set; }
         public static float TemperatureSetting { get; set; }
+        public static string? BaseModelSetting { get; set; }
     }
 }

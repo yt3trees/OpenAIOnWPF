@@ -120,14 +120,27 @@ namespace OpenAIOnWPF
                 }
                 else
                 {
-                    var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(new ChatCompletionCreateRequest
+                    if (AppSettings.BaseModelSetting == "o1")
                     {
-                        Messages = messages,
-                        Temperature = AppSettings.TemperatureSetting,
-                        MaxTokens = AppSettings.MaxTokensSetting
-                    });
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    Task.Run(async () => { await HandleCompletionResultStream(completionResult,_cancellationTokenSource.Token); });
+                        OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
+                        completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                        {
+                            Messages = messages,
+                            MaxCompletionTokens = AppSettings.MaxTokensSetting
+                        });
+                        HandleCompletionResult(completionResult);
+                    }
+                    else
+                    {
+                        var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(new ChatCompletionCreateRequest
+                        {
+                            Messages = messages,
+                            Temperature = AppSettings.TemperatureSetting,
+                            MaxTokens = AppSettings.MaxTokensSetting
+                        });
+                        _cancellationTokenSource = new CancellationTokenSource();
+                        Task.Run(async () => { await HandleCompletionResultStream(completionResult, _cancellationTokenSource.Token); });
+                    }
                 }
             }
             catch (Exception ex)
@@ -194,6 +207,7 @@ namespace OpenAIOnWPF
                 AppSettings.DeploymentIdSetting = rows[0]["DeploymentId"].ToString();
                 AppSettings.BaseDomainSetting = rows[0]["BaseDomain"].ToString();
                 AppSettings.ApiVersionSetting = rows[0]["ApiVersion"].ToString();
+                AppSettings.BaseModelSetting = rows[0]["BaseModel"].ToString();
                 if (string.IsNullOrEmpty(rows[0]["Temperature"].ToString()) == false)
                 {
                     AppSettings.TemperatureSetting = float.Parse(rows[0]["Temperature"].ToString());
@@ -312,7 +326,10 @@ namespace OpenAIOnWPF
                     }
                 }
             }
-            messages.Add(ChatMessage.FromSystem(selectInstructionContent));
+            if (!String.IsNullOrEmpty(selectInstructionContent))
+            {
+                messages.Add(ChatMessage.FromSystem(selectInstructionContent));
+            }
             if (image == null)
             {
                 messages.Add(ChatMessage.FromUser(userMessage));
@@ -341,6 +358,7 @@ namespace OpenAIOnWPF
             {
                 //AssistantMarkdownText.Markdown = completionResult.Choices.First().Message.Content;
                 responseText = completionResult.Choices.First().Message.Content;
+                ForTokenCalc.responseToken = responseText;
                 CaluculateTokenUsage();
                 if (AppSettings.NoticeFlgSetting)
                 {
@@ -727,6 +745,7 @@ namespace OpenAIOnWPF
                 var DeploymentIdSetting = rows[0]["DeploymentId"].ToString();
                 var BaseDomainSetting = rows[0]["BaseDomain"].ToString();
                 var ApiVersionSetting = rows[0]["ApiVersion"].ToString();
+                var BaseModelSetting = rows[0]["BaseModel"].ToString();
                 float TemperatureSetting;
                 int MaxTokensSetting;
                 if (string.IsNullOrEmpty(rows[0]["Temperature"].ToString()) == false)
@@ -756,12 +775,25 @@ namespace OpenAIOnWPF
                 List<ChatMessage> messages = new List<ChatMessage>();
                 messages.Add(ChatMessage.FromUser(userMessage));
 
-                var completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
+                if (BaseModelSetting == "o1")
                 {
-                    Messages = messages,
-                    Temperature = TemperatureSetting,
-                    MaxTokens = MaxTokensSetting
-                });
+                    completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                    {
+                        Messages = messages,
+                        MaxCompletionTokens = MaxTokensSetting
+                    });
+                }
+                else
+                {
+                    completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
+                    {
+                        Messages = messages,
+                        Temperature = TemperatureSetting,
+                        MaxTokens = MaxTokensSetting
+                    });
+                }
+
                 HandleCompletionResultForTitle(completionResult);
 
                 string model = ModelSetting != "" ? ModelSetting : DeploymentIdSetting;

@@ -38,6 +38,7 @@ namespace OpenAIOnWPF
             public string? Temperature { get;  set; }
             public string? MaxTokens { get;  set; }
             public bool? Vision { get;  set; }
+            public string? BaseModel { get; set; }
         }
         public ConfigSettingWindow()
         {
@@ -81,6 +82,8 @@ namespace OpenAIOnWPF
             ModelComboBox.Items.Add("gpt-4-turbo-2024-04-09");
             ModelComboBox.Items.Add("gpt-4o");
             ModelComboBox.Items.Add("gpt-4o-mini");
+            ModelComboBox.Items.Add("o1-preview");
+            ModelComboBox.Items.Add("o1-mini");
 
             if (AppSettings.ConfigDataTable == null)
             {
@@ -96,6 +99,7 @@ namespace OpenAIOnWPF
                 AppSettings.ConfigDataTable.Columns.Add("Temperature", typeof(string));
                 AppSettings.ConfigDataTable.Columns.Add("MaxTokens", typeof(string));
                 AppSettings.ConfigDataTable.Columns.Add("Vision", typeof(bool));
+                AppSettings.ConfigDataTable.Columns.Add("BaseModel", typeof(string));
                 ds.Tables.Add(AppSettings.ConfigDataTable);
             }
             //AppSettings.ConfigDataTable.Rows.Add("Default", "OpenAI", "gpt-3.5-turbo", "APIKey", "DeploymentId", "BaseDomain", "ApiVersion", "0.2", "2048");
@@ -154,6 +158,7 @@ namespace OpenAIOnWPF
             AppSettings.ConfigDataTable.Rows[index]["Temperature"] = TemperatureNumberbox.Text;
             AppSettings.ConfigDataTable.Rows[index]["MaxTokens"] = MaxTokensNumberbox.Text;
             AppSettings.ConfigDataTable.Rows[index]["Vision"] = VisionToggleSwitch.IsOn;
+            AppSettings.ConfigDataTable.Rows[index]["BaseModel"] = BaseModelComboBox.Text;
 
             DuplicateControl();
             ConfigListBox.SelectedIndex = index;
@@ -176,6 +181,7 @@ namespace OpenAIOnWPF
             TemperatureNumberbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Temperature"].ToString();
             MaxTokensNumberbox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["MaxTokens"].ToString();
             VisionToggleSwitch.IsOn = Convert.ToBoolean(AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["Vision"]);
+            BaseModelComboBox.Text = AppSettings.ConfigDataTable.Rows[ConfigListBox.SelectedIndex]["BaseModel"].ToString();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -187,6 +193,7 @@ namespace OpenAIOnWPF
             row["Temperature"] = "1";
             row["MaxTokens"] = "2048";
             row["Vision"] = false;
+            row["BaseModel"] = "GPT";
             AppSettings.ConfigDataTable.Rows.Add(row);
             ConfigListBox.Items.Add(row["ConfigurationName"].ToString());
             ConfigListBox.SelectedIndex = ConfigListBox.Items.Count - 1;
@@ -274,6 +281,7 @@ namespace OpenAIOnWPF
                     item.Temperature = row["Temperature"].ToString();
                     item.MaxTokens = row["MaxTokens"].ToString();
                     item.Vision = Convert.ToBoolean(row["Vision"].ToString());
+                    item.BaseModel = row["BaseModel"].ToString();
                     items.Add(item);
                 }
                 
@@ -333,6 +341,7 @@ namespace OpenAIOnWPF
                             row["Temperature"] = item.Temperature;
                             row["MaxTokens"] = item.MaxTokens;
                             row["Vision"] = item.Vision;
+                            row["BaseModel"] = item.BaseModel;
                             AppSettings.ConfigDataTable.Rows.Add(row);
                         }
                         ConfigListBox.Items.Clear();
@@ -419,6 +428,18 @@ namespace OpenAIOnWPF
                 BaseDomainTextbox.IsEnabled = true;
             }
             ConfigurationNameTextBox.Focus();
+        }
+        private void BaseModelComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (BaseModelComboBox.SelectedItem == null) return;
+            if (BaseModelComboBox.SelectedItem.ToString() == "System.Windows.Controls.ComboBoxItem: o1")
+            {
+                TemperatureNumberbox.IsEnabled = false;
+            }
+            else
+            {
+                TemperatureNumberbox.IsEnabled = true;
+            }
         }
     }
 }
