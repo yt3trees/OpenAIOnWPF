@@ -452,7 +452,10 @@ namespace OpenAIOnWPF
                             throw new Exception("Unknown Error");
                         }
                         resultText = $"{completion.Error.Code}: {completion.Error.Message}";
-                        ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            ModernWpf.MessageBox.Show($"{completion.Error.Code}: {completion.Error.Message}");
+                        });
                         resultFlg = false;
                     }
                 }
