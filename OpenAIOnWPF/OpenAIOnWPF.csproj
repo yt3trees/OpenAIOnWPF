@@ -8,8 +8,8 @@
     <ApplicationIcon>image\OpenAI.ico</ApplicationIcon>
     <PackageIcon>OpenAI.png</PackageIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyVersion>0.0.10.0</AssemblyVersion>
-    <FileVersion>0.0.10</FileVersion>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0</FileVersion>
     <Company>yt3trees</Company>
     <Copyright>© yt3trees. All rights reserved.</Copyright>
     <PackageProjectUrl>https://github.com/yt3trees/OpenAIOnWPF</PackageProjectUrl>

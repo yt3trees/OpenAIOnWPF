@@ -260,15 +260,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:OpenAIOnWPF"
-        "ProductCode" = "8:{B790C50A-FBF9-41AA-90CC-6539F1FBFD6D}"
-        "PackageCode" = "8:{D010727F-8C8B-48C4-993A-5966C1551095}"
+        "ProductCode" = "8:{BB61C251-F521-415C-98F9-3F294A4E8CDC}"
+        "PackageCode" = "8:{B1C83E25-CC98-489D-8D20-5AAC58464252}"
         "UpgradeCode" = "8:{65900B12-E77C-4E62-84FF-64E38C5117FD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.0.10"
+        "ProductVersion" = "8:0.1.0"
         "Manufacturer" = "8:yt3trees"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -810,7 +810,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A96D92455ADC474299DAE9660CB04888"
             {
-            "SourcePath" = "8:..\\OpenAIOnWPF\\obj\\Debug\\net6.0-windows10.0.18362.0\\apphost.exe"
+            "SourcePath" = "8:..\\OpenAIOnWPF\\obj\\Debug\\net8.0-windows10.0.18362.0\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_4788618C5AF64E799B79EBB2DF126759"

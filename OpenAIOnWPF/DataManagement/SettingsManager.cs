@@ -92,16 +92,16 @@ namespace OpenAIOnWPF.DataManagement
                     .AppendLine("Failed to load conversation history.")
                     .AppendLine(ex.Message)
                     .AppendLine()
-                    .AppendLine("Do you want to reset the conversation history?")
+                    .AppendLine("Do you want to reset the conversation history and settings?")
                     .AppendLine("If you choose No, the application will exit at this point.")
-                    .AppendLine("Please re-launch the application after the problem with the folder where the conversation history is saved has been resolved.")
+                    .AppendLine("Restart the application after the problem is resolved.")
                     .AppendLine()
                     .AppendLine($"{documentsPath}\\OpenAIOnWPF\\ConversationHistory")
                     .ToString();
                 var result = ModernWpf.MessageBox.Show(
-                    message, 
-                    "Error", 
-                    MessageBoxButton.YesNo, 
+                    message,
+                    "Error",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Error
                 );
                 if (result == MessageBoxResult.Yes)
@@ -110,7 +110,7 @@ namespace OpenAIOnWPF.DataManagement
                 }
                 else
                 {
-                      Environment.Exit(1);
+                    Environment.Exit(1);
                 }
             }
         }
