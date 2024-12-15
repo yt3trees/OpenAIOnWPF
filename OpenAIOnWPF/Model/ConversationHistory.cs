@@ -1,4 +1,4 @@
-﻿using OpenAI.ObjectModels.RequestModels;
+﻿using Betalgo.Ranul.OpenAI.ObjectModels.RequestModels;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

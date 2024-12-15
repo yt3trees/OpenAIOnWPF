@@ -1,16 +1,12 @@
 ﻿using MdXaml;
 using ModernWpf;
-using Newtonsoft.Json.Linq;
-using OpenAI.ObjectModels.RequestModels;
 using OpenAIOnWPF.Model;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -29,7 +25,7 @@ namespace OpenAIOnWPF
                 return;
             }
             var selectedConversation = (ConversationHistory)ConversationListBox.SelectedItem;
-            List<ChatMessage> messages = selectedConversation.Messages.ToList();
+            System.Collections.Generic.List<Betalgo.Ranul.OpenAI.ObjectModels.RequestModels.ChatMessage> messages = selectedConversation.Messages.ToList();
 
             MessagesPanel.Children.Clear();
 

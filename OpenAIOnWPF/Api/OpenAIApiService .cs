@@ -1,9 +1,9 @@
-﻿using MdXaml;
+﻿using Betalgo.Ranul.OpenAI;
+using Betalgo.Ranul.OpenAI.Managers;
+using Betalgo.Ranul.OpenAI.ObjectModels.RequestModels;
+using Betalgo.Ranul.OpenAI.Tokenizer.GPT3;
+using MdXaml;
 using Microsoft.Toolkit.Uwp.Notifications;
-using OpenAI;
-using OpenAI.Managers;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.Tokenizer.GPT3;
 using OpenAIOnWPF.Model;
 using System;
 using System.Collections.Generic;
@@ -122,7 +122,7 @@ namespace OpenAIOnWPF
                 {
                     if (AppSettings.BaseModelSetting == "o1")
                     {
-                        OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
+                        Betalgo.Ranul.OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
                         completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
                         {
                             Messages = messages,
@@ -242,7 +242,7 @@ namespace OpenAIOnWPF
             switch (providerSetting)
             {
                 case "OpenAI":
-                    targetType = ProviderType.OpenAi;
+                    targetType = ProviderType.OpenAI;
                     tempTargetApiKey = targetApiKey;
                     break;
                 case "Azure":
@@ -254,7 +254,7 @@ namespace OpenAIOnWPF
                     break;
             }
 
-            var openAiService = new OpenAIService(new OpenAiOptions()
+            var openAiService = new OpenAIService(new OpenAIOptions()
             {
                 ProviderType = targetType,
                 ApiKey = tempTargetApiKey,
@@ -309,7 +309,7 @@ namespace OpenAIOnWPF
                         {
                             var tempList = conversationHistory.Messages.ToList();
                             tempList = tempList.Skip(tempList.Count - AppSettings.ConversationHistoryCountSetting).ToList();
-                            messages.AddRange(tempList);
+                            messages.AddRange((IEnumerable<ChatMessage>)tempList);
                             foreach (var token in tempList)
                             {
                                 ForTokenCalc.oldConversationsToken += token.Content;
@@ -321,7 +321,7 @@ namespace OpenAIOnWPF
                             {
                                 ForTokenCalc.oldConversationsToken += token.Content;
                             }
-                            messages.AddRange(conversationHistory.Messages);
+                            messages.AddRange((IEnumerable<ChatMessage>)conversationHistory.Messages);
                         }
                     }
                 }
@@ -352,7 +352,7 @@ namespace OpenAIOnWPF
         /// <summary>
         /// レスポンスを受け取って処理する
         /// </summary>
-        private void HandleCompletionResult(OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
+        private void HandleCompletionResult(Betalgo.Ranul.OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
         {
             if (completionResult.Successful)
             {
@@ -384,7 +384,7 @@ namespace OpenAIOnWPF
             }
             Reset();
         }
-        private async Task HandleCompletionResultStream(IAsyncEnumerable<OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult, CancellationToken cancellationToken)
+        private async Task HandleCompletionResultStream(IAsyncEnumerable<Betalgo.Ranul.OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse>? completionResult, CancellationToken cancellationToken)
         {
             MarkdownScrollViewer markdownScrollViewer = null;
             await Dispatcher.InvokeAsync(() =>
@@ -550,6 +550,7 @@ namespace OpenAIOnWPF
                 {
                     if (binaryImage == null)
                     {
+                        //conversation.Messages.Add(ChatMessage.FromUser(userMessage));
                         conversation.Messages.Add(ChatMessage.FromUser(userMessage));
                     }
                     else
@@ -775,7 +776,7 @@ namespace OpenAIOnWPF
                 List<ChatMessage> messages = new List<ChatMessage>();
                 messages.Add(ChatMessage.FromUser(userMessage));
 
-                OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
+                Betalgo.Ranul.OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
                 if (BaseModelSetting == "o1")
                 {
                     completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
@@ -823,7 +824,7 @@ namespace OpenAIOnWPF
                 });
             }
         }
-        private void HandleCompletionResultForTitle(OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
+        private void HandleCompletionResultForTitle(Betalgo.Ranul.OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse? completionResult)
         {
             if (completionResult.Successful)
             {

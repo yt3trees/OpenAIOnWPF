@@ -1,22 +1,18 @@
-﻿using ModernWpf;
+﻿using Betalgo.Ranul.OpenAI.ObjectModels.RequestModels;
+using ModernWpf;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OpenAI.ObjectModels.RequestModels;
 using OpenAIOnWPF.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Threading;
-using static OpenAIOnWPF.MainWindow;
 
 namespace OpenAIOnWPF
 {

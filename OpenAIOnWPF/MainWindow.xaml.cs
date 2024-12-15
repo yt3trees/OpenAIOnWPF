@@ -1,14 +1,9 @@
-﻿using MdXaml;
+﻿using Betalgo.Ranul.OpenAI.Tokenizer.GPT3;
+using MdXaml;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32;
 using ModernWpf;
-using ModernWpf.Controls;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.Tokenizer.GPT3;
 using OpenAIOnWPF.Model;
-using SourceChord.FluentWPF;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,7 +13,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
@@ -27,11 +21,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Input.Manipulations;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static OpenAIOnWPF.UtilityFunctions;
 
 namespace OpenAIOnWPF
@@ -267,7 +259,7 @@ namespace OpenAIOnWPF
                     string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     ModernWpf.MessageBox.Show("Saved to " + documentsPath + @"\OpenAIOnWPF\ConversationHistory"
                                                 + "\r\n" + documentsPath + @"\OpenAIOnWPF\PromptTemplate"
-                                                ,"Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                                                , "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     e.Handled = true;
                 }
                 catch
@@ -1107,7 +1099,7 @@ namespace OpenAIOnWPF
         private void NewChatButton_Click(object sender, RoutedEventArgs e)
         {
             MessagesPanel.Children.Clear();
-            
+
             if (ConversationListBox.SelectedItem is ConversationHistory selectedItem)
             {
                 selectedItem.IsSelected = false;
