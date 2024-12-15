@@ -6,19 +6,16 @@ using Newtonsoft.Json.Linq;
 using OpenAIOnWPF.Model;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -205,29 +202,30 @@ namespace OpenAIOnWPF
         }
         public static string SerializeDataTable(DataTable dataTable)
         {
-            //空の場合
             if (dataTable == null)
             {
                 return "";
             }
+
             using (var stream = new MemoryStream())
             {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, dataTable);
+                dataTable.WriteXml(stream, XmlWriteMode.WriteSchema);
                 return Convert.ToBase64String(stream.ToArray());
             }
         }
+
         public static DataTable DeserializeDataTable(string serializedDataTable)
         {
-            //空の場合
-            if (serializedDataTable == "" || serializedDataTable == null)
+            if (string.IsNullOrEmpty(serializedDataTable))
             {
                 return null;
             }
+
             using (var stream = new MemoryStream(Convert.FromBase64String(serializedDataTable)))
             {
-                var formatter = new BinaryFormatter();
-                return (DataTable)formatter.Deserialize(stream);
+                DataTable dt = new DataTable();
+                dt.ReadXml(stream);
+                return dt;
             }
         }
         public static void CopyTextFromMessageGrid(Grid grid)
