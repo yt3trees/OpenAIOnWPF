@@ -120,27 +120,25 @@ namespace OpenAIOnWPF
                 }
                 else
                 {
+                    var request = new ChatCompletionCreateRequest
+                    {
+                        Messages = messages,
+                    };
+
                     if (AppSettings.BaseModelSetting == "o1")
                     {
-                        Betalgo.Ranul.OpenAI.ObjectModels.ResponseModels.ChatCompletionCreateResponse completionResult;
-                        completionResult = await openAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest()
-                        {
-                            Messages = messages,
-                            MaxCompletionTokens = AppSettings.MaxTokensSetting
-                        });
-                        HandleCompletionResult(completionResult);
+                        request.MaxCompletionTokens = AppSettings.MaxTokensSetting;
+                        request.ReasoningEffort = "high";
                     }
                     else
                     {
-                        var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(new ChatCompletionCreateRequest
-                        {
-                            Messages = messages,
-                            Temperature = AppSettings.TemperatureSetting,
-                            MaxTokens = AppSettings.MaxTokensSetting
-                        });
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        Task.Run(async () => { await HandleCompletionResultStream(completionResult, _cancellationTokenSource.Token); });
+                        request.Temperature = AppSettings.TemperatureSetting;
+                        request.MaxTokens = AppSettings.MaxTokensSetting;
                     }
+
+                    var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(request);
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    Task.Run(async () => { await HandleCompletionResultStream(completionResult, _cancellationTokenSource.Token); });
                 }
             }
             catch (Exception ex)
