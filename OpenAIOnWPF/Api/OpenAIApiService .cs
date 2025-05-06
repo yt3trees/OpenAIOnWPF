@@ -12,6 +12,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -252,6 +253,11 @@ namespace OpenAIOnWPF
                     break;
             }
 
+            var httpClient = new HttpClient()
+            {
+                Timeout = TimeSpan.FromMinutes(60)
+            };
+
             var openAiService = new OpenAIService(new OpenAIOptions()
             {
                 ProviderType = targetType,
@@ -259,7 +265,7 @@ namespace OpenAIOnWPF
                 BaseDomain = tempTargetBaseDomain,
                 DeploymentId = tempTargetDeploymentId,
                 ApiVersion = tempTargetApiVersion,
-            });
+            }, httpClient);
 
             //openAiService.SetDefaultModelId("gpt-3.5-turbo");
             openAiService.SetDefaultModelId(model);
